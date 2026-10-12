@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Docs Kit (v3.2) — Documentation & Governance</title>
+  <meta name="description" content="Turnkey documentation, change-auditing, and session-governance foundation for AI-assisted coding projects.">
+  
+  <!-- Modern Clean Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Markdown parser and Highlight.js for code syntax highlighting -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    /* Professional Dark Theme (VitePress / GitHub Dark Style) */
+    :root {
+      --bg-base: #0d1117;
+      --bg-surface: #161b22;
+      --bg-surface-raised: #21262d;
+      --bg-overlay: #1c2128;
+      
+      --border-default: #30363d;
+      --border-muted: #21262d;
+      --border-focus: #58a6ff;
+
+      --text-primary: #f0f6fc;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+
+      --accent-blue: #58a6ff;
+      --accent-blue-hover: #79c0ff;
+      --btn-primary-bg: #238636;
+      --btn-primary-hover: #2ea043;
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      line-height: 1.65;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Minimalist Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13, 17, 23, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-default);
+    }
+    .navbar-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+    .brand-name {
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: -0.01em;
+    }
+    .brand-badge {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--bg-surface-raised);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
+      font-weight: 500;
+    }
+
+    .nav-search {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-input {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem 0.4rem 2rem;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-family: var(--font-sans);
+      width: 220px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .search-input:focus {
+      border-color: var(--accent-blue);
+      width: 270px;
+      background: var(--bg-surface-raised);
+    }
+    .search-icon {
+      position: absolute;
+      left: 0.65rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .btn-download-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--btn-primary-bg);
+      color: #fff;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .btn-download-nav:hover {
+      background: var(--btn-primary-hover);
+    }
+    .btn-icon-nav {
+      height: 32px;
+      padding: 0 0.65rem;
+      border-radius: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn-icon-nav:hover {
+      color: var(--text-primary);
+      background: var(--bg-surface-raised);
+      border-color: var(--text-muted);
+    }
+
+    /* Hero Section - Sleek & Refined */
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 2rem;
+      text-align: center;
+    }
+    .hero-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      padding: 0.25rem 0.85rem;
+      border-radius: 20px;
+      margin-bottom: 1.25rem;
+      font-family: var(--font-mono);
+    }
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.25;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+    .hero-desc {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 740px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+    .btn-hero-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--btn-primary-bg);
+      color: #fff;
+      padding: 0.75rem 1.4rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s ease;
+    }
+    .btn-hero-download:hover {
+      background: var(--btn-primary-hover);
+    }
+    .btn-hero-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      padding: 0.75rem 1.3rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border: 1px solid var(--border-default);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-hero-secondary:hover {
+      background: var(--bg-surface-raised);
+      border-color: var(--text-muted);
+    }
+
+    /* Professional 4-Card Overview */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      max-width: 1100px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+    }
+    .feature-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: left;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .feature-card:hover {
+      border-color: var(--border-focus);
+      background: var(--bg-surface-raised);
+    }
+    .card-label {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--accent-blue);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+    .card-heading {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+    .card-body {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Segmented Tab Bar */
+    .tab-section {
+      max-width: 1100px;
+      margin: 0 auto 1.5rem;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-default);
+      padding-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .tab-pills {
+      display: flex;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .tab-btn {
+      padding: 0.45rem 1.1rem;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+    .tab-btn:hover {
+      color: var(--text-primary);
+    }
+    .tab-btn.active {
+      background: var(--bg-surface-raised);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .meta-reading {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Main Content Layout with Sidebar */
+    .docs-layout {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 2.5rem;
+    }
+    @media (max-width: 960px) {
+      .docs-layout {
+        grid-template-columns: 1fr;
+      }
+      .toc-aside {
+        display: none;
+      }
+    }
+
+    /* Clean Sticky TOC Sidebar */
+    .toc-aside {
+      position: sticky;
+      top: 4.5rem;
+      max-height: calc(100vh - 6rem);
+      overflow-y: auto;
+      padding: 0.5rem 0;
+    }
+    .toc-header {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+    .toc-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .toc-item a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.84rem;
+      display: block;
+      padding: 0.3rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .toc-item a:hover {
+      color: var(--accent-blue);
+      background: var(--bg-surface);
+    }
+
+    /* Markdown Reader Body */
+    .reader-article {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 2.5rem 3rem;
+      min-width: 0;
+    }
+    @media (max-width: 768px) {
+      .reader-article {
+        padding: 1.5rem;
+      }
+      .hero-title {
+        font-size: 1.9rem;
+      }
+    }
+
+    /* Markdown Element Typography */
+    .reader-article h1, .reader-article h2, .reader-article h3, .reader-article h4 {
+      color: var(--text-primary);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      line-height: 1.35;
+    }
+    .reader-article h1 {
+      font-size: 1.85rem;
+      border-bottom: 1px solid var(--border-default);
+      padding-bottom: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .reader-article h2 {
+      font-size: 1.35rem;
+      border-bottom: 1px solid var(--border-muted);
+      padding-bottom: 0.4rem;
+    }
+    .reader-article h3 {
+      font-size: 1.1rem;
+    }
+    .reader-article p, .reader-article li {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 0.9rem;
+      line-height: 1.7;
+    }
+    .reader-article ul, .reader-article ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .reader-article a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+    .reader-article a:hover {
+      text-decoration: underline;
+    }
+    .reader-article blockquote {
+      border-left: 3px solid var(--accent-blue);
+      background: rgba(88, 166, 255, 0.05);
+      padding: 0.85rem 1.1rem;
+      border-radius: 0 6px 6px 0;
+      margin: 1.25rem 0;
+      color: var(--text-primary);
+    }
+    .reader-article blockquote p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Markdown Tables */
+    .reader-article table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.88rem;
+      overflow-x: auto;
+      display: block;
+      border-radius: 6px;
+    }
+    .reader-article th {
+      background: var(--bg-surface-raised);
+      color: var(--text-primary);
+      text-align: left;
+      padding: 0.65rem 0.9rem;
+      font-weight: 600;
+      border: 1px solid var(--border-default);
+    }
+    .reader-article td {
+      padding: 0.65rem 0.9rem;
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+    }
+    .reader-article tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.015);
+    }
+
+    /* Markdown Code Blocks */
+    .reader-article pre {
+      background: #090d13 !important;
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      padding: 1.1rem;
+      margin: 1.25rem 0;
+      overflow-x: auto;
+    }
+    .reader-article code {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+    .reader-article :not(pre) > code {
+      background: var(--bg-surface-raised);
+      color: var(--text-primary);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.84em;
+      border: 1px solid var(--border-muted);
+    }
+
+    /* Toast Notification */
+    .toast-box {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bg-surface-raised);
+      color: var(--text-primary);
+      border: 1px solid var(--border-default);
+      padding: 0.65rem 1.2rem;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.2s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+    .toast-box.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border-default);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+    }
+    .footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+    .footer a:hover {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Minimalist Navbar -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="brand">
+        <div class="brand-logo">📄</div>
+        <span class="brand-name">Agent Docs Kit</span>
+        <span class="brand-badge">v3.2</span>
+      </a>
+
+      <div class="nav-search">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Search documentation..." oninput="filterContent(this.value)">
+      </div>
+
+      <div class="nav-actions">
+        <a href="./AGENT_DOCS_KIT_v3.2.md" download="AGENT_DOCS_KIT_v3.2.md" class="btn-download-nav">
+          ⬇️ Download .md
+        </a>
+        <button class="btn-icon-nav" onclick="copyMarkdownContent()" title="Copy Markdown to clipboard">
+          📋 Copy
+        </button>
+        <a href="https://github.com/ghostbyte1014/Agent_Docs_Kit" target="_blank" class="btn-icon-nav" title="View on GitHub">
+          GitHub
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-meta">
+      Version v3.2 · Transparent Governance · Created by ghostbyte1014
+    </div>
+    <h1 class="hero-title">Documentation & Session Governance for AI Coding Agents</h1>
+    <p class="hero-desc">
+      A transparent, structured documentation framework and change-auditing system for human developers collaborating with AI coding agents.
+    </p>
+
+    <div class="hero-buttons">
+      <a href="./AGENT_DOCS_KIT_v3.2.md" download="AGENT_DOCS_KIT_v3.2.md" class="btn-hero-download">
+        ⬇️ Download AGENT_DOCS_KIT_v3.2.md
+      </a>
+      <button class="btn-hero-secondary" onclick="copyMarkdownContent()">
+        📋 Copy Raw Markdown
+      </button>
+      <a href="https://github.com/ghostbyte1014/Agent_Docs_Kit" target="_blank" class="btn-hero-secondary">
+        ⭐ View on GitHub
+      </a>
+    </div>
+  </section>
+
+  <!-- Feature Grid -->
+  <section class="feature-grid">
+    <div class="feature-card">
+      <div class="card-label">v3.0 – v3.2</div>
+      <h3 class="card-heading">Session Gate</h3>
+      <p class="card-body">Mandatory sequential startup questions (Freeze first, Records second) on every fresh session. Strict read-only mode until confirmed.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-label">v1.2</div>
+      <h3 class="card-heading">Change Freeze</h3>
+      <p class="card-body">Enforces per-file developer authorization. AI agents must check against documented scope before proposing code edits.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-label">v2.0 – v2.1</div>
+      <h3 class="card-heading">Audit Integrity</h3>
+      <p class="card-body">Commit-scoped change records in UTC+8 logging modified files, AI model, author approval, and reproducible verification steps.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-label">v2.2</div>
+      <h3 class="card-heading">Git Enforcement</h3>
+      <p class="card-body">Pre-commit Git hooks and audit scripts in Node.js and Python that fail closed if unrecorded modifications are staged.</p>
+    </div>
+  </section>
+
+  <!-- Document Tabs -->
+  <section class="tab-section">
+    <div class="tab-pills">
+      <button class="tab-btn active" id="btn-readme" onclick="selectDoc('README.md', 'btn-readme')">
+        README & Overview
+      </button>
+      <button class="tab-btn" id="btn-kit" onclick="selectDoc('AGENT_DOCS_KIT_v3.2.md', 'btn-kit')">
+        Full Compiled Kit (v3.2)
+      </button>
+    </div>
+
+    <div class="meta-reading" id="doc-meta-label">
+      README.md · ~2 min read
+    </div>
+  </section>
+
+  <!-- Docs Content Layout -->
+  <main class="docs-layout">
+    <aside class="toc-aside">
+      <div class="toc-header">On this page</div>
+      <ul class="toc-menu" id="toc-menu">
+        <!-- Generated dynamically -->
+      </ul>
+    </aside>
+
+    <article class="reader-article" id="doc-reader">
+      <div style="color: var(--text-muted); text-align: center; padding: 40px;">
+        Loading document...
+      </div>
+    </article>
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="toast-box" id="toast">
+    ✓ Raw Markdown copied to clipboard
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>
+      <strong>Agent Docs Kit</strong> · Created and maintained by <a href="https://github.com/ghostbyte1014">ghostbyte1014</a>. Licensed under <a href="./LICENSE">MIT</a>.
+    </p>
+    <p style="margin-top: 4px; font-size: 0.8rem; color: var(--text-muted);">
+      Philippine Standard Time (UTC+8) · Compiled Edition v3.2
+    </p>
+  </footer>
+
+  <script>
+    let activeDocument = 'README.md';
+    let currentRawText = '';
+
+    function selectDoc(file, btnId) {
+      activeDocument = file;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(btnId).classList.add('active');
+      fetchDocument(file);
+    }
+
+    function fetchDocument(file) {
+      const reader = document.getElementById('doc-reader');
+      reader.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 40px;">Loading ' + file + '...</div>';
+
+      fetch('./' + file)
+        .then(res => {
+          if (!res.ok) throw new Error('Could not load ' + file);
+          return res.text();
+        })
+        .then(content => {
+          currentRawText = content;
+          reader.innerHTML = marked.parse(content);
+
+          // Code syntax highlighting
+          document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+          });
+
+          // Generate Table of Contents
+          generateTOC();
+
+          // Reading time
+          const words = content.trim().split(/\s+/).length;
+          const mins = Math.ceil(words / 200);
+          document.getElementById('doc-meta-label').textContent = file + ' · ~' + mins + ' min read';
+        })
+        .catch(err => {
+          reader.innerHTML = '<div style="color: #f85149; padding: 20px;">Error: ' + err.message + '</div>';
+        });
+    }
+
+    function generateTOC() {
+      const menu = document.getElementById('toc-menu');
+      menu.innerHTML = '';
+      const headings = document.querySelectorAll('#doc-reader h1, #doc-reader h2, #doc-reader h3');
+
+      headings.forEach((heading, idx) => {
+        const id = 'sec-' + idx;
+        heading.id = id;
+
+        const li = document.createElement('li');
+        li.className = 'toc-item';
+        const a = document.createElement('a');
+        a.href = '#' + id;
+        a.textContent = heading.textContent;
+        if (heading.tagName === 'H3') {
+          a.style.paddingLeft = '1rem';
+          a.style.fontSize = '0.8rem';
+        }
+        li.appendChild(a);
+        menu.appendChild(li);
+      });
+    }
+
+    function copyMarkdownContent() {
+      if (!currentRawText) return;
+      navigator.clipboard.writeText(currentRawText).then(() => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+      });
+    }
+
+    function filterContent(query) {
+      const q = query.toLowerCase().trim();
+      const elements = document.querySelectorAll('#doc-reader h1, #doc-reader h2, #doc-reader h3, #doc-reader p, #doc-reader tr');
+
+      if (!q) {
+        elements.forEach(el => el.style.display = '');
+        return;
+      }
+
+      elements.forEach(el => {
+        if (el.textContent.toLowerCase().includes(q)) {
+          el.style.display = '';
+        } else {
+          if (el.tagName === 'H2' || el.tagName === 'H3') {
+            el.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    // Initial load
+    fetchDocument('README.md');
+  </script>
+</body>
+</html>

@@ -7,6 +7,25 @@
 [![Version: v3.2](https://img.shields.io/badge/Version-v3.2-brightgreen.svg)](AGENT_DOCS_KIT_v3.2.md)
 [![Session Gate: Enforced](https://img.shields.io/badge/Session_Gate-Enforced-orange.svg)](AGENT_DOCS_KIT_v3.2.md)
 
+<p align="center">
+  <a href="https://raw.githubusercontent.com/ghostbyte1014/Agent_Docs_Kit/main/AGENT_DOCS_KIT_v3.2.md" download="AGENT_DOCS_KIT_v3.2.md">
+    <img src="https://img.shields.io/badge/⬇️_One--Click_Download-AGENT__DOCS__KIT__v3.2.md-159957?style=for-the-badge&logo=markdown&logoColor=white" alt="Download AGENT_DOCS_KIT_v3.2.md">
+  </a>
+  <a href="AGENT_DOCS_KIT_v3.2.md">
+    <img src="https://img.shields.io/badge/📖_Read_Online-Full_Kit_v3.2-155799?style=for-the-badge&logo=readme&logoColor=white" alt="Read Online">
+  </a>
+</p>
+
+---
+
+## 📥 Quick Download
+
+| Action | Resource | Description |
+|:---|:---|:---|
+| ⬇️ **One-Click Download** | [**`AGENT_DOCS_KIT_v3.2.md`**](https://raw.githubusercontent.com/ghostbyte1014/Agent_Docs_Kit/main/AGENT_DOCS_KIT_v3.2.md) | Single compiled markdown kit ready to drop into your project |
+| 📖 **Read Online** | [**View in Browser**](AGENT_DOCS_KIT_v3.2.md) | Read the complete compiled documentation online |
+| 📦 **Download Repository** | [**Download .zip**](https://github.com/ghostbyte1014/Agent_Docs_Kit/archive/refs/heads/main.zip) | Complete project bundle including `README`, `LICENSE`, and kit |
+
 ---
 
 ## Overview

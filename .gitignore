@@ -1,2 +1,6 @@
 # Keep changelog private/local to maintainer
 AGENT_DOCS_KIT_CHANGELOG.md
+
+# Local preview tools
+preview.html
+serve.js
