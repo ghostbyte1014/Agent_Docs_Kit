@@ -8,13 +8,14 @@ import { listCatalog } from "../commands/list.mjs";
 import { installSkill } from "../commands/skill.mjs";
 import { doctor } from "../commands/doctor.mjs";
 import { validatePackage } from "../commands/validate.mjs";
+import { openWebsite } from "../commands/website.mjs";
 import { readFile } from "node:fs/promises";
 import { resolveFromPackage } from "../core/paths.mjs";
 
 async function menu() {
   const ui = createInterface({ input: stdin, output: stdout });
   try {
-    console.log(`\nAgent Docs & Quality Kit\n\n1. Set up documentation\n2. Audit documentation\n3. Start security audit\n4. Start engineering review\n5. Install project skill\n6. Validate package\n0. Exit`);
+    console.log(`\nAgent Docs & Quality Kit\n\n1. Set up documentation\n2. Audit documentation\n3. Start security audit\n4. Start engineering review\n5. Install project skill\n6. Validate package\n7. Open documentation website\n0. Exit`);
     const choice = await ui.question("\nChoose an action: ");
     if (choice === "1") return setupProject();
     if (choice === "2") return auditDocumentation();
@@ -28,6 +29,7 @@ async function menu() {
     }
     if (choice === "5") return installSkill("project");
     if (choice === "6") return validatePackage();
+    if (choice === "7") return openWebsite();
     if (choice !== "0") throw new Error("Unknown menu choice.");
   } finally {
     ui.close();
@@ -57,6 +59,7 @@ export async function main(argv) {
   if (command === "list") return listCatalog(subject);
   if (command === "skill" && subject === "install") return installSkill(flags.target ?? "project", options);
   if (command === "validate") return validatePackage();
+  if (command === "website") return openWebsite();
   if (command === "doctor") {
     if (!doctor()) process.exitCode = 1;
     return;

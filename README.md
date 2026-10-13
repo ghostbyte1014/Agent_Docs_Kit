@@ -32,6 +32,7 @@ npx @ghostbyte/agent-docs-kit@latest list security
 npx @ghostbyte/agent-docs-kit@latest audit security api-layer --style learning
 npx @ghostbyte/agent-docs-kit@latest review engineering testing-types
 npx @ghostbyte/agent-docs-kit@latest skill install --target project
+npx @ghostbyte/agent-docs-kit@latest website
 ```
 
 Installing the package performs no setup and changes no project files. Mutation happens only after an explicit command:
