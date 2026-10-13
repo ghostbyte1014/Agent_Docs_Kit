@@ -3,9 +3,9 @@
 - Date: {{date}}
 - Reviewer: {{reviewer}}
 
-| Document or rule | Status | Evidence | Required update |
-|---|---|---|---|
-| | Unverified | | |
+| Document or rule | Status | Evidence | Required update | Owner | Verification |
+|---|---|---|---|---|---|
+| | Unverified | | | Unassigned | Not verified |
 
 ## Missing or conflicting authorities
 

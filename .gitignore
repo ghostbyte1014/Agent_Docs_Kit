@@ -1,5 +1,6 @@
 # Keep changelog private/local to maintainer
 AGENT_DOCS_KIT_CHANGELOG.md
+MONTHLY_MAINTENANCE_AI.md
 
 # Generated and dependency files
 node_modules/

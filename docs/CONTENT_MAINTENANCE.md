@@ -6,4 +6,8 @@ Review security guidance at least quarterly and after material changes to major 
 
 Review engineering topics when supported runtimes, architectural assumptions, or operational scale change. Keep recommendations contextual and avoid presenting preferences as universal rules.
 
-Before release, run the content validator. It checks catalog/source consistency and common encoding corruption. A human review is still required for technical accuracy and link freshness.
+The catalog records `lastReviewed` and `reviewDue`. The scheduled health workflow fails after the due date; extending the date requires an actual content review.
+
+Before release, run `npm run release:check`. Validation checks selectors, source files, duplicate headings, legacy references, encoding, package paths, templates, and website anchors. The smoke test installs the actual tarball into a clean temporary consumer. Human review is still required for technical accuracy and external-link freshness.
+
+The ignored `MONTHLY_MAINTENANCE_AI.md` file is the maintainer's reusable AI runbook. It checks runtime support, dependencies, actions, dates, links, registry/tag/release alignment, and rotates one security phase plus one engineering topic each month.

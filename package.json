@@ -1,6 +1,6 @@
 {
   "name": "@ghostbyte/agent-docs-kit",
-  "version": "4.0.3",
+  "version": "5.0.0",
   "description": "Documentation governance, evidence-based security audits, and engineering-quality reviews for software projects.",
   "type": "module",
   "bin": {
@@ -16,7 +16,12 @@
     "templates/",
     "skills/",
     "docs/",
+    "scripts/",
+    "site/",
+    "tests/",
     "README.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
     "LICENSE"
   ],
   "scripts": {
@@ -24,11 +29,14 @@
     "site:preview": "node scripts/preview-site.mjs",
     "doctor": "node bin/agent-docs.mjs doctor",
     "test": "node --test",
-    "validate": "node scripts/validate-content.mjs && node bin/agent-docs.mjs validate",
-    "prepublishOnly": "npm run build && npm test && npm run validate"
+    "validate": "node scripts/validate-content.mjs && node scripts/check-links.mjs && node bin/agent-docs.mjs validate",
+    "smoke:package": "node scripts/smoke-package.mjs",
+    "review:dates": "node scripts/check-review-dates.mjs",
+    "release:check": "npm test && npm run validate && npm run review:dates && npm run build && npm run smoke:package && npm audit --cache .npm-cache",
+    "prepublishOnly": "npm run release:check"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "keywords": [
     "ai-agent",
@@ -51,7 +59,6 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "main": "serve.js",
   "directories": {
     "doc": "docs",
     "test": "tests"

@@ -6,10 +6,13 @@ import { resolveFromPackage } from "../src/core/paths.mjs";
 
 test("catalog exposes all migrated review areas", async () => {
   const catalog = await loadCatalog();
+  assert.equal(catalog.documentation.length, 7);
   assert.equal(catalog.security.length, 12);
-  assert.equal(catalog.engineering.length, 9);
-  for (const entry of [...catalog.security, ...catalog.engineering]) {
+  assert.equal(catalog.engineering.length, 14);
+  for (const entry of [...catalog.documentation, ...catalog.security, ...catalog.engineering]) {
     await access(resolveFromPackage(entry.source));
-    assert.match(await readFile(resolveFromPackage(entry.source), "utf8"), /^# /);
+    const value = await readFile(resolveFromPackage(entry.source), "utf8");
+    assert.match(value, /^# /);
+    assert.equal((value.match(/^#\s+/gm) ?? []).length, 1);
   }
 });

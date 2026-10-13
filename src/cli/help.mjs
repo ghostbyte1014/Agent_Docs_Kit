@@ -6,34 +6,54 @@ Run without installing:
 After installing in a project:
   npx agent-docs [command] [options]
 
+After installing globally:
+  agent-docs [command] [options]
+
 Commands:
   (no command)                       Open the guided menu (TTY only)
-  setup [--dry-run]                  Install the documentation workspace
-  audit documentation                Check documentation health
-  audit security [phase]             Create an evidence-based security worksheet
-  review engineering [topic]         Create an engineering review worksheet
-  list [security|engineering]        List available phases or topics
-  skill install [--target project|codex] [--dry-run]
+  setup [--dry-run]                  Create the documentation workspace
+  audit documentation [--strict]     Check documentation health
+  documentation guide <area>         Print one documentation guidance area
+  security worksheet <phase>         Create a scoped security worksheet
+  engineering worksheet <topic>      Create a scoped engineering worksheet
+  audit security <phase>              Legacy alias for security worksheet
+  review engineering <topic>          Legacy alias for engineering worksheet
+  list [documentation|security|engineering]
+                                     List available areas, phases, or topics
+  template list                      List reusable documentation templates
+  template create <type> [--name <slug>]
+                                     Create a uniquely named documentation record
+  skill install --target project|codex
                                      Install the unified quality skill
-  validate                           Validate the package catalog and skill
-  doctor                             Check local prerequisites
+  validate                           Validate the distributed library
+  doctor                             Check Node.js and Git prerequisites
   website                            Open the documentation website
   --version                          Show the package version
 
 Examples:
   npx @ghostbyte/agent-docs-kit@latest setup --dry-run
-  npx @ghostbyte/agent-docs-kit@latest audit documentation
-  npx @ghostbyte/agent-docs-kit@latest audit security api-layer
-  npx @ghostbyte/agent-docs-kit@latest review engineering testing-types
+  npx @ghostbyte/agent-docs-kit@latest audit documentation --strict --format text
+  npx @ghostbyte/agent-docs-kit@latest documentation guide system-documentation
+  npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer
+  npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types
+  npx @ghostbyte/agent-docs-kit@latest template create adr --name cache-policy
   npx @ghostbyte/agent-docs-kit@latest skill install --target project
   npx @ghostbyte/agent-docs-kit@latest website
 
+Check or update a global installation:
+  agent-docs --version
+  npm view @ghostbyte/agent-docs-kit version
+  npm install --global @ghostbyte/agent-docs-kit@latest
+
 Options:
-  --cwd <path>             Target project (default: current directory)
-  --style standard|learning
-  --dry-run                Preview writes without changing files
-  --force                  Replace files that this command owns
-  --report                 Write documentation audit results
-  --help                   Show this help
+  --cwd <path>                Target project (default: current directory)
+  --style standard|learning   Select concise or teaching-oriented output
+  --format text|markdown|json Select documentation-audit output
+  --name <slug>               Give a template a lowercase hyphenated name
+  --dry-run                   Preview writes without changing files
+  --force                     Replace files owned by the command
+  --report                    Persist documentation audit results
+  --strict                    Fail when documentation checks fail
+  --help                      Show this help
 
 Installing the npm package performs no project setup. Run a command explicitly.`;

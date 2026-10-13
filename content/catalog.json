@@ -1,5 +1,72 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "lastReviewed": "2026-10-14",
+  "reviewDue": "2027-01-14",
+  "documentation": [
+    {
+      "id": "01",
+      "slug": "system-documentation",
+      "title": "System Documentation",
+      "aliases": ["1", "system"],
+      "source": "content/documentation/01-system-documentation.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
+    },
+    {
+      "id": "02",
+      "slug": "project-governance",
+      "title": "Project Governance",
+      "aliases": ["2", "project"],
+      "source": "content/documentation/02-project-governance.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
+    },
+    {
+      "id": "03",
+      "slug": "development-records",
+      "title": "Development Records",
+      "aliases": ["3", "development"],
+      "source": "content/documentation/03-development-records.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
+    },
+    {
+      "id": "04",
+      "slug": "testing-evidence",
+      "title": "Testing & Evidence",
+      "aliases": ["4", "testing"],
+      "source": "content/documentation/04-testing-evidence.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
+    },
+    {
+      "id": "05",
+      "slug": "operations-runbooks",
+      "title": "Operations & Runbooks",
+      "aliases": ["5", "operations"],
+      "source": "content/documentation/05-operations-runbooks.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
+    },
+    {
+      "id": "06",
+      "slug": "future-proposals",
+      "title": "Future Proposals",
+      "aliases": ["6", "future"],
+      "source": "content/documentation/06-future-proposals.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
+    },
+    {
+      "id": "07",
+      "slug": "archive-governance",
+      "title": "Archive Governance",
+      "aliases": ["7", "archive"],
+      "source": "content/documentation/07-archive-governance.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
+    }
+  ],
   "security": [
     {
       "id": "01",
@@ -8,7 +75,9 @@
       "aliases": [
         "1"
       ],
-      "source": "content/security/01-design-architecture.md"
+      "source": "content/security/01-design-architecture.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "02",
@@ -17,7 +86,9 @@
       "aliases": [
         "2"
       ],
-      "source": "content/security/02-local-development.md"
+      "source": "content/security/02-local-development.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "03",
@@ -26,7 +97,9 @@
       "aliases": [
         "3"
       ],
-      "source": "content/security/03-database-backend.md"
+      "source": "content/security/03-database-backend.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "04",
@@ -35,7 +108,9 @@
       "aliases": [
         "4"
       ],
-      "source": "content/security/04-api-layer.md"
+      "source": "content/security/04-api-layer.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "05",
@@ -44,7 +119,9 @@
       "aliases": [
         "5"
       ],
-      "source": "content/security/05-frontend-ui.md"
+      "source": "content/security/05-frontend-ui.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "06",
@@ -53,7 +130,9 @@
       "aliases": [
         "6"
       ],
-      "source": "content/security/06-application-security-testing.md"
+      "source": "content/security/06-application-security-testing.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "07",
@@ -62,7 +141,9 @@
       "aliases": [
         "7"
       ],
-      "source": "content/security/07-cicd-release-engineering.md"
+      "source": "content/security/07-cicd-release-engineering.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "08",
@@ -71,7 +152,9 @@
       "aliases": [
         "8"
       ],
-      "source": "content/security/08-cloud-infrastructure.md"
+      "source": "content/security/08-cloud-infrastructure.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "09",
@@ -80,7 +163,9 @@
       "aliases": [
         "9"
       ],
-      "source": "content/security/09-edge-cdn-dns.md"
+      "source": "content/security/09-edge-cdn-dns.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "10",
@@ -89,7 +174,9 @@
       "aliases": [
         "10"
       ],
-      "source": "content/security/10-release-rollout.md"
+      "source": "content/security/10-release-rollout.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "11",
@@ -98,7 +185,9 @@
       "aliases": [
         "11"
       ],
-      "source": "content/security/11-post-release-monitoring-ir.md"
+      "source": "content/security/11-post-release-monitoring-ir.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     },
     {
       "id": "12",
@@ -107,7 +196,9 @@
       "aliases": [
         "12"
       ],
-      "source": "content/security/12-ongoing-operations.md"
+      "source": "content/security/12-ongoing-operations.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-01-14"
     }
   ],
   "engineering": [
@@ -118,7 +209,9 @@
       "aliases": [
         "1"
       ],
-      "source": "content/engineering/01-query-performance.md"
+      "source": "content/engineering/01-query-performance.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     },
     {
       "id": "02",
@@ -127,7 +220,9 @@
       "aliases": [
         "2"
       ],
-      "source": "content/engineering/02-networking-fundamentals.md"
+      "source": "content/engineering/02-networking-fundamentals.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     },
     {
       "id": "03",
@@ -136,7 +231,9 @@
       "aliases": [
         "3"
       ],
-      "source": "content/engineering/03-rate-limiting-algorithms.md"
+      "source": "content/engineering/03-rate-limiting-algorithms.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     },
     {
       "id": "04",
@@ -145,7 +242,9 @@
       "aliases": [
         "4"
       ],
-      "source": "content/engineering/04-production-debugging.md"
+      "source": "content/engineering/04-production-debugging.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     },
     {
       "id": "05",
@@ -154,7 +253,9 @@
       "aliases": [
         "5"
       ],
-      "source": "content/engineering/05-code-review-practices.md"
+      "source": "content/engineering/05-code-review-practices.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     },
     {
       "id": "06",
@@ -163,7 +264,9 @@
       "aliases": [
         "6"
       ],
-      "source": "content/engineering/06-data-modeling.md"
+      "source": "content/engineering/06-data-modeling.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     },
     {
       "id": "07",
@@ -172,7 +275,9 @@
       "aliases": [
         "7"
       ],
-      "source": "content/engineering/07-cloud-cost-saving.md"
+      "source": "content/engineering/07-cloud-cost-saving.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     },
     {
       "id": "08",
@@ -181,7 +286,9 @@
       "aliases": [
         "8"
       ],
-      "source": "content/engineering/08-testing-types.md"
+      "source": "content/engineering/08-testing-types.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     },
     {
       "id": "09",
@@ -190,7 +297,69 @@
       "aliases": [
         "9"
       ],
-      "source": "content/engineering/09-message-queues.md"
+      "source": "content/engineering/09-message-queues.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
+    },
+    {
+      "id": "10",
+      "slug": "api-design-compatibility",
+      "title": "API Design & Compatibility",
+      "aliases": [
+        "10",
+        "api-design"
+      ],
+      "source": "content/engineering/10-api-design-compatibility.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
+    },
+    {
+      "id": "11",
+      "slug": "reliability-slos",
+      "title": "Reliability, SLOs & Error Budgets",
+      "aliases": [
+        "11",
+        "reliability"
+      ],
+      "source": "content/engineering/11-reliability-slos.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
+    },
+    {
+      "id": "12",
+      "slug": "observability-telemetry",
+      "title": "Observability & Telemetry",
+      "aliases": [
+        "12",
+        "observability"
+      ],
+      "source": "content/engineering/12-observability-telemetry.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
+    },
+    {
+      "id": "13",
+      "slug": "deployment-change-safety",
+      "title": "Deployment & Change Safety",
+      "aliases": [
+        "13",
+        "deployment"
+      ],
+      "source": "content/engineering/13-deployment-change-safety.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
+    },
+    {
+      "id": "14",
+      "slug": "capacity-concurrency",
+      "title": "Capacity, Concurrency & Resource Management",
+      "aliases": [
+        "14",
+        "capacity"
+      ],
+      "source": "content/engineering/14-capacity-concurrency.md",
+      "lastReviewed": "2026-10-14",
+      "reviewDue": "2027-04-14"
     }
   ]
 }

@@ -4,9 +4,9 @@
 - Reviewer: {{reviewer}}
 - Overall status: Unverified
 
-| Practice | Status | Evidence | Impact | Recommendation / verification |
-|---|---|---|---|---|
-| | Unverified | | | |
+| Practice ID | Status | Evidence | Impact | Recommendation | Owner | Verification |
+|---|---|---|---|---|---|---|
+| | Unverified | | | | Unassigned | Not verified |
 
 ## Priority recommendations
 

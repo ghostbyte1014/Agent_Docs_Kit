@@ -20,7 +20,7 @@ docs/
     security-audits/
     evidence/
   05-operations/
-  06-future-enhancements/
+  06-future-proposals/
   archive/
 ```
 
@@ -36,4 +36,4 @@ Keep the layout proportional to the project. Do not create empty documents merel
 
 ## Change records
 
-Record what changed, why it changed, files affected, validation performed, and approval when required by the project. Prefer commit-linked records. Treat a “change freeze” as a declared collaboration policy unless a technical hook or CI rule actually enforces it.
+Record what changed, why it changed, files affected, validation performed, and approval when required by the project. Prefer commit-linked records. Treat a "change freeze" as a declared collaboration policy unless a technical hook or CI rule actually enforces it.

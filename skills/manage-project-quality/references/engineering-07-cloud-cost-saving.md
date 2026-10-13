@@ -1,48 +1,38 @@
 # Cloud Cost Saving
 
-# Engineering Topic 7: Cloud Cost-Saving Techniques
+## Engineering Topic 7: Cloud Cost-Saving Techniques
 
 **When to run this:** During a cost review, before scaling up infrastructure, or when a cloud bill increase needs investigating.
 
 **Goal of this pass:** Work through the standard cost levers systematically instead of just cutting the first expensive-looking line item.
 
-## Files in this folder
+## How to use this reference
 
-| File | Purpose |
-|---|---|
-| `CHECKLIST.md` | The reference list of concepts for this topic — what each one is, why it matters, and the self-check question to ask. Doesn't get filled in; copy `RESULTS_TEMPLATE.md` to record a real pass. |
-| `RESULTS_TEMPLATE.md` | Fillable version of the same list, with a Status column and notes. Copy this file per pass (e.g. `RESULTS_2026-08-29.md`) so history isn't overwritten. |
-
-Full source list lives in `../ENGINEERING_REFERENCE.md`. Unlike
-`../../security-gate/phases/`, this is knowledge/practice review, not pass/fail security
-testing — there's no severity rating, and "Fail" isn't the right framing.
-Use the Status options in `RESULTS_TEMPLATE.md` instead: Applied, Partial,
-Should adopt, or Not applicable.
+Use each stable practice ID in a generated engineering worksheet. Record concrete evidence and choose Applied, Partial, Recommended, Unverified, or N/A. Preserve each dated worksheet as review history.
 
 ## Wrap-up
 
 - This isn't a gate — nothing here blocks a release the way
-  Critical/High security items in `../../security-gate/phases/` do.
+  Critical/High security items in security phase reviews do.
 - Total concepts in this topic: 10
 - Useful as an onboarding read-through, a periodic self-audit, or context
   to hand an agent before it reviews related code.
 
 ---
 
-# Concepts — Topic 7: Cloud Cost-Saving Techniques
+## Concepts — Topic 7: Cloud Cost-Saving Techniques
 
-Reference list only — no status column. Use `RESULTS_TEMPLATE.md` in
-this same folder to actually record a pass.
+Use the applicable practices below to populate the worksheet findings table.
 
-| # | Concept | Why it matters | Self-check |
+| Practice ID | Practice | Why it matters | Evidence question |
 |---|---|---|---|
-| 1 | Spot instances | Substantially cheaper than on-demand, but can be reclaimed with short notice — only right for interruption-tolerant workloads. | Are interruption-tolerant workloads (batch jobs, stateless workers) running on spot instead of on-demand? |
-| 2 | Autoscaling | Paying for peak capacity 24/7 wastes money during predictable low-traffic periods. | Does capacity actually scale down during known low-traffic periods, not just scale up under load? |
-| 3 | Reserved capacity | Committing to steady-state baseline load ahead of time is cheaper than paying on-demand rates for it continuously. | Has the stable, predictable-load portion of infrastructure been covered by reserved/committed-use pricing? |
-| 4 | Right-sizing | Over-provisioned instances (low CPU/memory utilization) are a direct, ongoing waste that compounds over time. | Have instance sizes been checked against actual utilization recently, not just set once at launch and left alone? |
-| 5 | Storage tiering | Infrequently accessed data doesn't need to sit on the most expensive, fastest storage tier. | Is cold/infrequently-accessed data moved to a cheaper storage tier rather than left on the default hot tier? |
-| 6 | CDN offloading | Serving static/cacheable content from origin instead of a CDN costs more in bandwidth and origin load. | Is static and cacheable content served from a CDN rather than hitting origin servers for every request? |
-| 7 | Serverless for spiky loads | Paying for always-on servers to handle infrequent, spiky workloads is wasteful compared to pay-per-invocation. | Are low-frequency, spiky workloads running serverless rather than on dedicated always-on infrastructure? |
-| 8 | Idle resource cleanup | Unattached volumes, unused load balancers, and orphaned snapshots accumulate cost silently over time. | Is there a recurring process to find and remove idle/orphaned cloud resources? |
-| 9 | Compression | Uncompressed data transfer and storage costs more in both bandwidth and storage fees than it needs to. | Is compression enabled where it's cheap to apply (asset delivery, log storage, backups)? |
-| 10 | Multi-region arbitrage | Compute/storage/egress pricing varies meaningfully by region — running in the highest-cost region without a reason is avoidable spend. | Has region choice been checked against pricing, not just picked for proximity or default? |
+| ENG-07-01 | Spot instances | Substantially cheaper than on-demand, but can be reclaimed with short notice — only right for interruption-tolerant workloads. | Are interruption-tolerant workloads (batch jobs, stateless workers) running on spot instead of on-demand? |
+| ENG-07-02 | Autoscaling | Paying for peak capacity 24/7 wastes money during predictable low-traffic periods. | Does capacity actually scale down during known low-traffic periods, not just scale up under load? |
+| ENG-07-03 | Reserved capacity | Committing to steady-state baseline load ahead of time is cheaper than paying on-demand rates for it continuously. | Has the stable, predictable-load portion of infrastructure been covered by reserved/committed-use pricing? |
+| ENG-07-04 | Right-sizing | Over-provisioned instances (low CPU/memory utilization) are a direct, ongoing waste that compounds over time. | Have instance sizes been checked against actual utilization recently, not just set once at launch and left alone? |
+| ENG-07-05 | Storage tiering | Infrequently accessed data doesn't need to sit on the most expensive, fastest storage tier. | Is cold/infrequently-accessed data moved to a cheaper storage tier rather than left on the default hot tier? |
+| ENG-07-06 | CDN offloading | Serving static/cacheable content from origin instead of a CDN costs more in bandwidth and origin load. | Is static and cacheable content served from a CDN rather than hitting origin servers for every request? |
+| ENG-07-07 | Serverless for spiky loads | Paying for always-on servers to handle infrequent, spiky workloads is wasteful compared to pay-per-invocation. | Are low-frequency, spiky workloads running serverless rather than on dedicated always-on infrastructure? |
+| ENG-07-08 | Idle resource cleanup | Unattached volumes, unused load balancers, and orphaned snapshots accumulate cost silently over time. | Is there a recurring process to find and remove idle/orphaned cloud resources? |
+| ENG-07-09 | Compression | Uncompressed data transfer and storage costs more in both bandwidth and storage fees than it needs to. | Is compression enabled where it's cheap to apply (asset delivery, log storage, backups)? |
+| ENG-07-10 | Multi-region arbitrage | Compute/storage/egress pricing varies meaningfully by region — running in the highest-cost region without a reason is avoidable spend. | Has region choice been checked against pricing, not just picked for proximity or default? |

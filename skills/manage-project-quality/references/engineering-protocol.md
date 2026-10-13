@@ -18,6 +18,6 @@ If the review discovers a security vulnerability, data-loss risk, or correctness
 
 1. Identify the system constraint or decision under review.
 2. Inspect representative code, configuration, tests, telemetry, and design records.
-3. Evaluate tradeoffs in the project’s actual scale and failure model.
+3. Evaluate tradeoffs in the project's actual scale and failure model.
 4. Prefer measurable recommendations with a verification method.
 5. Avoid importing enterprise complexity into a project that does not need it.

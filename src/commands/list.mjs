@@ -2,7 +2,7 @@ import { loadCatalog } from "../core/catalog.mjs";
 
 export async function listCatalog(kind) {
   const catalog = await loadCatalog();
-  const groups = kind ? [kind] : ["security", "engineering"];
+  const groups = kind ? [kind] : ["documentation", "security", "engineering"];
   for (const group of groups) {
     if (!catalog[group]) throw new Error(`Unknown catalog '${group}'.`);
     console.log(`\n${group.toUpperCase()}`);

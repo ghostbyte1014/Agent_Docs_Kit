@@ -19,9 +19,20 @@ Choose exactly one primary workflow for the request: documentation governance, s
 
 ### Documentation governance
 
-Read [references/documentation-governance.md](references/documentation-governance.md). Use it to establish a navigable documentation structure, identify stale or missing material, separate current scope from future ideas, and preserve decision/change history.
+Read [references/documentation-governance.md](references/documentation-governance.md) and only the selected documentation area below. Use them to establish a navigable structure, identify stale or missing material, separate current scope from future ideas, and preserve decision/change history.
 
 Documentation controls are governance aids, not an infallible technical lock. Report whether evidence supports the stated process; never claim that Markdown alone enforces agent behavior.
+
+## Documentation area references
+
+- [01 System Documentation](references/documentation-01-system-documentation.md)
+- [02 Project Governance](references/documentation-02-project-governance.md)
+- [03 Development Records](references/documentation-03-development-records.md)
+- [04 Testing & Evidence](references/documentation-04-testing-evidence.md)
+- [05 Operations & Runbooks](references/documentation-05-operations-runbooks.md)
+- [06 Future Proposals](references/documentation-06-future-proposals.md)
+- [07 Archive Governance](references/documentation-07-archive-governance.md)
+- [Full documentation reference](references/documentation-full-reference.md): use only for cross-area governance work.
 
 ### Security assurance
 
@@ -64,6 +75,11 @@ Use `Applied`, `Partial`, `Recommended`, `Unverified`, or `N/A`. Engineering rec
 - [07 Cloud Cost Saving](references/engineering-07-cloud-cost-saving.md)
 - [08 Testing Types](references/engineering-08-testing-types.md)
 - [09 Message Queues](references/engineering-09-message-queues.md)
+- [10 API Design & Compatibility](references/engineering-10-api-design-compatibility.md)
+- [11 Reliability, SLOs & Error Budgets](references/engineering-11-reliability-slos.md)
+- [12 Observability & Telemetry](references/engineering-12-observability-telemetry.md)
+- [13 Deployment & Change Safety](references/engineering-13-deployment-change-safety.md)
+- [14 Capacity, Concurrency & Resource Management](references/engineering-14-capacity-concurrency.md)
 - [Full engineering reference](references/engineering-full-reference.md): use only for cross-topic review.
 
 ## Produce the result
@@ -75,4 +91,4 @@ Use `Applied`, `Partial`, `Recommended`, `Unverified`, or `N/A`. Engineering rec
 5. Summarize blockers first, then non-blocking improvements, then unverified items.
 6. Never expose secrets in output. Redact tokens, credentials, personal data, and sensitive endpoints.
 
-Use [assets/security-report.md](assets/security-report.md), [assets/engineering-report.md](assets/engineering-report.md), or [assets/documentation-report.md](assets/documentation-report.md) when writing a report. Run `node scripts/check-report.mjs <report>` to catch invalid statuses and findings without evidence.
+Use [assets/security-report.md](assets/security-report.md), [assets/engineering-report.md](assets/engineering-report.md), or [assets/documentation-report.md](assets/documentation-report.md) when writing a report. Resolve this skill's installation directory, then run its `scripts/check-report.mjs <report>` script to catch invalid statuses and findings without evidence; do not assume the caller's project root contains that script.

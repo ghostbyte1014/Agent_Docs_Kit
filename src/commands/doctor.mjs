@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 
 export function doctor() {
-  const checks = [{ name: "Node.js >=20", pass: Number(process.versions.node.split(".")[0]) >= 20, value: process.version }];
+  const checks = [{ name: "Node.js >=22", pass: Number(process.versions.node.split(".")[0]) >= 22, value: process.version }];
   try {
     checks.push({ name: "Git", pass: true, value: execFileSync("git", ["--version"], { encoding: "utf8" }).trim() });
   } catch {

@@ -5,9 +5,9 @@
 - Authorized target: {{target}}
 - Overall status: Unverified
 
-| Control | Severity | Status | Evidence | Remediation / verification |
-|---|---|---|---|---|
-| | | Unverified | | |
+| Control ID | Priority | Status | Evidence | Remediation | Owner | Verification |
+|---|---|---|---|---|---|---|
+| | | Unverified | | | Unassigned | Not verified |
 
 ## Release blockers
 

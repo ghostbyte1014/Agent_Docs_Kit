@@ -1,7 +1,18 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "documentationRoot": "docs",
+  "documentationReports": "docs/audits",
   "securityReports": "docs/04-testing/security-audits",
   "engineeringReports": "docs/03-development/engineering-reviews",
-  "interactionStyle": "standard"
+  "templateOutput": "docs",
+  "interactionStyle": "standard",
+  "maxAgeDays": 180,
+  "requireMetadata": false,
+  "requiredDocuments": [
+    "README.md",
+    "docs/PURPOSE.md",
+    "docs/ARCHITECTURE.md",
+    "docs/SECURITY_MODEL.md",
+    "docs/RELEASE_PROCESS.md"
+  ]
 }

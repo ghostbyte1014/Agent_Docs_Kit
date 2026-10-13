@@ -102,7 +102,7 @@ In npm package settings, add a trusted publisher for GitHub Actions with these v
 
 No npm token or GitHub environment is required. The workflow is restricted to this GitHub repository and workflow through OIDC.
 
-After that, commit your changes, increment the npm version, and push to `main`. The push automatically validates and publishes the new version. No long-lived `NPM_TOKEN` is required.
+After that, commit your changes, increment the npm version, and push the matching version tag. The tag workflow verifies that the tag and `package.json` agree, runs the full release gate, publishes through npm trusted publishing, and creates the matching GitHub Release. A normal push to `main` updates source and Pages but does not publish npm. No long-lived `NPM_TOKEN` is required.
 
 ```powershell
 npm.cmd version patch
