@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Documentation governance, evidence-based security audits, and engineering-quality reviews in one CLI and one progressive skill.">
+  <title>Agent Docs & Quality Kit</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="hero" id="top">
+    <nav class="nav shell" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Agent Docs and Quality Kit home">
+        <span class="brand-mark" aria-hidden="true">AQ</span>
+        <span>Agent Docs &amp; Quality</span>
+      </a>
+      <div class="nav-links">
+        <a href="#workflows">Workflows</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#commands">Commands</a>
+        <a class="nav-cta" href="https://github.com/ghostbyte1014/Agent_Docs_Kit">View on GitHub <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+
+    <div class="hero-layout shell">
+      <div class="hero-copy">
+        <div class="status-pill"><i aria-hidden="true"></i> Quality infrastructure for human + AI teams</div>
+        <h1>One project memory.<br><em>Three quality lenses.</em></h1>
+        <p class="hero-lead">Build documentation that stays useful, assess security controls with real evidence, and improve engineering practice—without loading an entire reference library into every session.</p>
+        <div class="actions">
+          <a class="button primary" href="#quick-start">Start locally <span aria-hidden="true">→</span></a>
+          <a class="button secondary" href="#workflows">Explore the workflows</a>
+        </div>
+        <dl class="hero-facts" aria-label="Toolkit facts">
+          <div><dt>3</dt><dd>Focused workflows</dd></div>
+          <div><dt>21</dt><dd>Review areas</dd></div>
+          <div><dt>0</dt><dd>Install-time actions</dd></div>
+        </dl>
+      </div>
+
+      <div class="console" aria-label="Example Agent Docs command line session">
+        <div class="console-bar"><span></span><span></span><span></span><b>agent-docs — project</b></div>
+        <div class="console-body">
+          <p><span class="prompt">$</span> npx @ghostbyte/agent-docs-kit</p>
+          <p class="console-title">Agent Docs &amp; Quality Kit</p>
+          <ol>
+            <li><i>01</i> Set up documentation</li>
+            <li><i>02</i> Audit documentation</li>
+            <li class="active"><i>03</i> Start security audit <b>selected</b></li>
+            <li><i>04</i> Start engineering review</li>
+            <li><i>05</i> Install project skill</li>
+          </ol>
+          <p class="console-result"><span>✓</span> Scope selected: API Layer<br><span>→</span> Report starts as <strong>Unverified</strong></p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="principle-strip" aria-label="Core principles">
+      <div class="shell">
+        <p><span>Evidence over assumptions</span></p>
+        <p><span>Explicit actions only</span></p>
+        <p><span>Context loaded on demand</span></p>
+        <p><span>Human-readable outputs</span></p>
+      </div>
+    </section>
+
+    <section class="section shell" id="workflows">
+      <header class="section-heading split-heading">
+        <div><p class="eyebrow">Three jobs, clear boundaries</p><h2>Choose the quality lens that matches the work.</h2></div>
+        <p>Documentation, security, and engineering overlap, but they do not mean the same thing. The kit keeps their evidence and consequences separate.</p>
+      </header>
+
+      <div class="workflow-tabs" role="tablist" aria-label="Quality workflows">
+        <button id="tab-documentation" role="tab" aria-selected="true" aria-controls="panel-documentation" tabindex="0" data-tab="documentation"><span>01</span> Documentation</button>
+        <button id="tab-security" role="tab" aria-selected="false" aria-controls="panel-security" tabindex="-1" data-tab="security"><span>02</span> Security</button>
+        <button id="tab-engineering" role="tab" aria-selected="false" aria-controls="panel-engineering" tabindex="-1" data-tab="engineering"><span>03</span> Engineering</button>
+      </div>
+
+      <div class="workflow-panel" id="panel-documentation" role="tabpanel" aria-labelledby="tab-documentation" data-panel="documentation">
+        <div class="workflow-intro">
+          <p class="workflow-number">01 / Documentation governance</p>
+          <h3>Make the repository explain itself.</h3>
+          <p>Preserve project scope, architecture, decisions, operational knowledge, test evidence, and change history in a predictable structure that both people and agents can navigate.</p>
+          <a href="docs/PURPOSE.md">Read the purpose and boundaries <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="workflow-details">
+          <article><h4>Use it when</h4><ul><li>Starting or inheriting a project</li><li>Important decisions live only in chat</li><li>Documentation conflicts with the code</li><li>Operations depend on tribal knowledge</li></ul></article>
+          <article><h4>What it checks</h4><ul><li>Missing or duplicate sources of truth</li><li>Scope and architecture drift</li><li>Broken navigation and stale records</li><li>Undocumented setup and recovery paths</li></ul></article>
+          <article class="result-card"><h4>Document states</h4><div class="status-grid doc-status"><span>Current</span><span>Needs update</span><span>Reference</span><span>Archived</span></div><p>Documentation describes governance. Hooks and CI are what make a policy technically enforceable.</p></article>
+        </div>
+      </div>
+
+      <div class="workflow-panel" id="panel-security" role="tabpanel" aria-labelledby="tab-security" data-panel="security" hidden>
+        <div class="workflow-intro">
+          <p class="workflow-number">02 / Security assurance</p>
+          <h3>Turn controls into verifiable evidence.</h3>
+          <p>Review security across 12 lifecycle phases, from design and local development through release, monitoring, and ongoing operations. Missing evidence is never treated as a pass.</p>
+          <a href="docs/SECURITY_MODEL.md">Review the security model <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="workflow-details">
+          <article><h4>Use it when</h4><ul><li>Designing a sensitive feature</li><li>Preparing an API or cloud deployment</li><li>Running a pre-release security gate</li><li>Reviewing post-release readiness</li></ul></article>
+          <article><h4>Safety boundary</h4><ul><li>Passive repository review can start locally</li><li>Active testing needs explicit authorization</li><li>Staging is preferred over production</li><li>Secrets are redacted from reports</li></ul></article>
+          <article class="result-card"><h4>Security verdicts</h4><div class="status-grid security-status"><span>Pass</span><span>Fail</span><span>Unverified</span><span>N/A</span></div><p>Critical and High failures block release by default unless an accountable owner records a time-bounded exception.</p></article>
+        </div>
+      </div>
+
+      <div class="workflow-panel" id="panel-engineering" role="tabpanel" aria-labelledby="tab-engineering" data-panel="engineering" hidden>
+        <div class="workflow-intro">
+          <p class="workflow-number">03 / Engineering review</p>
+          <h3>Improve the system without importing needless complexity.</h3>
+          <p>Assess maintainability, reliability, performance, testing, data modeling, operations, and cost using recommendations grounded in the project’s real scale and constraints.</p>
+          <a href="docs/ARCHITECTURE.md">Explore the toolkit architecture <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="workflow-details">
+          <article><h4>Use it when</h4><ul><li>Reviewing a design or pull request</li><li>Investigating slow or fragile behavior</li><li>Planning testing and observability</li><li>Evaluating infrastructure cost</li></ul></article>
+          <article><h4>Nine topic areas</h4><ul><li>Queries, networking, and rate limits</li><li>Production debugging and code review</li><li>Data modeling and testing strategy</li><li>Cloud cost and message queues</li></ul></article>
+          <article class="result-card"><h4>Engineering outcomes</h4><div class="status-grid engineering-status"><span>Applied</span><span>Partial</span><span>Recommended</span><span>Unverified</span><span>N/A</span></div><p>Recommendations are normally advisory. Security vulnerabilities and correctness defects are reported separately.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section process-section" id="how-it-works">
+      <div class="shell">
+        <header class="section-heading"><p class="eyebrow">From request to useful record</p><h2>A review process you can inspect.</h2><p>Every workflow follows the same evidence discipline while producing an outcome appropriate to its purpose.</p></header>
+        <ol class="process-list">
+          <li><span>01</span><div><h3>Inspect context</h3><p>Read repository instructions, identify the technology and locate the files that can actually answer the question.</p></div></li>
+          <li><span>02</span><div><h3>Select scope</h3><p>Choose one workflow, then a specific security phase or engineering topic. Define exclusions before the review grows.</p></div></li>
+          <li><span>03</span><div><h3>Collect evidence</h3><p>Use code paths, configuration, tests, command output, or authorized external settings. Separate facts from inference.</p></div></li>
+          <li><span>04</span><div><h3>Record the result</h3><p>Write status, impact, remediation, owner, verification step, and limitations into a durable project report.</p></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section shell architecture-section">
+      <header class="section-heading split-heading">
+        <div><p class="eyebrow">Token-aware by design</p><h2>Load the relevant reference, not the whole library.</h2></div>
+        <p>The unified skill acts as a router. It opens shared evidence rules plus only the phase or topic required for the task.</p>
+      </header>
+      <div class="routing-diagram" aria-label="Progressive skill loading flow">
+        <div class="route-node request"><small>Your request</small><strong>“Review my API security”</strong></div>
+        <span class="route-arrow" aria-hidden="true">→</span>
+        <div class="route-node router"><small>Unified skill</small><strong>Classify + scope</strong><code>manage-project-quality</code></div>
+        <span class="route-arrow" aria-hidden="true">→</span>
+        <div class="route-stack">
+          <div class="route-node selected"><small>Loaded</small><strong>Security protocol</strong></div>
+          <div class="route-node selected"><small>Loaded</small><strong>04 · API Layer</strong></div>
+          <div class="route-node muted"><small>Not loaded</small><strong>19 unrelated references</strong></div>
+        </div>
+        <span class="route-arrow" aria-hidden="true">→</span>
+        <div class="route-node report"><small>Durable output</small><strong>Evidence-based report</strong><code>docs/04-testing/…</code></div>
+      </div>
+    </section>
+
+    <section class="section command-section" id="commands">
+      <div class="shell command-layout">
+        <div>
+          <p class="eyebrow">Interactive or automatable</p>
+          <h2>Use the menu once. Use direct commands everywhere else.</h2>
+          <p>The no-argument command guides first-time users. Direct commands are deterministic enough for project scripts and CI.</p>
+          <div class="command-notes">
+            <p><span>✓</span><strong>Safe preview</strong><small>`--dry-run` reports intended writes.</small></p>
+            <p><span>✓</span><strong>Existing files protected</strong><small>Files are skipped unless `--force` is explicit.</small></p>
+            <p><span>✓</span><strong>No install hook</strong><small>`npm install` does not configure the project.</small></p>
+          </div>
+        </div>
+        <div class="code-window">
+          <div class="code-tabs" role="tablist" aria-label="Command examples">
+            <button class="is-active" data-code-tab="setup">Setup</button>
+            <button data-code-tab="security">Security</button>
+            <button data-code-tab="engineering">Engineering</button>
+            <button data-code-tab="skill">Skill</button>
+          </div>
+          <div class="code-panel" data-code-panel="setup"><pre><code>npx @ghostbyte/agent-docs-kit@latest \
+  setup --dry-run
+
+npx @ghostbyte/agent-docs-kit@latest \
+  setup</code></pre><button class="copy-button" data-copy="npx @ghostbyte/agent-docs-kit@latest setup --dry-run">Copy</button></div>
+          <div class="code-panel" data-code-panel="security" hidden><pre><code>npx @ghostbyte/agent-docs-kit@latest \
+  list security
+
+npx @ghostbyte/agent-docs-kit@latest \
+  audit security api-layer \
+  --style learning</code></pre><button class="copy-button" data-copy="npx @ghostbyte/agent-docs-kit@latest audit security api-layer --style learning">Copy</button></div>
+          <div class="code-panel" data-code-panel="engineering" hidden><pre><code>npx @ghostbyte/agent-docs-kit@latest \
+  list engineering
+
+npx @ghostbyte/agent-docs-kit@latest \
+  review engineering testing-types</code></pre><button class="copy-button" data-copy="npx @ghostbyte/agent-docs-kit@latest review engineering testing-types">Copy</button></div>
+          <div class="code-panel" data-code-panel="skill" hidden><pre><code>npx @ghostbyte/agent-docs-kit@latest \
+  skill install --target project
+
+# Creates:
+# .agents/skills/manage-project-quality</code></pre><button class="copy-button" data-copy="npx @ghostbyte/agent-docs-kit@latest skill install --target project">Copy</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell reference-section" id="command-reference">
+      <header class="section-heading split-heading">
+        <div><p class="eyebrow">Complete CLI reference</p><h2>Know what every command does before you run it.</h2></div>
+        <p>Commands marked “writes” create an owned scaffold or report. They skip existing files by default. Read-only commands inspect or print information without changing the target project.</p>
+      </header>
+
+      <div class="command-reference" role="list">
+        <article role="listitem"><div class="command-meta"><span class="read-label">Interactive</span><code>agent-docs</code></div><div><h3>Open the guided menu</h3><p>Choose documentation setup, documentation audit, security audit, engineering review, project-skill installation, or package validation. In a non-interactive shell, it prints help instead of waiting for input.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code>agent-docs setup</code></div><div><h3>Create the documentation workspace</h3><p>Adds `.agent-docs/config.json` and the initial `docs/` hierarchy for system, project, development, testing, operations, future work, and archives. Use `--dry-run` first; existing files are skipped.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only*</span><code>agent-docs audit documentation</code></div><div><h3>Check documentation health</h3><p>Checks whether core configuration and authoritative documents exist. Add `--report` to write a dated JSON result under `docs/03-development/audits/`; without it, results stay in the terminal.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code>agent-docs list security</code></div><div><h3>List security audit phases</h3><p>Prints the 12 available phase IDs, slugs, and names so you can select a precise review scope without loading every security reference.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code>agent-docs audit security &lt;phase&gt;</code></div><div><h3>Create a scoped security worksheet</h3><p>Creates a dated report under `docs/04-testing/security-audits/`, includes only the selected checklist, and initializes findings as Unverified. It does not run active scans or claim controls pass.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code>agent-docs list engineering</code></div><div><h3>List engineering topics</h3><p>Prints all 9 review topics and their selectors, including query performance, testing strategy, data modeling, production debugging, and cloud cost.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code>agent-docs review engineering &lt;topic&gt;</code></div><div><h3>Create an engineering review worksheet</h3><p>Creates a dated, topic-specific report under `docs/03-development/engineering-reviews/`. Recommendations remain advisory unless the evidence reveals a separate security or correctness defect.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code>agent-docs skill install --target project</code></div><div><h3>Install the skill for one repository</h3><p>Copies the complete `manage-project-quality` skill into `.agents/skills/` in the selected project. This is the recommended target when the workflow should travel with the repository.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code>agent-docs skill install --target codex</code></div><div><h3>Install the skill for the current user</h3><p>Copies the skill into the user’s Codex skills directory. This is an explicit global installation and affects future projects that can discover user-level skills.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code>agent-docs validate</code></div><div><h3>Validate the distributed library</h3><p>Confirms that catalog entries resolve to content, all 12 security and 9 engineering references are present, and the unified skill metadata is intact.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code>agent-docs doctor</code></div><div><h3>Check local prerequisites</h3><p>Reports whether the supported Node.js version and Git are available. It does not install or update either tool.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code>agent-docs --help / --version</code></div><div><h3>Inspect the command surface</h3><p>Prints usage and options or the installed package version. These are useful when verifying an npm or npx installation.</p></div></article>
+      </div>
+
+      <div class="options-block">
+        <div><p class="eyebrow">Shared options</p><h3>Control scope and output.</h3></div>
+        <dl>
+          <div><dt><code>--cwd &lt;path&gt;</code></dt><dd>Run against another project directory instead of the current directory.</dd></div>
+          <div><dt><code>--dry-run</code></dt><dd>Preview owned file writes without creating or replacing anything.</dd></div>
+          <div><dt><code>--force</code></dt><dd>Replace files owned by the selected command. Unrelated files remain outside its scope.</dd></div>
+          <div><dt><code>--style standard|learning</code></dt><dd>Choose concise findings or add “why this matters” teaching context.</dd></div>
+          <div><dt><code>--report</code></dt><dd>Persist a documentation-audit result instead of printing it only.</dd></div>
+          <div><dt><code>--phase / --topic</code></dt><dd>Alternative named selectors for security phases and engineering topics.</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section library-section" id="contents">
+      <div class="shell">
+        <header class="section-heading split-heading"><div><p class="eyebrow">Inside the package</p><h2>A working library, not just a command wrapper.</h2></div><p>The npm archive carries the CLI, canonical quality content, report assets, documentation, and a self-contained Codex skill. The same catalog drives both command-line and agent workflows.</p></header>
+
+        <div class="package-parts">
+          <article><span>CLI</span><h3>Command interface</h3><p>Guided menu, direct commands, safe file operations, project setup, report generation, validation, and diagnostics.</p></article>
+          <article><span>CONTENT</span><h3>Canonical library</h3><p>Versioned documentation guidance, 12 security phase references, 9 engineering topic references, and deep lookup material.</p></article>
+          <article><span>SKILL</span><h3>Agent workflow</h3><p>A concise router, workflow protocols, evidence rules, progressive references, report assets, and a structural report checker.</p></article>
+          <article><span>OUTPUT</span><h3>Project records</h3><p>A maintainable docs hierarchy plus dated security audits, engineering reviews, documentation audits, and supporting evidence.</p></article>
+        </div>
+
+        <div class="catalog-layout">
+          <article class="catalog-card documentation-catalog">
+            <header><span>Documentation structure</span><strong>7 areas</strong></header>
+            <ol><li><b>01</b> System overview and architecture</li><li><b>02</b> Project scope, decisions, and status</li><li><b>03</b> Development records and reviews</li><li><b>04</b> Testing, security audits, and evidence</li><li><b>05</b> Setup, deployment, and operations</li><li><b>06</b> Future enhancements</li><li><b>07</b> Superseded records archive</li></ol>
+          </article>
+          <article class="catalog-card security-catalog">
+            <header><span>Security assurance</span><strong>12 phases</strong></header>
+            <ol><li><b>01</b> Design &amp; Architecture</li><li><b>02</b> Local Development</li><li><b>03</b> Database &amp; Backend</li><li><b>04</b> API Layer</li><li><b>05</b> Frontend &amp; UI</li><li><b>06</b> Application Security Testing</li><li><b>07</b> CI/CD &amp; Release Engineering</li><li><b>08</b> Cloud Infrastructure</li><li><b>09</b> Edge, CDN &amp; DNS</li><li><b>10</b> Release &amp; Rollout</li><li><b>11</b> Monitoring &amp; Incident Response</li><li><b>12</b> Ongoing Operations</li></ol>
+          </article>
+          <article class="catalog-card engineering-catalog">
+            <header><span>Engineering review</span><strong>9 topics</strong></header>
+            <ol><li><b>01</b> Query Performance</li><li><b>02</b> Networking Fundamentals</li><li><b>03</b> Rate Limiting Algorithms</li><li><b>04</b> Production Debugging</li><li><b>05</b> Code Review Practices</li><li><b>06</b> Data Modeling</li><li><b>07</b> Cloud Cost Saving</li><li><b>08</b> Testing Types</li><li><b>09</b> Message Queues</li></ol>
+          </article>
+        </div>
+
+        <div class="skill-detail">
+          <div><p class="eyebrow">What the installed skill does</p><h3><code>$manage-project-quality</code></h3><p>The skill classifies the request, establishes scope and safety boundaries, loads only the required references, inspects repository evidence, applies the correct status model, and produces a durable result.</p></div>
+          <ol><li><span>1</span>Route to documentation, security, or engineering</li><li><span>2</span>Select standard or learning interaction style</li><li><span>3</span>Load shared evidence rules plus one relevant reference</li><li><span>4</span>Inspect files without guessing unavailable facts</li><li><span>5</span>Write findings, remediation, verification, and limitations</li></ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell trust-section">
+      <header class="section-heading"><p class="eyebrow">Designed for controlled adoption</p><h2>Useful automation without hidden authority.</h2></header>
+      <div class="trust-grid">
+        <article><span aria-hidden="true">◇</span><h3>Inert installation</h3><p>No preinstall, install, or postinstall lifecycle script changes your repository.</p></article>
+        <article><span aria-hidden="true">◎</span><h3>Evidence-first status</h3><p>Reports begin as Unverified. A generated checklist is not proof that a control passes.</p></article>
+        <article><span aria-hidden="true">⌁</span><h3>Bounded security work</h3><p>Active tests require explicit target authorization and should prefer staging over production.</p></article>
+        <article><span aria-hidden="true">↺</span><h3>Repeatable records</h3><p>Reports live with the project so findings, decisions, and verification survive the session.</p></article>
+      </div>
+    </section>
+
+    <section class="section quick-start" id="quick-start">
+      <div class="shell">
+        <header class="section-heading"><p class="eyebrow">Installation and first run</p><h2>Choose how you want to use the kit.</h2><p>Trying with npx is the fastest path. A project dependency is more reproducible for a team. Global installation is convenient for repeated personal use. Contributors can run directly from the repository.</p></header>
+        <div class="install-grid">
+          <article class="recommended"><span>Recommended first run</span><h3>Run with npx</h3><p>Downloads and executes the published version without adding it to the project’s dependencies.</p><div class="install-code"><code>npx @ghostbyte/agent-docs-kit@latest</code><button class="copy-button light" data-copy="npx @ghostbyte/agent-docs-kit@latest">Copy</button></div></article>
+          <article><span>Team projects</span><h3>Install locally</h3><p>Add the CLI as a development dependency so the package version is recorded in your lockfile.</p><div class="install-code"><code>npm install --save-dev @ghostbyte/agent-docs-kit</code><button class="copy-button light" data-copy="npm install --save-dev @ghostbyte/agent-docs-kit">Copy</button></div><div class="install-code"><code>npx agent-docs</code><button class="copy-button light" data-copy="npx agent-docs">Copy</button></div></article>
+          <article><span>Personal workstation</span><h3>Install globally</h3><p>Expose `agent-docs` as a machine-level command. The package still performs no setup until you run a command.</p><div class="install-code"><code>npm install --global @ghostbyte/agent-docs-kit</code><button class="copy-button light" data-copy="npm install --global @ghostbyte/agent-docs-kit">Copy</button></div><div class="install-code"><code>agent-docs --help</code><button class="copy-button light" data-copy="agent-docs --help">Copy</button></div></article>
+          <article><span>Contributors</span><h3>Run from source</h3><p>Clone the repository, verify it, and invoke the local executable while developing the library or site.</p><div class="install-code"><code>git clone https://github.com/ghostbyte1014/Agent_Docs_Kit.git
+cd Agent_Docs_Kit
+npm install
+npm test
+node bin/agent-docs.mjs</code><button class="copy-button light" data-copy="git clone https://github.com/ghostbyte1014/Agent_Docs_Kit.git\ncd Agent_Docs_Kit\nnpm install\nnpm test\nnode bin/agent-docs.mjs">Copy</button></div></article>
+        </div>
+        <div class="after-install"><strong>What happens immediately after installation?</strong><p>Nothing. The package has no install-time lifecycle script. Run `agent-docs setup`, an audit/review command, or `skill install` only when you are ready for that explicit action.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-layout"><div><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">AQ</span><span>Agent Docs &amp; Quality</span></a><p>Documentation governance, security assurance, and engineering review in one project-quality library.</p></div><div><p>Project</p><a href="https://github.com/ghostbyte1014/Agent_Docs_Kit">GitHub repository</a><a href="docs/GITHUB_AND_NPM_SETUP.md">Setup guide</a><a href="docs/ARCHITECTURE.md">Architecture</a></div><div><p>Reference</p><a href="docs/PURPOSE.md">Purpose</a><a href="docs/SECURITY_MODEL.md">Security model</a><a href="docs/RELEASE_PROCESS.md">Release process</a></div></div>
+    <div class="shell footer-bottom"><span>Created by ghostbyte1014</span><span>MIT License</span></div>
+  </footer>
+</body>
+</html>

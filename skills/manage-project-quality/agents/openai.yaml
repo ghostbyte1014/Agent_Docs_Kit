@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Docs & Quality"
+  short_description: "Govern docs and review project quality"
+  default_prompt: "Use $manage-project-quality to set up project documentation or run an evidence-based security or engineering review."

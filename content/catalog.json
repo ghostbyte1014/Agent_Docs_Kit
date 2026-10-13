@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "security": [
+    {
+      "id": "01",
+      "slug": "design-architecture",
+      "title": "Design & Architecture",
+      "aliases": [
+        "1"
+      ],
+      "source": "content/security/01-design-architecture.md"
+    },
+    {
+      "id": "02",
+      "slug": "local-development",
+      "title": "Local Development",
+      "aliases": [
+        "2"
+      ],
+      "source": "content/security/02-local-development.md"
+    },
+    {
+      "id": "03",
+      "slug": "database-backend",
+      "title": "Database & Backend",
+      "aliases": [
+        "3"
+      ],
+      "source": "content/security/03-database-backend.md"
+    },
+    {
+      "id": "04",
+      "slug": "api-layer",
+      "title": "API Layer",
+      "aliases": [
+        "4"
+      ],
+      "source": "content/security/04-api-layer.md"
+    },
+    {
+      "id": "05",
+      "slug": "frontend-ui",
+      "title": "Frontend & UI",
+      "aliases": [
+        "5"
+      ],
+      "source": "content/security/05-frontend-ui.md"
+    },
+    {
+      "id": "06",
+      "slug": "application-security-testing",
+      "title": "Application Security Testing",
+      "aliases": [
+        "6"
+      ],
+      "source": "content/security/06-application-security-testing.md"
+    },
+    {
+      "id": "07",
+      "slug": "cicd-release-engineering",
+      "title": "CI/CD & Release Engineering",
+      "aliases": [
+        "7"
+      ],
+      "source": "content/security/07-cicd-release-engineering.md"
+    },
+    {
+      "id": "08",
+      "slug": "cloud-infrastructure",
+      "title": "Cloud Infrastructure",
+      "aliases": [
+        "8"
+      ],
+      "source": "content/security/08-cloud-infrastructure.md"
+    },
+    {
+      "id": "09",
+      "slug": "edge-cdn-dns",
+      "title": "Edge, CDN & DNS",
+      "aliases": [
+        "9"
+      ],
+      "source": "content/security/09-edge-cdn-dns.md"
+    },
+    {
+      "id": "10",
+      "slug": "release-rollout",
+      "title": "Release & Rollout",
+      "aliases": [
+        "10"
+      ],
+      "source": "content/security/10-release-rollout.md"
+    },
+    {
+      "id": "11",
+      "slug": "post-release-monitoring-ir",
+      "title": "Post-release Monitoring & Incident Response",
+      "aliases": [
+        "11"
+      ],
+      "source": "content/security/11-post-release-monitoring-ir.md"
+    },
+    {
+      "id": "12",
+      "slug": "ongoing-operations",
+      "title": "Ongoing Operations",
+      "aliases": [
+        "12"
+      ],
+      "source": "content/security/12-ongoing-operations.md"
+    }
+  ],
+  "engineering": [
+    {
+      "id": "01",
+      "slug": "query-performance",
+      "title": "Query Performance & Slow Query Diagnosis",
+      "aliases": [
+        "1"
+      ],
+      "source": "content/engineering/01-query-performance.md"
+    },
+    {
+      "id": "02",
+      "slug": "networking-fundamentals",
+      "title": "Networking Fundamentals",
+      "aliases": [
+        "2"
+      ],
+      "source": "content/engineering/02-networking-fundamentals.md"
+    },
+    {
+      "id": "03",
+      "slug": "rate-limiting-algorithms",
+      "title": "Rate Limiting Algorithm Choices",
+      "aliases": [
+        "3"
+      ],
+      "source": "content/engineering/03-rate-limiting-algorithms.md"
+    },
+    {
+      "id": "04",
+      "slug": "production-debugging",
+      "title": "Production Debugging",
+      "aliases": [
+        "4"
+      ],
+      "source": "content/engineering/04-production-debugging.md"
+    },
+    {
+      "id": "05",
+      "slug": "code-review-practices",
+      "title": "Code Review Practices",
+      "aliases": [
+        "5"
+      ],
+      "source": "content/engineering/05-code-review-practices.md"
+    },
+    {
+      "id": "06",
+      "slug": "data-modeling",
+      "title": "Data Modeling",
+      "aliases": [
+        "6"
+      ],
+      "source": "content/engineering/06-data-modeling.md"
+    },
+    {
+      "id": "07",
+      "slug": "cloud-cost-saving",
+      "title": "Cloud Cost Saving",
+      "aliases": [
+        "7"
+      ],
+      "source": "content/engineering/07-cloud-cost-saving.md"
+    },
+    {
+      "id": "08",
+      "slug": "testing-types",
+      "title": "Testing Types",
+      "aliases": [
+        "8"
+      ],
+      "source": "content/engineering/08-testing-types.md"
+    },
+    {
+      "id": "09",
+      "slug": "message-queues",
+      "title": "Message Queues",
+      "aliases": [
+        "9"
+      ],
+      "source": "content/engineering/09-message-queues.md"
+    }
+  ]
+}

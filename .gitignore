@@ -1,6 +1,10 @@
 # Keep changelog private/local to maintainer
 AGENT_DOCS_KIT_CHANGELOG.md
 
-# Local preview tools
-preview.html
-serve.js
+# Generated and dependency files
+node_modules/
+build/
+.npm-cache/
+.tmp-smoke/
+*.tgz
+npm-debug.log*
