@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "documentationRoot": "docs",
+  "securityReports": "docs/04-testing/security-audits",
+  "engineeringReports": "docs/03-development/engineering-reviews",
+  "interactionStyle": "standard"
+}

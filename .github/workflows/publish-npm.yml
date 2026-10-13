@@ -1,18 +1,33 @@
 name: Publish npm package
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-npm.yml"
+      - "bin/**"
+      - "content/**"
+      - "docs/**"
+      - "skills/**"
+      - "src/**"
+      - "templates/**"
+      - "LICENSE"
+      - "README.md"
+      - "package.json"
+      - "package-lock.json"
   workflow_dispatch:
 
 permissions:
   contents: read
   id-token: write
 
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: npm
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -24,7 +39,26 @@ jobs:
       - run: npm test
       - run: npm run validate
       - run: npm run build
-      - name: Verify release tag matches package version
-        if: github.event_name == 'release'
-        run: test "${GITHUB_REF_NAME}" = "v$(node -p \"require('./package.json').version\")"
-      - run: npm publish --access public
+      - name: Check whether this version is already published
+        id: registry
+        shell: bash
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "package_name=$PACKAGE_NAME" >> "$GITHUB_OUTPUT"
+          echo "package_version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version --registry=https://registry.npmjs.org/ >/dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "### npm publish skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "\`$PACKAGE_NAME@$PACKAGE_VERSION\` already exists and cannot be overwritten." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Publish new version
+        if: steps.registry.outputs.publish == 'true'
+        run: npm publish --access public
+      - name: Record published version
+        if: steps.registry.outputs.publish == 'true'
+        run: |
+          echo "### Published to npm" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`${{ steps.registry.outputs.package_name }}@${{ steps.registry.outputs.package_version }}\`" >> "$GITHUB_STEP_SUMMARY"

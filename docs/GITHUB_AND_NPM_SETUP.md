@@ -62,7 +62,7 @@ gh api --method PUT repos/ghostbyte1014/Agent_Docs_Kit/pages -f build_type=workf
 
 ## 4. Prepare npm
 
-Create or sign in to the npm account that owns the `@ghostbyte1014` scope. Confirm package-name access and authentication:
+Sign in to the npm account named `ghostbyte`, which owns the `@ghostbyte` personal scope. Confirm package access and authentication:
 
 ```powershell
 npm.cmd view @ghostbyte/agent-docs-kit name version
@@ -90,15 +90,23 @@ npx --yes @ghostbyte/agent-docs-kit@latest setup --dry-run
 
 ## 6. Configure trusted publishing
 
-In npm package settings, add a trusted publisher for GitHub Actions using the exact owner, repository, and workflow filename `.github/workflows/publish-npm.yml`. Configure a protected GitHub environment named `npm` if release approval is desired.
+In npm package settings, add a trusted publisher for GitHub Actions with these values:
 
-After that, publish releases by updating the version, committing, creating a GitHub release, and allowing the workflow to use OIDC. No long-lived `NPM_TOKEN` is required.
+| Field | Value |
+|---|---|
+| Organization or user | `ghostbyte1014` |
+| Repository | `Agent_Docs_Kit` |
+| Workflow filename | `publish-npm.yml` |
+| Environment name | Leave blank |
+| Allowed actions | Allow direct `npm publish` |
+
+No npm token or GitHub environment is required. The workflow is restricted to this GitHub repository and workflow through OIDC.
+
+After that, commit your changes, increment the npm version, and push to `main`. The push automatically validates and publishes the new version. No long-lived `NPM_TOKEN` is required.
 
 ```powershell
 npm.cmd version patch
 git push --follow-tags
-$version = node -p "require('./package.json').version"
-gh release create "v$version" --generate-notes
 ```
 
-Never reuse an existing npm version: registry versions are immutable. Use `npm deprecate` for a bad release and publish a corrected version.
+Use `npm.cmd version minor` for a backward-compatible feature and `npm.cmd version major` for a breaking change. Never reuse an existing npm version: registry versions are immutable. Use `npm deprecate` for a bad release and publish a corrected version.
