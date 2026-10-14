@@ -16,10 +16,31 @@ export async function writeSafe(path, contents, { force = false, dryRun = false 
   if (!force && await exists(path)) return { path, status: "skipped" };
   if (!dryRun) {
     await mkdir(dirname(path), { recursive: true });
-    try { await writeFile(path, contents, { encoding: "utf8", flag: force ? "w" : "wx" }); }
-    catch (error) {
-      if (!force && error.code === "EEXIST") return { path, status: "skipped" };
-      throw error;
+    if (!force) {
+      try { await writeFile(path, contents, { encoding: "utf8", flag: "wx" }); }
+      catch (error) {
+        if (error.code === "EEXIST") return { path, status: "skipped" };
+        throw error;
+      }
+    } else {
+      const nonce = `${process.pid}-${Date.now()}-${randomUUID()}`;
+      const staged = `${path}.agent-docs-stage-${nonce}`;
+      const backup = `${path}.agent-docs-backup-${nonce}`;
+      await writeFile(staged, contents, { encoding: "utf8", flag: "wx" });
+      const replacing = await exists(path);
+      let movedOriginal = false;
+      try {
+        if (replacing) {
+          await rename(path, backup);
+          movedOriginal = true;
+        }
+        await rename(staged, path);
+      } catch (error) {
+        await rm(staged, { force: true });
+        if (movedOriginal && !(await exists(path))) await rename(backup, path);
+        throw error;
+      }
+      if (movedOriginal) await rm(backup, { force: true });
     }
   }
   return { path, status: dryRun ? "planned" : "created" };

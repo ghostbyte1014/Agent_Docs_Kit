@@ -4,7 +4,7 @@ Published npm versions are immutable. A matching version-tag push can publish a 
 
 1. Update canonical content and run `npm run build` to refresh progressive skill references and the site.
 2. Run `npm run release:check`. This includes tests, validation, builds, a clean tarball installation, and `npm audit`.
-3. Confirm the package archive contains no credentials, local reports, nested repositories, or generated consumer data.
+3. Confirm the package archive contains no credentials, local reports, nested repositories, or generated consumer data. `npm pack --dry-run --json` must show only the six approved public files under `docs/`, and every `main`, `bin`, and `exports` target must exist in the archive.
 4. Commit the package changes locally.
 5. Update the version with `npm version patch`, `minor`, or `major` according to compatibility.
 6. Push the commit and tag. A matching `v*` tag on `main` runs `.github/workflows/publish-npm.yml`, verifies the version and ancestry, and publishes through npm trusted publishing.

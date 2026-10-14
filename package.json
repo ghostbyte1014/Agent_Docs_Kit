@@ -15,7 +15,12 @@
     "content/",
     "templates/",
     "skills/",
-    "docs/",
+    "docs/ARCHITECTURE.md",
+    "docs/CONTENT_MAINTENANCE.md",
+    "docs/GITHUB_AND_NPM_SETUP.md",
+    "docs/PURPOSE.md",
+    "docs/RELEASE_PROCESS.md",
+    "docs/SECURITY_MODEL.md",
     "scripts/",
     "site/",
     "tests/",
@@ -63,5 +68,5 @@
     "doc": "docs",
     "test": "tests"
   },
-  "main": "index.js"
+  "main": "./src/api/index.mjs"
 }

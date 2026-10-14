@@ -13,11 +13,35 @@ try {
   const cache = resolve(scratch, "npm-cache");
   const packed = JSON.parse(runNpm(["pack", "--json", "--cache", cache, "--pack-destination", scratch], { cwd: root, encoding: "utf8" }));
   const archivePaths = new Set(packed[0].files.map((entry) => entry.path.replaceAll("\\", "/")));
+  const publicDocs = new Set([
+    "docs/ARCHITECTURE.md",
+    "docs/CONTENT_MAINTENANCE.md",
+    "docs/GITHUB_AND_NPM_SETUP.md",
+    "docs/PURPOSE.md",
+    "docs/RELEASE_PROCESS.md",
+    "docs/SECURITY_MODEL.md"
+  ]);
   for (const required of ["scripts/validate-content.mjs", "site/index.html", "tests/cli.test.mjs", "skills/manage-project-quality/references/security-protocol.md", "skills/manage-project-quality/references/engineering-protocol.md", "skills/manage-project-quality/references/documentation-governance.md"]) {
     if (!archivePaths.has(required)) throw new Error(`Packed archive is missing ${required}.`);
   }
+  for (const publicDoc of publicDocs) {
+    if (!archivePaths.has(publicDoc)) throw new Error(`Packed archive is missing public documentation: ${publicDoc}`);
+  }
   for (const path of archivePaths) {
     if (/^(?:\.git|\.agent-docs|\.npm-cache|build|node_modules)(?:\/|$)|MONTHLY_MAINTENANCE_AI\.md$|\.tgz$/i.test(path)) throw new Error(`Private or generated path leaked into package: ${path}`);
+    if (path.startsWith("docs/") && !publicDocs.has(path)) throw new Error(`Local documentation leaked into package: ${path}`);
+  }
+  const packageMetadata = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+  const declaredTargets = new Set([packageMetadata.main, ...Object.values(packageMetadata.bin ?? {})]);
+  const collectExportTargets = (value) => {
+    if (typeof value === "string") declaredTargets.add(value);
+    else if (Array.isArray(value)) value.forEach(collectExportTargets);
+    else if (value && typeof value === "object") Object.values(value).forEach(collectExportTargets);
+  };
+  collectExportTargets(packageMetadata.exports);
+  for (const target of declaredTargets) {
+    const normalized = target?.replace(/^\.\//, "").replaceAll("\\", "/");
+    if (normalized && !archivePaths.has(normalized)) throw new Error(`Declared package entry point is missing from the archive: ${target}`);
   }
   const tarball = resolve(scratch, packed[0].filename);
   const consumer = resolve(scratch, "consumer");

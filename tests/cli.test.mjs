@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setupProject } from "../src/commands/setup.mjs";
@@ -24,6 +24,22 @@ test("setup is explicit, non-destructive, and repeatable", async () => {
     assert.ok(created.every((item) => item.status === "created"));
     const repeated = await setupProject({ cwd: root });
     assert.ok(repeated.every((item) => item.status === "skipped"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("forced setup atomically replaces owned files without leaving staging artifacts", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    await setupProject({ cwd: root });
+    const overview = join(root, "docs", "01-system", "overview.md");
+    await writeFile(overview, "temporary contents\n");
+    const replaced = await setupProject({ cwd: root, force: true });
+    assert.ok(replaced.every((item) => item.status === "created"));
+    assert.match(await readFile(overview, "utf8"), /^# System overview/);
+    const names = await readdir(join(root, "docs", "01-system"));
+    assert.ok(names.every((name) => !name.includes(".agent-docs-stage-") && !name.includes(".agent-docs-backup-")));
   } finally {
     await rm(root, { recursive: true, force: true });
   }

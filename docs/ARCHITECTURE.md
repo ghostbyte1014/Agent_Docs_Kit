@@ -43,4 +43,6 @@ Agent_Docs_Kit/
 
 `content/` is the single canonical library for all three workflows. `agent-docs setup` creates `.agent-docs/config.json` and a project documentation tree. Reports are written beneath configured directories; the reference library stays in the npm package and installed skill rather than being duplicated into each project.
 
-Generated outputs under `build/`, package archives, dependencies, and the maintainer’s local monthly AI prompt are ignored by Git.
+Generated outputs under `build/`, package archives, dependencies, and the maintainer’s local monthly AI prompt are ignored by Git. Local consumer-style documentation under the configured `docs/` workspace is also ignored in this repository.
+
+Git ignore rules are not treated as a publishing boundary. `package.json` explicitly lists the six public maintainer guides, `docs/.npmignore` excludes local workspace records, and the packed-installation smoke test rejects every unexpected `docs/` path and every missing declared entry point.

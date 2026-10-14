@@ -74,6 +74,18 @@ for (const directory of metadata.files ?? []) {
   try { await access(resolve(root, directory)); }
   catch { errors.push(`package.json files entry does not exist: ${directory}`); }
 }
+const declaredTargets = new Set([metadata.main, ...Object.values(metadata.bin ?? {})]);
+const collectExportTargets = (value) => {
+  if (typeof value === "string") declaredTargets.add(value);
+  else if (Array.isArray(value)) value.forEach(collectExportTargets);
+  else if (value && typeof value === "object") Object.values(value).forEach(collectExportTargets);
+};
+collectExportTargets(metadata.exports);
+for (const target of declaredTargets) {
+  if (!target) continue;
+  try { await access(resolve(root, target)); }
+  catch { errors.push(`Declared package entry point does not exist: ${target}`); }
+}
 
 const site = await readFile(resolve(root, "site/index.html"), "utf8");
 const ids = [...site.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
