@@ -11,6 +11,8 @@ After installing globally:
 
 Commands:
   (no command)                       Open the guided menu (TTY only)
+  start [new|existing|agent|manual]  Show a complete onboarding path
+  next                               Detect project state and show the next step
   setup [--dry-run]                  Create the documentation workspace
   audit documentation [--strict]     Check documentation health
   documentation guide <area>         Print one documentation guidance area
@@ -31,6 +33,8 @@ Commands:
   --version                          Show the package version
 
 Examples:
+  npx @ghostbyte/agent-docs-kit@latest start existing
+  npx @ghostbyte/agent-docs-kit@latest next
   npx @ghostbyte/agent-docs-kit@latest setup --dry-run
   npx @ghostbyte/agent-docs-kit@latest audit documentation --strict --format text
   npx @ghostbyte/agent-docs-kit@latest documentation guide system-documentation
@@ -56,4 +60,8 @@ Options:
   --strict                    Fail when documentation checks fail
   --help                      Show this help
 
-Installing the npm package performs no project setup. Run a command explicitly.`;
+Recommended first run:
+  npx @ghostbyte/agent-docs-kit@latest start
+
+Installing the npm package performs no project setup. Run 'start' for a guided path
+or 'next' to continue an initialized project.`;

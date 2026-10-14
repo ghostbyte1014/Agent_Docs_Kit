@@ -11,6 +11,7 @@ import { validatePackage } from "../commands/validate.mjs";
 import { openWebsite } from "../commands/website.mjs";
 import { createTemplate, listTemplates } from "../commands/template.mjs";
 import { showDocumentationGuide } from "../commands/guide.mjs";
+import { nextWorkflow, startWorkflow } from "../commands/workflow.mjs";
 import { readFile } from "node:fs/promises";
 import { resolveFromPackage } from "../core/paths.mjs";
 
@@ -27,22 +28,28 @@ function assertInvocation(positionals, flags, { counts, allowedFlags = [], usage
 async function menu() {
   const ui = createInterface({ input: stdin, output: stdout });
   try {
-    console.log(`\nAgent Docs & Quality Kit\n\n1. Set up documentation\n2. Audit documentation\n3. Create security worksheet\n4. Create engineering worksheet\n5. Install project skill\n6. Validate package\n7. Open documentation website\n8. List documentation templates\n0. Exit`);
+    console.log(`\nAgent Docs & Quality Kit\n\nStart and continue\n1. Choose a starting path\n2. Continue from the current project state\n\nFocused workflows\n3. Set up documentation\n4. Audit documentation\n5. Create security worksheet\n6. Create engineering worksheet\n7. Install project skill\n\nReference and maintenance\n8. List documentation templates\n9. Validate package\n10. Open documentation website\n0. Exit`);
     const choice = await ui.question("\nChoose an action: ");
-    if (choice === "1") return setupProject();
-    if (choice === "2") return auditDocumentation();
-    if (choice === "3") {
+    if (choice === "1") {
+      console.log("\n1. New or empty project\n2. Existing project\n3. AI-assisted workflow\n4. Manual workflow");
+      const path = await ui.question("Choose a starting path: ");
+      return startWorkflow({ "1": "new", "2": "existing", "3": "agent", "4": "manual" }[path]);
+    }
+    if (choice === "2") return nextWorkflow();
+    if (choice === "3") return setupProject();
+    if (choice === "4") return auditDocumentation();
+    if (choice === "5") {
       await listCatalog("security");
       return auditSecurity(await ui.question("Phase id or slug: "));
     }
-    if (choice === "4") {
+    if (choice === "6") {
       await listCatalog("engineering");
       return reviewEngineering(await ui.question("Topic id or slug: "));
     }
-    if (choice === "5") return installSkill("project");
-    if (choice === "6") return validatePackage();
-    if (choice === "7") return openWebsite();
+    if (choice === "7") return installSkill("project");
     if (choice === "8") return listTemplates();
+    if (choice === "9") return validatePackage();
+    if (choice === "10") return openWebsite();
     if (choice !== "0") throw new Error("Unknown menu choice.");
   } finally {
     ui.close();
@@ -66,6 +73,14 @@ export async function main(argv) {
       return;
     }
     return menu();
+  }
+  if (command === "start") {
+    assertInvocation(positionals, flags, { counts: [1, 2], usage: "agent-docs start [new|existing|agent|manual]" });
+    return startWorkflow(subject);
+  }
+  if (command === "next") {
+    assertInvocation(positionals, flags, { counts: [1], allowedFlags: ["cwd"], usage: "agent-docs next [--cwd <path>]" });
+    return nextWorkflow(options);
   }
   if (command === "setup") {
     assertInvocation(positionals, flags, { counts: [1], allowedFlags: ["cwd", "dry-run", "force"], usage: "agent-docs setup [--cwd <path>] [--dry-run] [--force]" });

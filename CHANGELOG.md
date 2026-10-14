@@ -4,6 +4,25 @@ Notable user-visible changes are recorded here. Versions follow semantic version
 
 ## Unreleased
 
+## 5.1.0 - 2026-10-14
+
+### Added
+
+- Guided `start new|existing|agent|manual` onboarding paths for first-time users.
+- A read-only `next` command that derives the current workflow stage from repository state.
+- Terminal continuation instructions after setup, skill installation, documentation audits, and worksheet creation.
+- A website guide explaining how the CLI, repository skill, coding agent, and durable project records work together.
+- A targeted-loading explanation showing how focused references can reduce unnecessary AI context and token usage.
+
+### Changed
+
+- The interactive menu is organized around starting, continuing, focused workflows, and maintenance instead of a flat command list.
+- The unified skill now detects first-use and post-setup requests and ends with one evidence-bounded next action.
+- Local website preview now builds the current source before starting the server.
+- Website builds use the same explicit public-document allowlist as the npm package.
+
+## 5.0.1 - 2026-10-14
+
 ### Fixed
 
 - Local documentation workspaces and generated audit records are excluded from the npm archive by an explicit public-document allowlist.

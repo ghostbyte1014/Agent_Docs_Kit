@@ -35,6 +35,32 @@ The no-argument command opens a guided menu in an interactive terminal. Installa
 
 The canonical library contains seven documentation areas, 12 security phases, and 14 engineering topics under `content/`. The generated skill loads only the selected reference instead of placing all 33 areas in context.
 
+## Choose a starting path
+
+The kit now separates first-time onboarding from the individual tools:
+
+```bash
+# Show all paths without changing files
+npx @ghostbyte/agent-docs-kit@latest start
+
+# Show one complete path
+npx @ghostbyte/agent-docs-kit@latest start new
+npx @ghostbyte/agent-docs-kit@latest start existing
+npx @ghostbyte/agent-docs-kit@latest start agent
+npx @ghostbyte/agent-docs-kit@latest start manual
+
+# Inspect an initialized project and receive its next action
+npx @ghostbyte/agent-docs-kit@latest next
+```
+
+`next` derives progress from the repository: configuration, required documents, scaffold prompts, saved documentation audits, and open security or engineering worksheets. It does not depend on terminal-session memory and does not write files.
+
+For AI-assisted work, install the repository-scoped skill, restart the AI session if needed, then prompt:
+
+> Use `$manage-project-quality`. Inspect this repository, determine the current Agent Docs stage, and guide me through the next safe step. Do not infer facts without evidence.
+
+If a user gives only the npm package or skill to an AI, the agent should inspect before acting, explain proposed writes, distinguish planned behavior from implemented behavior, and request authorization before active security testing. Package installation alone does not initialize files, run reviews, or grant authority.
+
 ## Install the command
 
 Project-local installation:

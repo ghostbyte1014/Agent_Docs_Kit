@@ -20,8 +20,8 @@
         <span>Agent Docs &amp; Quality</span>
       </a>
       <div class="nav-links">
+        <a href="#getting-started">Start here</a>
         <a href="#workflows">Workflows</a>
-        <a href="#how-it-works">How it works</a>
         <a href="#commands">Commands</a>
         <a class="nav-install" href="#quick-start">Install guide</a>
       </div>
@@ -34,7 +34,7 @@
         <p class="hero-lead">Want to review and improve your project’s documentation, security posture, and engineering quality? Try Agent Docs &amp; Quality Kit. You can initialize it in a new project or safely add it to an existing project without overwriting existing files.</p>
         <div class="actions">
           <a class="button primary" href="#quick-start">Start locally <span aria-hidden="true">→</span></a>
-          <a class="button secondary" href="#workflows">Explore the workflows</a>
+          <a class="button secondary" href="#getting-started">Choose your path</a>
         </div>
         <dl class="hero-facts" aria-label="Toolkit facts">
           <div><dt>3</dt><dd>Focused workflows</dd></div>
@@ -49,15 +49,15 @@
           <p><span class="prompt">$</span> <span data-command>npx @ghostbyte/agent-docs-kit@latest</span></p>
           <p class="console-title">Agent Docs &amp; Quality Kit</p>
           <ol>
-            <li><i>01</i> Set up documentation</li>
-            <li><i>02</i> Audit documentation</li>
-            <li class="active"><i>03</i> Start security audit <b>selected</b></li>
-            <li><i>04</i> Start engineering review</li>
-            <li><i>05</i> Install project skill</li>
-            <li><i>06</i> Validate package</li>
-            <li><i>07</i> Open documentation website</li>
+            <li class="active"><i>01</i> Choose a starting path <b>start here</b></li>
+            <li><i>02</i> Continue from project state</li>
+            <li><i>03</i> Documentation workflow</li>
+            <li><i>04</i> Security workflow</li>
+            <li><i>05</i> Engineering workflow</li>
+            <li><i>06</i> Templates and records</li>
+            <li><i>07</i> Validate and maintain</li>
           </ol>
-          <p class="console-result"><span>✓</span> Scope selected: API Layer<br><span>→</span> Report starts as <strong>Unverified</strong></p>
+          <p class="console-result"><span>✓</span> New, existing, AI, and manual paths<br><span>→</span> One clear next action at every stage</p>
         </div>
       </div>
     </div>
@@ -70,6 +70,60 @@
         <p><span>Explicit actions only</span></p>
         <p><span>Context loaded on demand</span></p>
         <p><span>Human-readable outputs</span></p>
+      </div>
+    </section>
+
+    <section class="section shell journey-section" id="getting-started">
+      <header class="section-heading split-heading">
+        <div><p class="eyebrow">Start with your situation</p><h2>Choose a path, then let the kit show what comes next.</h2></div>
+        <p>You do not need to memorize the command catalog. Start with one of four paths. After every stage, <code>next</code> inspects the project and gives you one evidence-based continuation.</p>
+      </header>
+
+      <div class="journey-start"><span>First command</span><code data-command="start">npx @ghostbyte/agent-docs-kit@latest start</code><p>Read-only. It explains the paths and does not change the project.</p></div>
+
+      <div class="journey-grid">
+        <article>
+          <span class="journey-number">01</span><p class="journey-label">New or empty</p><h3>Establish the project memory.</h3>
+          <p>Create the structure, document intended behavior as planned, and avoid presenting designs as implemented facts.</p>
+          <code data-command="start new">npx @ghostbyte/agent-docs-kit@latest start new</code>
+        </article>
+        <article>
+          <span class="journey-number">02</span><p class="journey-label">Existing project</p><h3>Reconcile docs with reality.</h3>
+          <p>Preview the safe scaffold, preserve existing files, then use code, configuration, tests, and operations as evidence.</p>
+          <code data-command="start existing">npx @ghostbyte/agent-docs-kit@latest start existing</code>
+        </article>
+        <article>
+          <span class="journey-number">03</span><p class="journey-label">AI-assisted</p><h3>Give the agent a bounded workflow.</h3>
+          <p>Install the repository skill, restart the AI session if needed, and ask it to inspect the project without guessing unavailable facts.</p>
+          <code data-command="start agent">npx @ghostbyte/agent-docs-kit@latest start agent</code>
+        </article>
+        <article>
+          <span class="journey-number">04</span><p class="journey-label">Manual</p><h3>Use the library yourself.</h3>
+          <p>Read one focused guide, complete records by hand, and change Unverified only when your evidence supports it.</p>
+          <code data-command="start manual">npx @ghostbyte/agent-docs-kit@latest start manual</code>
+        </article>
+      </div>
+
+      <div class="journey-continue">
+        <div><p class="eyebrow">Already started?</p><h3>Continue from the real project state.</h3><p>The CLI checks configuration, required documents, starter prompts, saved audits, and open worksheets. It does not rely on memory from the previous terminal session.</p></div>
+        <div><code data-command="next">npx @ghostbyte/agent-docs-kit@latest next</code><ul><li>Stage 1: initialize safely</li><li>Stage 2-3: complete the scaffold and baseline</li><li>Stage 4: verify documentation</li><li>Stage 5-6: review and maintain</li></ul></div>
+      </div>
+
+      <aside class="agent-handoff">
+        <div><span>When another user gives the kit to an AI</span><h3>The package is context, not automatic authority.</h3></div>
+        <p>The AI should inspect the repository, determine the current stage, explain proposed writes, keep unknowns explicit, and ask for authorization before active security testing. Installing the package or skill alone does not initialize files or perform an audit.</p>
+      </aside>
+
+      <div class="agentic-guide" id="agentic-coding">
+        <header><p class="eyebrow">How agentic coding fits</p><h3>The kit supplies project memory and review rules. Your coding agent performs the work you request.</h3><p>Agent Docs &amp; Quality Kit does not bundle an AI model or start a background service. It prepares a durable workspace that humans and compatible coding agents can read, update, and verify together.</p></header>
+        <ol>
+          <li><span>1</span><div><strong>Initialize the workspace</strong><p><code>setup</code> creates the configuration and documentation structure. Existing files are protected by default.</p></div></li>
+          <li><span>2</span><div><strong>Install the project skill</strong><p><code>skill install --target project</code> adds the focused instructions and references under <code>.agents/skills/</code>.</p></div></li>
+          <li><span>3</span><div><strong>Start the coding agent</strong><p>Open or restart a supported agent in the repository, invoke <code>$manage-project-quality</code>, and give it a specific documentation, security, or engineering goal.</p></div></li>
+          <li><span>4</span><div><strong>Keep the result with the project</strong><p>The agent cites repository evidence and writes review records into <code>docs/</code>, where the team can inspect and maintain them.</p></div></li>
+        </ol>
+        <div class="agentic-prompt"><span>Suggested first prompt</span><code>Use $manage-project-quality. Inspect this repository, determine the current Agent Docs stage, and guide me through the next safe step. Do not infer facts without evidence.</code></div>
+        <p class="agentic-note"><strong>Using another AI tool?</strong> If it supports repository skills, point it to <code>.agents/skills/manage-project-quality/SKILL.md</code>. If it does not, the generated <code>docs/README.md</code>, focused CLI guides, and worksheets still provide a complete manual workflow.</p>
       </div>
     </section>
 
@@ -158,6 +212,10 @@
         <span class="route-arrow" aria-hidden="true">→</span>
         <div class="route-node report"><small>Durable output</small><strong>Evidence-based report</strong><code>docs/04-testing/…</code></div>
       </div>
+      <aside class="token-note">
+        <div><span>Why targeted loading matters</span><strong>Less unrelated context for each review</strong></div>
+        <p>Instead of placing all 33 review areas into every AI session, the skill loads shared evidence rules plus only the selected documentation area, security phase, or engineering topic. This can reduce unnecessary context and token usage while keeping the review focused. Actual token use still depends on the agent, repository, and requested scope.</p>
+      </aside>
     </section>
 
     <section class="section command-section" id="commands">
@@ -165,7 +223,7 @@
         <div>
           <p class="eyebrow">Interactive or automatable</p>
           <h2>Use the menu once. Use direct commands everywhere else.</h2>
-          <p>The no-argument command guides first-time users. Choose how you run the kit and every example on this page will use the right command.</p>
+          <p>Use <code>start</code> once to select a path. Use <code>next</code> whenever you return. Direct commands remain available for scripts and experienced users.</p>
           <div class="command-mode-card" aria-labelledby="command-mode-title">
             <strong id="command-mode-title">How are you running it?</strong>
             <div class="command-mode-switch" role="group" aria-label="Command format">
@@ -187,7 +245,11 @@
             <button id="code-tab-engineering" role="tab" aria-selected="false" aria-controls="code-panel-engineering" tabindex="-1" data-code-tab="engineering">Engineering</button>
             <button id="code-tab-skill" role="tab" aria-selected="false" aria-controls="code-panel-skill" tabindex="-1" data-code-tab="skill">Skill</button>
           </div>
-          <div id="code-panel-setup" class="code-panel" role="tabpanel" aria-labelledby="code-tab-setup" data-code-panel="setup"><pre><code data-command-example="setup">npx @ghostbyte/agent-docs-kit@latest list documentation
+          <div id="code-panel-setup" class="code-panel" role="tabpanel" aria-labelledby="code-tab-setup" data-code-panel="setup"><pre><code data-command-example="setup">npx @ghostbyte/agent-docs-kit@latest start existing
+
+npx @ghostbyte/agent-docs-kit@latest next
+
+npx @ghostbyte/agent-docs-kit@latest list documentation
 
 npx @ghostbyte/agent-docs-kit@latest documentation guide system-documentation
 
@@ -222,7 +284,7 @@ npm --version</code><button class="copy-button light" data-copy="node --version\
             <ol>
               <li><div><strong>Confirm the CLI is available</strong><small>This fetches the current published version and prints its help.</small></div><div class="install-code"><code>npx @ghostbyte/agent-docs-kit@latest --help</code><button class="copy-button light" data-copy="npx @ghostbyte/agent-docs-kit@latest --help">Copy</button></div></li>
               <li><div><strong>Preview the documentation setup</strong><small>The dry run reports intended writes without changing files.</small></div><div class="install-code"><code>npx @ghostbyte/agent-docs-kit@latest setup --dry-run</code><button class="copy-button light" data-copy="npx @ghostbyte/agent-docs-kit@latest setup --dry-run">Copy</button></div></li>
-              <li><div><strong>Open the guided menu</strong><small>Choose documentation, security, engineering, skill installation, or validation.</small></div><div class="install-code"><code>npx @ghostbyte/agent-docs-kit@latest</code><button class="copy-button light" data-copy="npx @ghostbyte/agent-docs-kit@latest">Copy</button></div></li>
+              <li><div><strong>Choose your starting path</strong><small>Get complete instructions for a new project, existing project, AI-assisted workflow, or manual workflow.</small></div><div class="install-code"><code>npx @ghostbyte/agent-docs-kit@latest start</code><button class="copy-button light" data-copy="npx @ghostbyte/agent-docs-kit@latest start">Copy</button></div></li>
             </ol>
           </article>
 
@@ -303,6 +365,8 @@ npx agent-docs --help</code><button class="copy-button light" data-copy="npm ins
 
       <div class="command-reference" role="list">
         <article role="listitem"><div class="command-meta"><span class="read-label">Interactive</span><code data-command>npx @ghostbyte/agent-docs-kit@latest</code></div><div><h3>Open the guided menu</h3><p>Choose documentation setup, documentation audit, security audit, engineering review, project-skill installation, or package validation. In a non-interactive shell, it prints help instead of waiting for input.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="start [new|existing|agent|manual]">npx @ghostbyte/agent-docs-kit@latest start [new|existing|agent|manual]</code></div><div><h3>Show a complete onboarding path</h3><p>Explains the ordered steps, safety boundary, and exact commands for a new project, an existing project, AI-assisted work, or manual work. With no path argument, it shows all four choices.</p></div></article>
+        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="next">npx @ghostbyte/agent-docs-kit@latest next</code></div><div><h3>Continue from project state</h3><p>Inspects the configured workspace, starter prompts, saved audits, and open worksheets, then prints the current stage and one concrete set of next actions. It does not write files.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code data-command="setup">npx @ghostbyte/agent-docs-kit@latest setup</code></div><div><h3>Create the documentation workspace</h3><p>Adds `.agent-docs/config.json` and the initial `docs/` hierarchy for system, project, development, testing, operations, future work, and archives. Use `--dry-run` first; existing files are skipped.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="read-label">Read-only*</span><code data-command="audit documentation">npx @ghostbyte/agent-docs-kit@latest audit documentation</code></div><div><h3>Check documentation health</h3><p>Checks configured required documents, duplicate headings, placeholders, relative links, anchors, and optional metadata. Add <code>--strict</code> for CI, <code>--format</code> for text, Markdown, or JSON, and <code>--report</code> to persist the result.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="list documentation">npx @ghostbyte/agent-docs-kit@latest list documentation</code></div><div><h3>List documentation areas</h3><p>Prints the seven canonical documentation area IDs, slugs, and names from the same catalog used by security and engineering.</p></div></article>

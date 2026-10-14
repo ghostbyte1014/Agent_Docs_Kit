@@ -32,6 +32,15 @@ async function reportFor(kind, selector, options = {}) {
   const body = `# ${heading}: ${entry.title}\n\n- Date: ${localDate()}\n- Style: ${options.style ?? config.interactionStyle}\n- Overall status: Unverified\n- Reviewer: _Unassigned_\n\n${context}\n\n## Findings\n\n${columns}\n\n## Reference checklist\n\n${reference.trim()}\n`;
   const result = await writeUnique(output, body, options);
   console.log(`${result.status} ${result.path}`);
+  if (options.dryRun) {
+    console.log("Preview only: no worksheet was created.");
+  } else {
+    console.log("\nNext steps:");
+    console.log(`1. Open ${relative(root, result.path)}. Every finding starts as Unverified.`);
+    console.log("2. Collect evidence, then record status, remediation, owner, and verification. Do not treat worksheet creation as a completed review.");
+    console.log("3. For AI assistance, install the project skill and ask $manage-project-quality to review only this scope.");
+    console.log(`4. Continue: npx @ghostbyte/agent-docs-kit@latest next --cwd "${root}"`);
+  }
   return result;
 }
 
@@ -159,6 +168,10 @@ export async function auditDocumentation(options = {}) {
     const written = await writeUnique(output, body, options);
     console.log(`${written.status} ${written.path}`);
     result.reportPath = written.path;
+  }
+  if (options.format === "text") {
+    console.log("\nThis is a structural documentation check; it does not prove that every statement is factually complete or current.");
+    console.log(`Continue: npx @ghostbyte/agent-docs-kit@latest next --cwd "${root}"`);
   }
   return result;
 }
