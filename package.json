@@ -1,6 +1,6 @@
 {
   "name": "@ghostbyte/agent-docs-kit",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Documentation governance, evidence-based security audits, and engineering-quality reviews for software projects.",
   "type": "module",
   "bin": {
