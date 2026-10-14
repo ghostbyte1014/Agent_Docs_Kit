@@ -16,7 +16,7 @@ Agent_Docs_Kit/
 ├─ src/
 │  ├─ api/index.mjs                # programmatic exports
 │  ├─ cli/                         # parsing, help, and routing
-│  ├─ commands/                    # setup, audit, worksheet, template, skill, validation
+│  ├─ commands/                    # onboarding, state detection, setup, audits, templates, skill
 │  └─ core/                        # catalog, config, filesystem, and package paths
 ├─ content/
 │  ├─ catalog.json                 # versioned selectors and review dates
@@ -42,6 +42,8 @@ Agent_Docs_Kit/
 ```
 
 `content/` is the single canonical library for all three workflows. `agent-docs setup` creates `.agent-docs/config.json` and a project documentation tree. Reports are written beneath configured directories; the reference library stays in the npm package and installed skill rather than being duplicated into each project.
+
+`agent-docs start` is a read-only onboarding router for new, existing, AI-assisted, and manual use. `agent-docs next` is a read-only state detector: it derives the current stage from configuration, required documents, starter prompts, saved audits, and open worksheets. It intentionally does not maintain a hidden progress file, so terminal sessions, humans, and coding agents see the same repository-backed state.
 
 Generated outputs under `build/`, package archives, dependencies, and the maintainer’s local monthly AI prompt are ignored by Git. Local consumer-style documentation under the configured `docs/` workspace is also ignored in this repository.
 

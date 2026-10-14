@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { access, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -14,6 +15,7 @@ import { validateReport } from "../skills/manage-project-quality/scripts/check-r
 import { showDocumentationGuide } from "../src/commands/guide.mjs";
 import { installSkill } from "../src/commands/skill.mjs";
 import { main } from "../src/cli/main.mjs";
+import { nextWorkflow, startWorkflow } from "../src/commands/workflow.mjs";
 
 test("setup is explicit, non-destructive, and repeatable", async () => {
   const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
@@ -27,6 +29,67 @@ test("setup is explicit, non-destructive, and repeatable", async () => {
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("guided starts explain all human and agent onboarding paths", () => {
+  const overview = startWorkflow();
+  assert.deepEqual(overview.paths, ["new", "existing", "agent", "manual"]);
+  const agent = startWorkflow("agent");
+  assert.match(agent.text, /skill install --target project/);
+  assert.match(agent.text, /Do not infer facts without evidence/);
+  assert.throws(() => startWorkflow("unknown"), /Use new, existing, agent, or manual/);
+});
+
+test("next derives progress from project state without writing a progress file", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    const empty = await nextWorkflow({ cwd: root });
+    assert.equal(empty.stage, 1);
+    assert.match(empty.text, /setup --cwd/);
+    await setupProject({ cwd: root });
+    const baseline = await nextWorkflow({ cwd: root });
+    assert.equal(baseline.stage, 3);
+    assert.match(baseline.text, /AI-assisted path/);
+    await assert.rejects(access(join(root, ".agent-docs", "state.json")));
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("next recognizes documentation reports in every supported output format", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    await setupProject({ cwd: root });
+    await writeFile(join(root, "docs", "01-system", "overview.md"), "# System overview\n\nVerified system facts.\n");
+    await writeFile(join(root, "docs", "02-project", "README.md"), "# Project\n\nVerified project status.\n");
+    await writeFile(join(root, "docs", "05-operations", "README.md"), "# Operations\n\nVerified operating procedure.\n");
+    await auditDocumentation({ cwd: root, report: true, format: "json" });
+    const result = await nextWorkflow({ cwd: root });
+    assert.equal(result.stage, 5);
+    assert.match(result.text, /Saved documentation audits: 1/);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("next covers the complete repository-backed workflow lifecycle", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    const stages = [];
+    stages.push((await nextWorkflow({ cwd: root })).stage);
+    await setupProject({ cwd: root });
+    await rm(join(root, "docs", "01-system", "overview.md"));
+    stages.push((await nextWorkflow({ cwd: root })).stage);
+    await setupProject({ cwd: root });
+    stages.push((await nextWorkflow({ cwd: root })).stage);
+    await writeFile(join(root, "docs", "01-system", "overview.md"), "# System overview\n\nVerified system facts.\n");
+    await writeFile(join(root, "docs", "02-project", "README.md"), "# Project\n\nVerified project status.\n");
+    await writeFile(join(root, "docs", "05-operations", "README.md"), "# Operations\n\nVerified operating procedures.\n");
+    stages.push((await nextWorkflow({ cwd: root })).stage);
+    await auditDocumentation({ cwd: root, report: true, format: "markdown" });
+    stages.push((await nextWorkflow({ cwd: root })).stage);
+    const report = await auditSecurity("api-layer", { cwd: root });
+    stages.push((await nextWorkflow({ cwd: root })).stage);
+    await writeFile(report.path, (await readFile(report.path, "utf8")).replaceAll("Unverified", "Pass"));
+    stages.push((await nextWorkflow({ cwd: root })).stage);
+    assert.deepEqual(stages, [1, 2, 3, 4, 5, 5, 6]);
+  } finally { await rm(root, { recursive: true, force: true }); }
 });
 
 test("forced setup atomically replaces owned files without leaving staging artifacts", async () => {
@@ -216,6 +279,8 @@ test("help distinguishes no-install, local, and global command forms", () => {
   assert.match(helpText, /agent-docs --version/);
   assert.match(helpText, /npm view @ghostbyte\/agent-docs-kit version/);
   assert.match(helpText, /npm install --global @ghostbyte\/agent-docs-kit@latest/);
+  assert.match(helpText, /start \[new\|existing\|agent\|manual\]/);
+  assert.match(helpText, /next\s+Detect project state/);
 });
 
 test("website provides a complete installation guide without a GitHub header button", async () => {
@@ -228,6 +293,13 @@ test("website provides a complete installation guide without a GitHub header but
   assert.match(site, /documentation guide/);
   assert.match(site, /role="tab" aria-selected="true" aria-controls="code-panel-setup"/);
   assert.match(site, /If <code>agent-docs<\/code> is not recognized/);
+  assert.match(site, /Choose a path, then let the kit show what comes next/);
+  assert.match(site, /start \[new\|existing\|agent\|manual\]/);
+  assert.match(site, /The package is context, not automatic authority/);
+  assert.match(site, /The kit supplies project memory and review rules/);
+  assert.match(site, /does not bundle an AI model or start a background service/);
+  assert.match(site, /This can reduce unnecessary context and token usage/);
+  assert.match(site, /Actual token use still depends on the agent, repository, and requested scope/);
   assert.doesNotMatch(site, /View on GitHub/);
   assert.doesNotMatch(site, /git clone https:\/\/github\.com\/ghostbyte1014\/Agent_Docs_Kit\.git/);
   assert.doesNotMatch(site, /Run the repository source/);
@@ -239,4 +311,21 @@ test("website provides a complete installation guide without a GitHub header but
   assert.ok(commandOverview < installationGuide, "installation should follow the command-mode overview");
   assert.ok(installationGuide < packageContents, "package details should follow installation");
   assert.ok(packageContents < cliReference, "the complete CLI reference should be the final main section");
+});
+
+test("site preview builds first and the artifact exposes only public documentation", async () => {
+  const projectRoot = join(import.meta.dirname, "..");
+  const metadata = JSON.parse(await readFile(join(projectRoot, "package.json"), "utf8"));
+  assert.match(metadata.scripts["site:preview"], /^npm run build && /);
+  execFileSync(process.execPath, ["scripts/build-site.mjs"], { cwd: projectRoot, stdio: "pipe" });
+  const builtDocs = (await readdir(join(projectRoot, "build", "site", "docs"))).sort();
+  assert.deepEqual(builtDocs, [
+    "ARCHITECTURE.md",
+    "CONTENT_MAINTENANCE.md",
+    "GITHUB_AND_NPM_SETUP.md",
+    "PURPOSE.md",
+    "RELEASE_PROCESS.md",
+    "SECURITY_MODEL.md"
+  ]);
+  await assert.rejects(access(join(projectRoot, "build", "site", "docs", "README.md")));
 });

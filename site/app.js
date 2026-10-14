@@ -53,7 +53,7 @@ const commandPrefixes = {
 };
 
 const commandExamples = {
-  setup: ["list documentation", "documentation guide system-documentation", "audit documentation --strict"],
+  setup: ["start existing", "", "next", "", "list documentation", "", "documentation guide system-documentation", "", "audit documentation --strict"],
   security: ["list security", "security worksheet api-layer --style learning"],
   engineering: ["list engineering", "engineering worksheet testing-types"],
   skill: ["skill install --target project", "", "# Creates:", "# .agents/skills/manage-project-quality"]

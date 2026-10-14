@@ -2,6 +2,7 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { access, mkdtemp, mkdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
+import { publicDocs as publicDocNames } from "./public-docs.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const scratch = await mkdtemp(resolve(tmpdir(), "agent-docs-kit-smoke-"));
@@ -13,14 +14,7 @@ try {
   const cache = resolve(scratch, "npm-cache");
   const packed = JSON.parse(runNpm(["pack", "--json", "--cache", cache, "--pack-destination", scratch], { cwd: root, encoding: "utf8" }));
   const archivePaths = new Set(packed[0].files.map((entry) => entry.path.replaceAll("\\", "/")));
-  const publicDocs = new Set([
-    "docs/ARCHITECTURE.md",
-    "docs/CONTENT_MAINTENANCE.md",
-    "docs/GITHUB_AND_NPM_SETUP.md",
-    "docs/PURPOSE.md",
-    "docs/RELEASE_PROCESS.md",
-    "docs/SECURITY_MODEL.md"
-  ]);
+  const publicDocs = new Set(publicDocNames.map((name) => `docs/${name}`));
   for (const required of ["scripts/validate-content.mjs", "site/index.html", "tests/cli.test.mjs", "skills/manage-project-quality/references/security-protocol.md", "skills/manage-project-quality/references/engineering-protocol.md", "skills/manage-project-quality/references/documentation-governance.md"]) {
     if (!archivePaths.has(required)) throw new Error(`Packed archive is missing ${required}.`);
   }
@@ -52,9 +46,15 @@ try {
   const cli = resolve(packageRoot, "bin", "agent-docs.mjs");
   const runCli = (...arguments_) => execFileSync(process.execPath, [cli, ...arguments_], { cwd: consumer, encoding: "utf8" });
   const help = execFileSync(process.execPath, [cli, "--help"], { cwd: consumer, encoding: "utf8" });
-  if (!help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("template create")) throw new Error("Packed CLI help is incomplete.");
+  if (!help.includes("start [new|existing|agent|manual]") || !help.includes("Detect project state") || !help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("template create")) throw new Error("Packed CLI help is incomplete.");
+  const agentStart = runCli("start", "agent");
+  if (!agentStart.includes("$manage-project-quality") || !agentStart.includes("does not grant authority")) throw new Error("Packed CLI agent onboarding is incomplete.");
+  const emptyNext = runCli("next");
+  if (!emptyNext.includes("Stage 1: Initialize safely")) throw new Error("Packed CLI did not detect an uninitialized project.");
   runCli("setup", "--dry-run");
   runCli("setup");
+  const initializedNext = runCli("next");
+  if (!initializedNext.includes("Stage 3: Build the documentation baseline")) throw new Error("Packed CLI did not detect the generated baseline.");
   runCli("audit", "documentation", "--strict", "--report", "--format", "json");
   const securityOutput = runCli("security", "worksheet", "api-layer");
   const engineeringOutput = runCli("engineering", "worksheet", "testing-types");
@@ -68,7 +68,7 @@ try {
   runCli("skill", "install", "--target", "project");
   runCli("validate");
   await access(resolve(consumer, ".agents/skills/manage-project-quality/SKILL.md"));
-  execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function') process.exit(1);"], { cwd: consumer });
+  execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function' || typeof api.startWorkflow !== 'function' || typeof api.nextWorkflow !== 'function') process.exit(1);"], { cwd: consumer });
   const invalid = spawnSync(process.execPath, [cli, "doctor", "unexpected"], { cwd: consumer, encoding: "utf8" });
   if (invalid.status === 0 || !invalid.stderr.includes("Invalid arguments")) throw new Error("CLI accepted an unexpected positional argument.");
   runNpm(["run", "validate"], { cwd: packageRoot, stdio: "ignore" });

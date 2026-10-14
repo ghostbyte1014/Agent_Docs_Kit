@@ -1,11 +1,22 @@
 ---
 name: manage-project-quality
-description: Set up and audit project documentation, perform evidence-based security reviews, or assess engineering practices. Use when asked to create or repair a docs structure, check documentation drift, conduct a security gate or phase audit, review engineering quality, generate audit evidence, or explain Agent Docs & Quality Kit results in standard or learning mode.
+description: Set up and audit project documentation, perform evidence-based security reviews, assess engineering practices, or continue an Agent Docs & Quality Kit workflow. Use when asked to initialize a new or existing repository, decide what to do after setup, create or repair a docs structure, check documentation drift, conduct a security gate or phase audit, review engineering quality, generate audit evidence, or explain kit results in standard or learning mode.
 ---
 
 # Manage Project Quality
 
 Choose exactly one primary workflow for the request: documentation governance, security assurance, or engineering review. Combine workflows only when the user explicitly requests a broader quality pass.
+
+## Start from repository state
+
+When the user hands you this skill, names the npm package, or asks what to do after setup:
+
+1. Inspect the repository before choosing a workflow. Look for `.agent-docs/config.json`, required documents, starter prompts, saved audits, and open `Unverified` worksheets.
+2. If the CLI is available, run or recommend `agent-docs next --cwd <project>` to obtain the current stage. Otherwise apply the same order: initialize, complete the baseline, audit documentation, complete one focused review, then maintain.
+3. Distinguish a new project from an existing implementation. In a new project, record intended behavior as planned. In an existing project, derive statements from code, configuration, tests, workflows, and authorized operational evidence.
+4. Explain proposed writes before making them unless the user has already authorized that exact setup or report action.
+5. If the skill is not installed in the repository, recommend `npx @ghostbyte/agent-docs-kit@latest skill install --target project`. Installation alone does not initialize files, run an audit, or authorize active testing.
+6. End each response with the completed stage, unresolved evidence, and one concrete next action.
 
 ## Establish the operating context
 
