@@ -9,3 +9,15 @@ build/
 .tmp-smoke/
 *.tgz
 npm-debug.log*
+
+# Local Agent Docs workspace and generated reports
+# Keep the package's existing maintainer guides in docs/ tracked.
+/docs/README.md
+/docs/01-system/
+/docs/02-project/
+/docs/03-development/
+/docs/04-testing/
+/docs/05-operations/
+/docs/06-future-proposals/
+/docs/archive/
+/docs/audits/
