@@ -4,6 +4,16 @@ Notable user-visible changes are recorded here. Versions follow semantic version
 
 ## Unreleased
 
+### Added
+
+- Render the six public maintainer guides as styled, navigable HTML pages on the GitHub Pages site instead of linking readers to raw Markdown.
+- Replace maintainer-oriented homepage footer links with user navigation plus dedicated Privacy and Terms of Use pages.
+- Use the same Privacy, Terms of Use, and Security Model footer across public trust and generated guide pages without exposing maintainer navigation.
+
+### Security
+
+- Escape generated documentation metadata and Markdown output, reject active URI schemes, and add safe external-link attributes in the dependency-free site renderer.
+
 ## 5.1.0 - 2026-10-14
 
 ### Added

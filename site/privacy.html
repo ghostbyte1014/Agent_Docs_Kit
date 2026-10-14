@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Privacy notice for the Agent Docs & Quality Kit website and CLI.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <title>Privacy — Agent Docs &amp; Quality Kit</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="doc-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="doc-nav-wrap">
+    <div class="shell doc-nav">
+      <a class="brand" href="index.html" aria-label="Agent Docs and Quality Kit home"><span class="brand-mark" aria-hidden="true">AQ</span><span>Agent Docs &amp; Quality</span></a>
+      <a class="doc-back" href="index.html">&larr; Back to overview</a>
+    </div>
+  </header>
+  <main id="main">
+    <div class="shell">
+      <article class="doc-body">
+        <p class="doc-eyebrow">Trust</p>
+        <h1>Privacy notice</h1>
+        <p><strong>Effective:</strong> October 14, 2026</p>
+        <p>This notice explains the limited data behavior of the Agent Docs &amp; Quality Kit website and CLI. The project is an open-source tool, not an account-based service.</p>
+
+        <h2>Website data</h2>
+        <p>This static website does not include project-operated analytics, advertising, forms, accounts, or tracking cookies. It stores one preference in your browser's local storage under <code>agent-docs-command-mode</code> so command examples can remember whether you selected npx or a global installation. That preference stays in your browser and can be removed through your browser's site-data controls.</p>
+        <p>The website is hosted by GitHub Pages. GitHub states that GitHub Pages logs a visitor's IP address for security purposes. GitHub handles that information under its own privacy statement.</p>
+
+        <h2>CLI and project files</h2>
+        <p>The Agent Docs CLI has no project telemetry service and does not send your documentation, worksheets, source code, or audit results to this project. Explicit commands read or write files in the project directory you select. The package does not start a background service or run an active network security scan.</p>
+        <p>Downloading the package with npm or npx communicates with the npm registry. npm documents that registry requests can include technical and request data such as IP address, package name and version, Node.js/npm versions, operating system, and user-agent information. That processing is controlled by npm, not by this project.</p>
+
+        <h2>AI tools and external links</h2>
+        <p>If you use the optional skill with an AI coding agent, data handling is governed by the agent provider, your account or organization settings, and the permissions you grant. Review those terms before sharing source code, credentials, personal data, or security evidence. Links from this site can take you to third-party services with their own policies.</p>
+
+        <h2>Official third-party policies</h2>
+        <ul>
+          <li><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages" target="_blank" rel="noopener noreferrer">GitHub Pages and data collection</a></li>
+          <li><a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub Privacy Statement</a></li>
+          <li><a href="https://docs.npmjs.com/policies/privacy/" target="_blank" rel="noopener noreferrer">npm Privacy Policy</a></li>
+        </ul>
+
+        <h2>Questions and changes</h2>
+        <p>For questions about this project's behavior, use the repository's public issue tracker without including secrets or personal data. Report security vulnerabilities through GitHub private vulnerability reporting. This notice may change when the website, CLI, hosting, or data behavior changes; the effective date above will be updated.</p>
+
+        <nav class="doc-footer-nav" aria-label="Legal and trust pages"><a class="is-current" href="privacy.html">Privacy</a><a href="terms.html">Terms of use</a><a href="docs/SECURITY_MODEL.html">Security model</a></nav>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

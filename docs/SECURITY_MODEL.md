@@ -8,4 +8,6 @@ Forced scaffold replacement is staged in the destination directory before the ow
 
 Audit reports begin as `Unverified`. The tool scaffolds the review; it does not claim that generated text proves a control. Agents and reviewers must attach repository paths, line numbers, reproducible command output, or authorized external evidence.
 
+The `start` and `next` workflow commands are read-only. `next` derives progress from project files and does not create a hidden state file, contact a service, or authorize active testing. AI guidance requires repository inspection, explicit unknowns, and human authorization before interacting with a live service, cloud account, network, credential, or production environment.
+
 Publishing uses npm provenance through GitHub trusted publishing when configured. Protect the GitHub release environment, require reviews as appropriate, and never store a long-lived npm token when OIDC is available.

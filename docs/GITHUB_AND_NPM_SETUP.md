@@ -88,6 +88,8 @@ npx --yes @ghostbyte/agent-docs-kit@latest --help
 npx --yes @ghostbyte/agent-docs-kit@latest setup --dry-run
 ```
 
+Do not use this package's own repository as the consumer test directory. npm can resolve the root package as itself without generating its executable shim. Inside the source repository, test local code with `node .\bin\agent-docs.mjs`; test the registry package from a different project or temporary directory.
+
 ## 6. Configure trusted publishing
 
 In npm package settings, add a trusted publisher for GitHub Actions with these values:
@@ -110,3 +112,5 @@ git push --follow-tags
 ```
 
 Use `npm.cmd version minor` for a backward-compatible feature and `npm.cmd version major` for a breaking change. Never reuse an existing npm version: registry versions are immutable. Use `npm deprecate` for a bad release and publish a corrected version.
+
+After trusted publishing, npm may place the version in automated validation before making it installable. During that window, `npm view <package>` can still report the prior `latest` version and explicit `npx @<version>` can fail. Wait until npm shows the version as Published, then verify the exact version and `latest`; do not create another tag merely to bypass validation.

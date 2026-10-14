@@ -16,6 +16,7 @@ import { showDocumentationGuide } from "../src/commands/guide.mjs";
 import { installSkill } from "../src/commands/skill.mjs";
 import { main } from "../src/cli/main.mjs";
 import { nextWorkflow, startWorkflow } from "../src/commands/workflow.mjs";
+import { renderMarkdown } from "../scripts/markdown.mjs";
 
 test("setup is explicit, non-destructive, and repeatable", async () => {
   const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
@@ -303,6 +304,13 @@ test("website provides a complete installation guide without a GitHub header but
   assert.doesNotMatch(site, /View on GitHub/);
   assert.doesNotMatch(site, /git clone https:\/\/github\.com\/ghostbyte1014\/Agent_Docs_Kit\.git/);
   assert.doesNotMatch(site, /Run the repository source/);
+  const footer = site.match(/<footer>([\s\S]*?)<\/footer>/)?.[1] ?? "";
+  assert.match(footer, />Explore</);
+  assert.match(footer, /href="#getting-started">Get started/);
+  assert.match(footer, /href="#command-reference">CLI reference/);
+  assert.match(footer, /href="privacy\.html">Privacy/);
+  assert.match(footer, /href="terms\.html">Terms of use/);
+  assert.doesNotMatch(footer, /GitHub repository|Setup guide|Architecture|Release process/);
 
   const commandOverview = site.indexOf('id="commands"');
   const installationGuide = site.indexOf('id="quick-start"');
@@ -320,12 +328,39 @@ test("site preview builds first and the artifact exposes only public documentati
   execFileSync(process.execPath, ["scripts/build-site.mjs"], { cwd: projectRoot, stdio: "pipe" });
   const builtDocs = (await readdir(join(projectRoot, "build", "site", "docs"))).sort();
   assert.deepEqual(builtDocs, [
-    "ARCHITECTURE.md",
-    "CONTENT_MAINTENANCE.md",
-    "GITHUB_AND_NPM_SETUP.md",
-    "PURPOSE.md",
-    "RELEASE_PROCESS.md",
-    "SECURITY_MODEL.md"
+    "ARCHITECTURE.html",
+    "CONTENT_MAINTENANCE.html",
+    "GITHUB_AND_NPM_SETUP.html",
+    "PURPOSE.html",
+    "RELEASE_PROCESS.html",
+    "SECURITY_MODEL.html"
   ]);
   await assert.rejects(access(join(projectRoot, "build", "site", "docs", "README.md")));
+  const purposePage = await readFile(join(projectRoot, "build", "site", "docs", "PURPOSE.html"), "utf8");
+  const securityPage = await readFile(join(projectRoot, "build", "site", "docs", "SECURITY_MODEL.html"), "utf8");
+  assert.match(purposePage, /<h1>Purpose and boundaries<\/h1>/);
+  assert.match(purposePage, /href="\.\.\/privacy\.html">Privacy/);
+  assert.match(purposePage, /href="\.\.\/terms\.html">Terms of use/);
+  assert.doesNotMatch(purposePage, />GitHub and npm setup<\/a>|>Release process<\/a>/);
+  assert.match(securityPage, /href="SECURITY_MODEL\.html" class="is-current">Security model/);
+  const privacyPage = await readFile(join(projectRoot, "build", "site", "privacy.html"), "utf8");
+  const termsPage = await readFile(join(projectRoot, "build", "site", "terms.html"), "utf8");
+  assert.match(privacyPage, /agent-docs-command-mode/);
+  assert.match(privacyPage, /GitHub Pages logs a visitor's IP address/);
+  assert.match(termsPage, /Only assess systems you own or are explicitly authorized to test/);
+  assert.match(termsPage, /MIT License/);
+});
+
+test("site Markdown rendering escapes content and permits only safe links", () => {
+  const html = renderMarkdown([
+    "# <unsafe>",
+    "",
+    "[Architecture](ARCHITECTURE.md#components)",
+    "[External](https://example.com/docs?a=1&b=2)",
+    "[Unsafe](javascript:alert(1))"
+  ].join("\n"));
+  assert.match(html, /<h1>&lt;unsafe&gt;<\/h1>/);
+  assert.match(html, /href="ARCHITECTURE\.html#components"/);
+  assert.match(html, /href="https:\/\/example\.com\/docs\?a=1&amp;b=2" target="_blank" rel="noopener noreferrer"/);
+  assert.doesNotMatch(html, /javascript:/i);
 });
