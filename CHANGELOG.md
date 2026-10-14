@@ -4,6 +4,14 @@ Notable user-visible changes are recorded here. Versions follow semantic version
 
 ## Unreleased
 
+### Added
+
+- Render the six public maintainer guides as styled, navigable HTML pages on the GitHub Pages site instead of linking readers to raw Markdown.
+
+### Security
+
+- Escape generated documentation metadata and Markdown output, reject active URI schemes, and add safe external-link attributes in the dependency-free site renderer.
+
 ## 5.1.0 - 2026-10-14
 
 ### Added

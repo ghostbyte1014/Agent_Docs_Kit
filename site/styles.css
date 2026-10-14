@@ -196,4 +196,32 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-
   .footer-layout { grid-template-columns: 1fr; }.footer-layout { gap: 2rem; }.footer-bottom { gap: 1rem; flex-wrap: wrap; }
 }
 
+.doc-nav-wrap { border-bottom: 1px solid var(--line); background: #0a0d0c; }
+.doc-nav { display: flex; align-items: center; justify-content: space-between; min-height: 78px; }
+.doc-back { display: inline-flex; gap: .5rem; align-items: center; color: var(--muted); font-size: .88rem; text-decoration: none; }
+.doc-back:hover, .doc-back:focus-visible { color: var(--lime); }
+.doc-page main { padding-block: clamp(3rem, 7vw, 5rem) 6rem; }
+.doc-body { max-width: 760px; }
+.doc-eyebrow { margin-bottom: .8rem; color: var(--lime); font: 720 .72rem/1.2 ui-monospace, monospace; letter-spacing: .13em; text-transform: uppercase; }
+.doc-body h1 { max-width: none; margin-bottom: 1.5rem; font-size: clamp(2.1rem, 4.4vw, 3.3rem); line-height: 1.04; letter-spacing: -.045em; }
+.doc-body h2 { margin-top: 3rem; font-size: 1.55rem; }
+.doc-body h3 { margin-top: 2rem; font-size: 1.15rem; }
+.doc-body p { margin-bottom: 1.1rem; color: #cbd2cd; }
+.doc-body a { color: var(--blue); text-decoration: underline; text-decoration-color: rgba(120,191,255,.35); text-underline-offset: .2em; }
+.doc-body a:hover, .doc-body a:focus-visible { text-decoration-color: var(--blue); }
+.doc-body code { padding: .1rem .35rem; border-radius: 5px; background: var(--panel-2); color: var(--lime); font: .85em ui-monospace, monospace; }
+.doc-body pre { margin: 1.4rem 0; padding: 1.1rem 1.3rem; border: 1px solid var(--line); border-radius: 10px; background: #0d100f; overflow-x: auto; }
+.doc-body pre code { padding: 0; background: none; color: #dfe9e2; font-size: .82rem; line-height: 1.6; }
+.doc-body ul, .doc-body ol { margin: 0 0 1.1rem; padding-left: 1.3rem; color: #cbd2cd; }
+.doc-body li { margin: .4rem 0; }
+.doc-body li::marker { color: var(--lime); }
+.doc-body table { width: 100%; margin: 1.4rem 0; border: 1px solid var(--line); border-collapse: collapse; font-size: .88rem; }
+.doc-body th, .doc-body td { padding: .65rem .9rem; border-bottom: 1px solid var(--line); text-align: left; }
+.doc-body th { color: var(--ink); background: var(--panel-2); font-weight: 700; }
+.doc-body td { color: #cbd2cd; }
+.doc-footer-nav { display: flex; flex-wrap: wrap; gap: .6rem 1.2rem; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--line); }
+.doc-footer-nav a { color: var(--muted); font-size: .85rem; text-decoration: none; }
+.doc-footer-nav a:hover, .doc-footer-nav a:focus-visible { color: var(--lime); }
+.doc-footer-nav a.is-current { color: var(--lime); }
+
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
