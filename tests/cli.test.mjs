@@ -304,6 +304,13 @@ test("website provides a complete installation guide without a GitHub header but
   assert.doesNotMatch(site, /View on GitHub/);
   assert.doesNotMatch(site, /git clone https:\/\/github\.com\/ghostbyte1014\/Agent_Docs_Kit\.git/);
   assert.doesNotMatch(site, /Run the repository source/);
+  const footer = site.match(/<footer>([\s\S]*?)<\/footer>/)?.[1] ?? "";
+  assert.match(footer, />Explore</);
+  assert.match(footer, /href="#getting-started">Get started/);
+  assert.match(footer, /href="#command-reference">CLI reference/);
+  assert.match(footer, /href="privacy\.html">Privacy/);
+  assert.match(footer, /href="terms\.html">Terms of use/);
+  assert.doesNotMatch(footer, /GitHub repository|Setup guide|Architecture|Release process/);
 
   const commandOverview = site.indexOf('id="commands"');
   const installationGuide = site.indexOf('id="quick-start"');
@@ -332,6 +339,12 @@ test("site preview builds first and the artifact exposes only public documentati
   const purposePage = await readFile(join(projectRoot, "build", "site", "docs", "PURPOSE.html"), "utf8");
   assert.match(purposePage, /<h1>Purpose and boundaries<\/h1>/);
   assert.match(purposePage, /<a href="ARCHITECTURE\.html"/);
+  const privacyPage = await readFile(join(projectRoot, "build", "site", "privacy.html"), "utf8");
+  const termsPage = await readFile(join(projectRoot, "build", "site", "terms.html"), "utf8");
+  assert.match(privacyPage, /agent-docs-command-mode/);
+  assert.match(privacyPage, /GitHub Pages logs a visitor's IP address/);
+  assert.match(termsPage, /Only assess systems you own or are explicitly authorized to test/);
+  assert.match(termsPage, /MIT License/);
 });
 
 test("site Markdown rendering escapes content and permits only safe links", () => {

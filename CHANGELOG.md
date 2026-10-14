@@ -7,6 +7,7 @@ Notable user-visible changes are recorded here. Versions follow semantic version
 ### Added
 
 - Render the six public maintainer guides as styled, navigable HTML pages on the GitHub Pages site instead of linking readers to raw Markdown.
+- Replace maintainer-oriented homepage footer links with user navigation plus dedicated Privacy and Terms of Use pages.
 
 ### Security
 
