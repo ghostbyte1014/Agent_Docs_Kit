@@ -68,5 +68,8 @@
     "doc": "docs",
     "test": "tests"
   },
-  "main": "./src/api/index.mjs"
+  "main": "./src/api/index.mjs",
+  "devDependencies": {
+    "wrangler": "4.151.0"
+  }
 }
