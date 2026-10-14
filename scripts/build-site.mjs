@@ -14,9 +14,7 @@ const docLabels = {
 
 function docPage(name, title, bodyHtml) {
   const safeTitle = escapeHtml(title);
-  const nav = publicDocs
-    .map((entry) => `<a href="${entry.replace(/\.md$/, ".html")}"${entry === name ? ' class="is-current"' : ""}>${docLabels[entry]}</a>`)
-    .join("");
+  const securityCurrent = name === "SECURITY_MODEL.md" ? ' class="is-current"' : "";
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -44,7 +42,7 @@ function docPage(name, title, bodyHtml) {
       <article class="doc-body">
         <p class="doc-eyebrow">Documentation</p>
         ${bodyHtml}
-        <nav class="doc-footer-nav" aria-label="Other documentation pages">${nav}</nav>
+        <nav class="doc-footer-nav" aria-label="Legal and trust pages"><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms of use</a><a href="SECURITY_MODEL.html"${securityCurrent}>Security model</a></nav>
       </article>
     </div>
   </main>

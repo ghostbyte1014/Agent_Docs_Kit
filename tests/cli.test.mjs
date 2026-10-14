@@ -337,8 +337,12 @@ test("site preview builds first and the artifact exposes only public documentati
   ]);
   await assert.rejects(access(join(projectRoot, "build", "site", "docs", "README.md")));
   const purposePage = await readFile(join(projectRoot, "build", "site", "docs", "PURPOSE.html"), "utf8");
+  const securityPage = await readFile(join(projectRoot, "build", "site", "docs", "SECURITY_MODEL.html"), "utf8");
   assert.match(purposePage, /<h1>Purpose and boundaries<\/h1>/);
-  assert.match(purposePage, /<a href="ARCHITECTURE\.html"/);
+  assert.match(purposePage, /href="\.\.\/privacy\.html">Privacy/);
+  assert.match(purposePage, /href="\.\.\/terms\.html">Terms of use/);
+  assert.doesNotMatch(purposePage, />GitHub and npm setup<\/a>|>Release process<\/a>/);
+  assert.match(securityPage, /href="SECURITY_MODEL\.html" class="is-current">Security model/);
   const privacyPage = await readFile(join(projectRoot, "build", "site", "privacy.html"), "utf8");
   const termsPage = await readFile(join(projectRoot, "build", "site", "terms.html"), "utf8");
   assert.match(privacyPage, /agent-docs-command-mode/);
