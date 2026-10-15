@@ -5,7 +5,7 @@ description: Set up and audit project documentation, perform evidence-based secu
 
 # Manage Project Quality
 
-Choose exactly one primary workflow for the request: documentation governance, security assurance, or engineering review. Combine workflows only when the user explicitly requests a broader quality pass.
+Choose exactly one primary workflow for the request: documentation governance, security review, or engineering review. Combine workflows only when the user explicitly requests a broader quality pass.
 
 ## Start from repository state
 
@@ -13,10 +13,11 @@ When the user hands you this skill, names the npm package, or asks what to do af
 
 1. Inspect the repository before choosing a workflow. Look for `.agent-docs/config.json`, required documents, starter prompts, saved audits, and open `Unverified` worksheets.
 2. If the CLI is available, run or recommend `agent-docs next --cwd <project>` to obtain the current stage. Otherwise apply the same order: initialize, complete the baseline, audit documentation, complete one focused review, then maintain.
-3. Distinguish a new project from an existing implementation. In a new project, record intended behavior as planned. In an existing project, derive statements from code, configuration, tests, workflows, and authorized operational evidence.
-4. Explain proposed writes before making them unless the user has already authorized that exact setup or report action.
-5. If the skill is not installed in the repository, recommend `npx @ghostbyte/agent-docs-kit@latest skill install --target project`. Installation alone does not initialize files, run an audit, or authorize active testing.
-6. End each response with the completed stage, unresolved evidence, and one concrete next action.
+3. Do not begin a security or engineering worksheet before documentation initialization. If `.agent-docs/config.json` or the configured documentation root is absent, recommend `setup --dry-run` followed by explicit `setup` first.
+4. Distinguish a new project from an existing implementation. In a new project, record intended behavior as planned. In an existing project, derive statements from code, configuration, tests, workflows, and authorized operational evidence.
+5. Explain proposed writes before making them unless the user has already authorized that exact setup or report action.
+6. If the skill is not installed in the repository, recommend `npx @ghostbyte/agent-docs-kit@latest skill install --target project`. Installation alone does not initialize files, run an audit, or authorize active testing.
+7. End each response with the completed stage, unresolved evidence, and one concrete next action.
 
 ## Establish the operating context
 
@@ -32,6 +33,8 @@ When the user hands you this skill, names the npm package, or asks what to do af
 
 Read [references/documentation-governance.md](references/documentation-governance.md) and only the selected documentation area below. Use them to establish a navigable structure, identify stale or missing material, separate current scope from future ideas, and preserve decision/change history.
 
+When repository instructions establish continuous documentation, assess documentation impact during every material change: update only affected records from evidence, run the configured documentation audit, and state which documents changed or why none were needed. Do not automatically create or update security and engineering worksheets; those remain explicitly selected, point-in-time reviews.
+
 Documentation controls are governance aids, not an infallible technical lock. Report whether evidence supports the stated process; never claim that Markdown alone enforces agent behavior.
 
 ## Documentation area references
@@ -45,13 +48,13 @@ Documentation controls are governance aids, not an infallible technical lock. Re
 - [07 Archive Governance](references/documentation-07-archive-governance.md)
 - [Full documentation reference](references/documentation-full-reference.md): use only for cross-area governance work.
 
-### Security assurance
+### Security review
 
 Read [references/security-protocol.md](references/security-protocol.md), [references/evidence-and-reporting.md](references/evidence-and-reporting.md), and only the selected phase references below.
 
 Passive source and configuration review may proceed within the user-provided repository. Before scanning a live target, sending crafted traffic, exercising credentials, changing cloud resources, or running any potentially disruptive test, obtain explicit authorization for the exact target and prefer a non-production environment.
 
-Use only `Pass`, `Fail`, `Unverified`, or `N/A`. A missing observable is `Unverified`, not `Pass` or `N/A`. Treat unresolved Critical or High failures as release blockers unless an accountable owner records a time-bounded exception.
+Use only `Pass`, `Fail`, `Unverified`, or `N/A`. A missing observable is `Unverified`, not `Pass` or `N/A`. Recommend a blocking decision for unresolved Critical or High failures unless an accountable owner records a time-bounded exception. State that actual blocking requires the project's release policy or an explicit CI/release control.
 
 ### Engineering review
 

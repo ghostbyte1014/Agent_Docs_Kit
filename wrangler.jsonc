@@ -1,5 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
+  // Canonical host: https://agent-docs-kit.ghostbyte1014.workers.dev/
+  // GitHub Pages may serve the same build as a documented mirror.
   "name": "agent-docs-kit",
   "compatibility_date": "2026-10-12",
   "assets": {

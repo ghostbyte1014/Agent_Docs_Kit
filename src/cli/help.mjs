@@ -1,4 +1,12 @@
+import { npxCommand } from "../commands/workflow.mjs";
+
 export const helpText = `Agent Docs & Quality Kit
+
+Evidence-first project documentation and guided quality reviews.
+Documentation checks are automated, and its maintained record should evolve with
+project changes. Security and engineering worksheets are separate point-in-time
+reviews that require evidence and human judgment. The CLI does not run vulnerability scans.
+Initialize documentation with 'setup' before creating a security or engineering worksheet.
 
 Run without installing:
   npx @ghostbyte/agent-docs-kit@latest [command] [options]
@@ -13,7 +21,9 @@ Commands:
   (no command)                       Open the guided menu (TTY only)
   start [new|existing|agent|manual]  Show a complete onboarding path
   next                               Detect project state and show the next step
-  setup [--dry-run]                  Create the documentation workspace
+  setup [--dry-run]                  Create the workspace and protected agent policy
+  suggest reviews [--staged|--base <ref>]
+                                     Suggest focused reviews from changed Git paths
   audit documentation [--strict]     Check documentation health
   documentation guide <area>         Print one documentation guidance area
   security worksheet <phase>         Create a scoped security worksheet
@@ -36,6 +46,8 @@ Examples:
   npx @ghostbyte/agent-docs-kit@latest start existing
   npx @ghostbyte/agent-docs-kit@latest next
   npx @ghostbyte/agent-docs-kit@latest setup --dry-run
+  ${npxCommand} suggest reviews --staged
+  ${npxCommand} suggest reviews --base origin/main
   npx @ghostbyte/agent-docs-kit@latest audit documentation --strict --format text
   npx @ghostbyte/agent-docs-kit@latest documentation guide system-documentation
   npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer
@@ -58,6 +70,8 @@ Options:
   --force                     Replace files owned by the command
   --report                    Persist documentation audit results
   --strict                    Fail when documentation checks fail
+  --staged                    Inspect staged changes only for review suggestions
+  --base <git-ref>            Compare <git-ref>...HEAD for review suggestions
   --help                      Show this help
 
 Recommended first run:

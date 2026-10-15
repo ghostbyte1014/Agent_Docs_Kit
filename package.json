@@ -1,7 +1,7 @@
 {
   "name": "@ghostbyte/agent-docs-kit",
-  "version": "5.1.0",
-  "description": "Documentation governance, evidence-based security audits, and engineering-quality reviews for software projects.",
+  "version": "6.0.0",
+  "description": "A lightweight, evidence-first CLI for project documentation and guided security and engineering reviews.",
   "type": "module",
   "bin": {
     "agent-docs": "bin/agent-docs.mjs"
@@ -16,6 +16,7 @@
     "templates/",
     "skills/",
     "docs/ARCHITECTURE.md",
+    "docs/BETA_TESTING_GUIDE.md",
     "docs/CONTENT_MAINTENANCE.md",
     "docs/GITHUB_AND_NPM_SETUP.md",
     "docs/PURPOSE.md",
@@ -54,7 +55,7 @@
     "type": "git",
     "url": "git+https://github.com/ghostbyte1014/Agent_Docs_Kit.git"
   },
-  "homepage": "https://ghostbyte1014.github.io/Agent_Docs_Kit/",
+  "homepage": "https://agent-docs-kit.ghostbyte1014.workers.dev/",
   "bugs": {
     "url": "https://github.com/ghostbyte1014/Agent_Docs_Kit/issues"
   },

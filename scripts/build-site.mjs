@@ -5,6 +5,7 @@ import { escapeHtml, renderMarkdown } from "./markdown.mjs";
 
 const docLabels = {
   "ARCHITECTURE.md": "Architecture",
+  "BETA_TESTING_GUIDE.md": "Beta testing guide",
   "CONTENT_MAINTENANCE.md": "Content maintenance",
   "GITHUB_AND_NPM_SETUP.md": "GitHub and npm setup",
   "PURPOSE.md": "Purpose",
@@ -15,6 +16,7 @@ const docLabels = {
 function docPage(name, title, bodyHtml) {
   const safeTitle = escapeHtml(title);
   const securityCurrent = name === "SECURITY_MODEL.md" ? ' class="is-current"' : "";
+  const canonicalUrl = `https://agent-docs-kit.ghostbyte1014.workers.dev/docs/${name.replace(/\.md$/, ".html")}`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -23,6 +25,7 @@ function docPage(name, title, bodyHtml) {
   <meta name="description" content="${safeTitle} — Agent Docs & Quality Kit documentation.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <link rel="canonical" href="${canonicalUrl}">
   <title>${safeTitle} — Agent Docs &amp; Quality Kit</title>
   <link rel="stylesheet" href="../styles.css">
 </head>

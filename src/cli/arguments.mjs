@@ -1,5 +1,5 @@
-const booleanFlags = new Set(["dry-run", "force", "report", "strict", "help", "version"]);
-const valueFlags = new Set(["cwd", "style", "target", "phase", "topic", "format", "type", "name"]);
+const booleanFlags = new Set(["dry-run", "force", "report", "strict", "staged", "help", "version"]);
+const valueFlags = new Set(["cwd", "style", "target", "phase", "topic", "format", "type", "name", "base"]);
 const allowedStyles = new Set(["standard", "learning"]);
 const allowedFormats = new Set(["text", "markdown", "json"]);
 
@@ -49,6 +49,8 @@ export function optionsFromFlags(flags) {
     format,
     report: Boolean(flags.report),
     strict: Boolean(flags.strict),
+    staged: Boolean(flags.staged),
+    base: flags.base,
     name: flags.name
   };
 }

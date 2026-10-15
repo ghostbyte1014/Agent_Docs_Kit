@@ -1,4 +1,4 @@
-import { readFile, realpath } from "node:fs/promises";
+import { readFile, realpath, stat } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { exists } from "./files.mjs";
 
@@ -58,4 +58,12 @@ export async function loadProjectConfig(cwd = process.cwd()) {
   for (const key of ["documentationRoot", "documentationReports", "securityReports", "engineeringReports", "templateOutput"]) config[key] = await safeRelativePath(root, config[key], key);
   config.requiredDocuments = await Promise.all(config.requiredDocuments.map((value, index) => safeRelativePath(root, value, `requiredDocuments[${index}]`)));
   return { root, config, configPath };
+}
+
+export async function documentationInitializationState(cwd = process.cwd()) {
+  const loaded = await loadProjectConfig(cwd);
+  const configPresent = await exists(loaded.configPath);
+  let documentationRootPresent = false;
+  try { documentationRootPresent = (await stat(resolve(loaded.root, loaded.config.documentationRoot))).isDirectory(); } catch {}
+  return { ...loaded, initialized: configPresent && documentationRootPresent, configPresent, documentationRootPresent };
 }
