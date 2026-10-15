@@ -1,3 +1,5 @@
+document.documentElement.classList.add("js");
+
 const workflowTabs = [...document.querySelectorAll("[data-tab]")];
 const workflowPanels = [...document.querySelectorAll("[data-panel]")];
 
@@ -14,13 +16,15 @@ function selectWorkflow(name, focus = false) {
 workflowTabs.forEach((tab, index) => {
   tab.addEventListener("click", () => selectWorkflow(tab.dataset.tab));
   tab.addEventListener("keydown", (event) => {
-    if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
-    const offset = event.key === "ArrowRight" ? 1 : -1;
-    const next = workflowTabs[(index + offset + workflowTabs.length) % workflowTabs.length];
+    let nextIndex = event.key === "Home" ? 0 : event.key === "End" ? workflowTabs.length - 1 : index + (event.key === "ArrowRight" ? 1 : -1);
+    nextIndex = (nextIndex + workflowTabs.length) % workflowTabs.length;
+    const next = workflowTabs[nextIndex];
     selectWorkflow(next.dataset.tab, true);
   });
 });
+if (workflowTabs.length) selectWorkflow(workflowTabs.find((tab) => tab.getAttribute("aria-selected") === "true")?.dataset.tab ?? workflowTabs[0].dataset.tab);
 
 const codeTabs = [...document.querySelectorAll("[data-code-tab]")];
 const codePanels = [...document.querySelectorAll("[data-code-panel]")];
@@ -46,6 +50,7 @@ codeTabs.forEach((tab, index) => {
     selectCodeTab(codeTabs[nextIndex].dataset.codeTab, true);
   });
 });
+if (codeTabs.length) selectCodeTab(codeTabs.find((tab) => tab.getAttribute("aria-selected") === "true")?.dataset.codeTab ?? codeTabs[0].dataset.codeTab);
 
 const commandPrefixes = {
   npx: "npx @ghostbyte/agent-docs-kit@latest",
@@ -53,14 +58,14 @@ const commandPrefixes = {
 };
 
 const commandExamples = {
-  setup: ["start existing", "", "next", "", "list documentation", "", "documentation guide system-documentation", "", "audit documentation --strict"],
+  setup: ["start existing", "", "setup --dry-run", "audit documentation --strict"],
   security: ["list security", "security worksheet api-layer --style learning"],
   engineering: ["list engineering", "engineering worksheet testing-types"],
   skill: ["skill install --target project", "", "# Creates:", "# .agents/skills/manage-project-quality"]
 };
 
 const commandModeHelp = {
-  npx: "No installation required. npx downloads and runs the published package when you invoke it.",
+  npx: "No global installation required. npx downloads and runs the published package when you invoke it.",
   global: "Use the shorter agent-docs command after installing the package globally. Check its version periodically for updates."
 };
 
@@ -107,11 +112,19 @@ commandModeButtons.forEach((button) => {
 });
 selectCommandMode(savedCommandMode());
 
-document.querySelectorAll("[data-copy], [data-copy-command]").forEach((button) => {
+function visibleCopyText(button) {
+  if (button.hasAttribute("data-copy-visible")) {
+    const container = button.closest(".code-panel, .install-code");
+    return container?.querySelector("pre code, code")?.textContent?.trim() ?? "";
+  }
+  return (button.dataset.copy ?? "").replaceAll("\\n", "\n");
+}
+
+document.querySelectorAll("[data-copy], [data-copy-command], [data-copy-visible]").forEach((button) => {
   button.addEventListener("click", async () => {
     const previous = button.textContent;
     try {
-      await navigator.clipboard.writeText(button.dataset.copy.replaceAll("\\n", "\n"));
+      await navigator.clipboard.writeText(visibleCopyText(button));
       button.textContent = "Copied";
     } catch {
       button.textContent = "Copy failed";

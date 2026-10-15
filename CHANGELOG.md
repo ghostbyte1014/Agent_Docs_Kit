@@ -2,17 +2,56 @@
 
 Notable user-visible changes are recorded here. Versions follow semantic versioning.
 
-## Unreleased
+## 6.0.0 - 2026-10-15
+
+### Breaking
+
+- Security and engineering worksheet commands now require an initialized documentation workspace. Existing users who previously created standalone worksheets must first run `setup --dry-run`, review the planned files, and then run `setup`.
+- Explicit setup now creates a root `AGENTS.md` when one is absent. An existing `AGENTS.md` is always preserved, including with `--force`; merge the continuous-documentation policy from the generated `docs/README.md` deliberately when repository instructions already exist.
+
+### Migration from 5.x
+
+1. Run `npx @ghostbyte/agent-docs-kit@6.0.0 setup --dry-run` in the target project.
+2. Review the planned documentation scaffold and protected `AGENTS.md` behavior.
+3. Run `npx @ghostbyte/agent-docs-kit@6.0.0 setup` to initialize documentation before creating security or engineering worksheets.
+4. If the project already has `AGENTS.md`, keep it and deliberately merge only the continuous-documentation guidance the project accepts.
+5. Use `npx @ghostbyte/agent-docs-kit@6.0.0 suggest reviews --staged` or `--base <git-ref>` when an advisory change-based reminder is useful. No Git hook is installed automatically.
 
 ### Added
 
-- Render the six public maintainer guides as styled, navigable HTML pages on the GitHub Pages site instead of linking readers to raw Markdown.
+- Add a protected `AGENTS.md` to explicit project setup when one is absent, establishing a continuous documentation-impact loop without overwriting existing repository instructions.
+- Add read-only `suggest reviews` Git change tracing for staged changes and branch-base comparisons, with evidence-labeled security and engineering review candidates.
+- Require the documentation workspace to be initialized before security or engineering worksheets can be created, with direct setup guidance for people and calling agents.
+- Add a closed-beta testing guide, safe disposable-project paths, and a structured beta feedback issue template.
+- Add sanitized before/after, documentation-audit, security-worksheet, and engineering-review examples to the website and README.
+- Render the public guides, including the beta guide, as styled and navigable website pages instead of linking readers to raw Markdown.
 - Replace maintainer-oriented homepage footer links with user navigation plus dedicated Privacy and Terms of Use pages.
 - Use the same Privacy, Terms of Use, and Security Model footer across public trust and generated guide pages without exposing maintainer navigation.
+
+### Changed
+
+- Position the documentation workflow as AI-first and agent-assisted while preserving the complete manual path and clearly stating that instruction files do not run an agent.
+- Separate continuous documentation maintenance from scoped, point-in-time security and engineering reviews.
+- Reorganize first-run guidance around prerequisites, read-only onboarding, setup preview, and a clearly separated optional write step.
+- Clarify across the website, README, CLI help, package metadata, and project skill that only documentation structure checks are automated; security and engineering worksheets require evidence and judgment.
+- Use the Cloudflare Workers URL as the canonical website in package metadata, the CLI opener, documentation, and HTML metadata; retain GitHub Pages configuration for an explicitly optional mirror.
+- Make website workflow tabs progressively enhanced, improve keyboard navigation and focus behavior, respect reduced motion, and make copy buttons copy the exact visible command block.
+
+### Fixed
+
+- Require the latest applicable documentation audit to be recognized, structurally valid, and passing before `next` advances beyond Stage 4; a newer failure now overrides an older pass.
+- Reject empty, malformed, unrelated, ambiguous, or incomplete saved reports as workflow evidence while retaining a compatibility path for valid legacy text reports.
+- Keep security and engineering worksheets open when statuses, stable IDs, evidence, ownership, verification, or overall state are incomplete.
+- Generate the report validator from one canonical implementation so CLI workflow state and installed-skill checks use the same status rules.
 
 ### Security
 
 - Escape generated documentation metadata and Markdown output, reject active URI schemes, and add safe external-link attributes in the dependency-free site renderer.
+- Correct the privacy notice for Cloudflare canonical hosting, the GitHub Pages mirror, local storage, npm registry access, and optional AI-provider data flows without making unsupported logging promises.
+
+### Release note draft
+
+**Stable major release:** improves first-time guidance and automation boundaries; aligns canonical links and data-handling documentation; strengthens audit-progress detection so saved failures are not mistaken for successful checks; and adds continuous-documentation policy, changed-path review suggestions, beta walkthroughs, feedback support, examples, accessibility refinements, and regression coverage. See the migration steps above before using security or engineering worksheet commands in an uninitialized project.
 
 ## 5.1.0 - 2026-10-14
 

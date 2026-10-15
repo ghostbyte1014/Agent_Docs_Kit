@@ -1,7 +1,9 @@
 import { readdir, readFile } from "node:fs/promises";
 import { relative, resolve } from "node:path";
+import { evaluateDocumentationReports } from "../core/audit-reports.mjs";
 import { loadProjectConfig } from "../core/config.mjs";
 import { exists } from "../core/files.mjs";
+import { worksheetReportState } from "../core/report-validation.mjs";
 
 export const npxCommand = "npx @ghostbyte/agent-docs-kit@latest";
 
@@ -14,6 +16,7 @@ const startModes = Object.freeze({
       `${npxCommand} setup --dry-run`,
       `${npxCommand} setup`,
       "Describe the intended users, scope, architecture, and operating assumptions in docs/.",
+      "Use the generated documentation-maintenance policy for every later project change.",
       `${npxCommand} audit documentation --strict --report --format markdown`,
       `${npxCommand} next`
     ],
@@ -27,6 +30,7 @@ const startModes = Object.freeze({
       `${npxCommand} setup --dry-run`,
       `${npxCommand} setup`,
       "Choose AI-assisted or manual completion below.",
+      "For every later change, update the affected documentation or record why no documentation update is needed.",
       `${npxCommand} audit documentation --strict --report --format markdown`,
       `${npxCommand} next`
     ],
@@ -38,12 +42,13 @@ const startModes = Object.freeze({
     steps: [
       `${npxCommand} setup --dry-run`,
       `${npxCommand} setup`,
+      "Review the generated AGENTS.md, or merge docs/README.md's continuous-documentation policy into an existing AGENTS.md.",
       `${npxCommand} skill install --target project`,
       "Open or restart your AI coding session so it can discover .agents/skills/.",
       "Prompt: Use $manage-project-quality. Inspect this repository, determine the current Agent Docs stage, and guide me through the next safe step. Do not infer facts without evidence.",
       `${npxCommand} next`
     ],
-    note: "Giving an AI only the npm package name does not grant authority or perform an audit. The agent should inspect the repository, explain proposed writes, and request authorization before active security testing."
+    note: "The agent should maintain affected documentation with every material change. Security and engineering remain separate, scoped reviews; package or skill installation does not grant authority for active testing."
   },
   manual: {
     title: "Manual workflow",
@@ -54,10 +59,11 @@ const startModes = Object.freeze({
       `${npxCommand} list documentation`,
       `${npxCommand} documentation guide system-documentation`,
       "Replace scaffold prompts with verified project facts and cite the source of each important claim.",
+      "For each later project change, follow docs/README.md's documentation-impact loop.",
       `${npxCommand} audit documentation --strict --report`,
       `${npxCommand} next`
     ],
-    note: "For security and engineering work, list the available scopes first, create one worksheet, then replace Unverified only when evidence supports the result."
+    note: "Documentation maintenance is continuous. Security and engineering are separate point-in-time reviews: list a scope, create one worksheet, and replace Unverified only when evidence supports the result."
   }
 });
 
@@ -75,7 +81,7 @@ export function startWorkflow(mode) {
     return { mode: normalized, ...path, text };
   }
 
-  const text = `\nChoose your starting path\n=========================\n1. New project      ${npxCommand} start new\n2. Existing project ${npxCommand} start existing\n3. Use an AI agent  ${npxCommand} start agent\n4. Work manually    ${npxCommand} start manual\n\nNot sure? Run '${npxCommand} next' to inspect the current project and receive one recommended next step.\n\nInstallation alone changes nothing. Setup creates only the owned scaffold, and existing files are skipped unless --force is explicit.`;
+  const text = `\nChoose your starting path\n=========================\n1. New project      ${npxCommand} start new\n2. Existing project ${npxCommand} start existing\n3. Use an AI agent  ${npxCommand} start agent\n4. Work manually    ${npxCommand} start manual\n\nNot sure? Run '${npxCommand} next' to inspect the current project and receive one recommended next step.\n\nEvery path initializes documentation before security or engineering worksheets can be created. Installation alone changes nothing. Setup creates the owned scaffold and a protected AGENTS.md when absent. Existing files are skipped unless --force is explicit, and an existing AGENTS.md is never overwritten.`;
   console.log(text);
   return { mode: undefined, paths: Object.keys(startModes), text };
 }
@@ -91,17 +97,6 @@ async function markdownFiles(directory) {
   return found;
 }
 
-async function regularFiles(directory) {
-  if (!(await exists(directory))) return [];
-  const found = [];
-  for (const item of await readdir(directory, { withFileTypes: true })) {
-    const path = resolve(directory, item.name);
-    if (item.isDirectory()) found.push(...await regularFiles(path));
-    else if (item.isFile() && item.name !== ".gitkeep") found.push(path);
-  }
-  return found;
-}
-
 async function filesContaining(paths, pattern) {
   const matching = [];
   for (const path of paths) {
@@ -109,6 +104,21 @@ async function filesContaining(paths, pattern) {
     if (pattern.test(value)) matching.push(path);
   }
   return matching;
+}
+
+function resemblesWorksheet(text, kind) {
+  const heading = kind === "security" ? /^# Security (?:worksheet|audit):/mi : /^# Engineering (?:worksheet|review):/mi;
+  const table = kind === "security" ? /^\|\s*Control ID\s*\|.*\bStatus\b/m : /^\|\s*Practice ID\s*\|.*\bStatus\b/m;
+  return heading.test(text) || table.test(text);
+}
+
+async function worksheetFiles(paths, kind) {
+  const reports = [];
+  for (const path of paths) {
+    const text = await readFile(path, "utf8");
+    if (resemblesWorksheet(text, kind)) reports.push({ path, kind, state: worksheetReportState(text) });
+  }
+  return reports;
 }
 
 function renderNext(result) {
@@ -178,51 +188,68 @@ export async function nextWorkflow(options = {}) {
     ], "Setup creates a structure, not complete documentation. A structural audit can pass while the content is still incomplete.");
   }
 
-  const documentationReports = await regularFiles(resolve(root, config.documentationReports));
-  if (!documentationReports.length) {
-    return nextResult(4, "Verify documentation", "The baseline no longer contains starter prompts. Run the structural checks and save the result.", [
+  const documentationAudit = await evaluateDocumentationReports(resolve(root, config.documentationReports), {
+    root,
+    requiredDocuments: config.requiredDocuments
+  });
+  if (documentationAudit.status !== "pass") {
+    const reportDescription = documentationAudit.relativePath
+      ? `${documentationAudit.status.toUpperCase()}: ${documentationAudit.relativePath}`
+      : documentationAudit.status === "missing" ? "not found" : "not recognized";
+    return nextResult(4, "Verify documentation", documentationAudit.status === "fail"
+      ? "The latest documentation audit failed. Resolve its findings and save a new passing result."
+      : "No trustworthy passing documentation audit was found. Run the structural checks and save the result.", [
       `Documentation files: ${documentationFiles.length}`,
-      "Saved documentation audit: not found"
+      `Latest documentation audit: ${reportDescription}`,
+      documentationAudit.detail
     ], [
       `${npxCommand} audit documentation --cwd "${root}" --strict --report --format markdown`,
       "Review every failure and rerun the audit until the result matches the intended release standard."
-    ], "This audit checks structure, metadata, placeholders, and local links. It does not prove that every statement is factually correct.");
+    ], "Only a recognized, applicable passing report advances this stage. The audit checks structure, metadata, placeholders, and local links; it does not prove that every statement is factually correct.");
   }
 
-  const securityReports = await markdownFiles(resolve(root, config.securityReports));
-  const engineeringReports = await markdownFiles(resolve(root, config.engineeringReports));
-  const openReports = await filesContaining([...securityReports, ...engineeringReports], /Overall status:\s*Unverified|\|\s*Unverified\s*\|/i);
-  if (openReports.length) {
-    return nextResult(5, "Complete the open review", "A generated worksheet still contains Unverified results and needs evidence or an explicit N/A rationale.", [
-      ...openReports.slice(0, 5).map((path) => `Open: ${relative(root, path)}`)
+  const securityReports = await worksheetFiles(await markdownFiles(resolve(root, config.securityReports)), "security");
+  const engineeringReports = await worksheetFiles(await markdownFiles(resolve(root, config.engineeringReports)), "engineering");
+  const outstandingReports = [];
+  for (const report of [...securityReports, ...engineeringReports]) {
+    if (report.state.kind && report.state.kind !== report.kind) outstandingReports.push({ path: report.path, label: "Invalid", detail: `Expected a ${report.kind} worksheet but found ${report.state.kind} status rules.` });
+    else if (report.state.errors.length) outstandingReports.push({ path: report.path, label: "Invalid", detail: report.state.errors[0] });
+    else if (report.state.open) outstandingReports.push({ path: report.path, label: "Open", detail: "Unverified findings or overall status remain." });
+  }
+  if (outstandingReports.length) {
+    return nextResult(5, "Complete the open review", "A worksheet is open or structurally invalid and needs evidence or an explicit N/A rationale.", [
+      ...outstandingReports.slice(0, 5).map((item) => `${item.label}: ${relative(root, item.path)} — ${item.detail}`),
+      ...(outstandingReports.length > 5 ? [`Additional open or invalid worksheets: ${outstandingReports.length - 5}`] : [])
     ], [
       "Inspect the named report and collect code, configuration, test, metric, or authorized environment evidence.",
       "Assign only the allowed status values; record remediation, owner, and verification for actionable findings.",
       skillInstalled ? "Ask your AI to use $manage-project-quality for the report's single selected scope." : `${npxCommand} skill install --target project --cwd "${root}" (optional AI assistance)`
-    ], "Creating a worksheet does not perform a review. All findings intentionally begin as Unverified.");
+    ], "Creating a worksheet does not perform a review. Stage 6 means the record is structurally complete; it does not mean every control passed or recommendation was applied.");
   }
 
   if (!securityReports.length && !engineeringReports.length) {
-    return nextResult(5, "Choose a focused quality review", "Documentation is initialized and audited. Security and engineering reviews are optional and should be selected by current risk or project need.", [
-      `Saved documentation audits: ${documentationReports.length}`,
+    return nextResult(5, "Maintain documentation or choose a focused review", "Documentation is initialized and audited. Keep it aligned with every material project change. Security and engineering reviews are optional and should be selected by current risk or project need.", [
+      `Latest documentation audit: PASS (${documentationAudit.relativePath})`,
       "Security worksheets: none",
       "Engineering worksheets: none"
     ], [
+      `${npxCommand} audit documentation --cwd "${root}" --strict`,
       `${npxCommand} list security`,
       `${npxCommand} security worksheet <phase>`,
       `${npxCommand} list engineering`,
       `${npxCommand} engineering worksheet <topic>`
-    ], "Select one narrow scope. Active security testing requires explicit authorization for the exact target.");
+    ], "Documentation maintenance continues independently. Select one narrow scope only when a security or engineering review is useful. Active security testing requires explicit authorization for the exact target.");
   }
 
-  return nextResult(6, "Maintain the project record", "The workspace has documentation evidence and no open generated worksheet was detected.", [
-    `Documentation audits: ${documentationReports.length}`,
+  return nextResult(6, "Maintain the project record", "The latest documentation audit passed and no open or invalid generated worksheet was detected.", [
+    `Latest documentation audit: PASS (${documentationAudit.relativePath})`,
     `Security worksheets: ${securityReports.length}`,
     `Engineering worksheets: ${engineeringReports.length}`,
     `Project AI skill: ${skillInstalled ? "installed" : "not installed"}`
   ], [
     `${npxCommand} audit documentation --cwd "${root}" --strict`,
+    "For every material change, update the affected documentation or record why no documentation update is needed.",
     "Create ADRs, change records, test evidence, runbooks, or incident reviews when the project changes.",
     "Revisit focused security and engineering scopes before material releases."
-  ], "Keep the records aligned with code and operations; a previous audit is evidence from a point in time, not a permanent guarantee.");
+  ], "This stage means the record is structurally complete; it does not mean every control passed or recommendation was applied. Keep records aligned with code and operations because an audit is point-in-time evidence, not a permanent guarantee.");
 }

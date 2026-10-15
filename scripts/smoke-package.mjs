@@ -46,13 +46,18 @@ try {
   const cli = resolve(packageRoot, "bin", "agent-docs.mjs");
   const runCli = (...arguments_) => execFileSync(process.execPath, [cli, ...arguments_], { cwd: consumer, encoding: "utf8" });
   const help = execFileSync(process.execPath, [cli, "--help"], { cwd: consumer, encoding: "utf8" });
-  if (!help.includes("start [new|existing|agent|manual]") || !help.includes("Detect project state") || !help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("template create")) throw new Error("Packed CLI help is incomplete.");
+  if (!help.includes("start [new|existing|agent|manual]") || !help.includes("Detect project state") || !help.includes("suggest reviews") || !help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("template create")) throw new Error("Packed CLI help is incomplete.");
   const agentStart = runCli("start", "agent");
   if (!agentStart.includes("$manage-project-quality") || !agentStart.includes("does not grant authority")) throw new Error("Packed CLI agent onboarding is incomplete.");
   const emptyNext = runCli("next");
   if (!emptyNext.includes("Stage 1: Initialize safely")) throw new Error("Packed CLI did not detect an uninitialized project.");
+  const blockedWorksheet = spawnSync(process.execPath, [cli, "security", "worksheet", "api-layer"], { cwd: consumer, encoding: "utf8" });
+  if (blockedWorksheet.status === 0 || !blockedWorksheet.stderr.includes("Initialize documentation before creating a security worksheet")) throw new Error("Packed CLI did not enforce documentation initialization before worksheet creation.");
   runCli("setup", "--dry-run");
   runCli("setup");
+  const generatedDocumentation = await readFile(resolve(consumer, "docs", "README.md"), "utf8");
+  if (!generatedDocumentation.includes("npx @ghostbyte/agent-docs-kit@latest suggest reviews --staged") || generatedDocumentation.includes("npx agent-docs suggest reviews")) throw new Error("Packed setup emitted an unreliable no-install suggestion command.");
+  await access(resolve(consumer, "AGENTS.md"));
   const initializedNext = runCli("next");
   if (!initializedNext.includes("Stage 3: Build the documentation baseline")) throw new Error("Packed CLI did not detect the generated baseline.");
   runCli("audit", "documentation", "--strict", "--report", "--format", "json");
@@ -68,7 +73,7 @@ try {
   runCli("skill", "install", "--target", "project");
   runCli("validate");
   await access(resolve(consumer, ".agents/skills/manage-project-quality/SKILL.md"));
-  execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function' || typeof api.startWorkflow !== 'function' || typeof api.nextWorkflow !== 'function') process.exit(1);"], { cwd: consumer });
+  execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function' || typeof api.startWorkflow !== 'function' || typeof api.nextWorkflow !== 'function' || typeof api.suggestReviews !== 'function') process.exit(1); const result = await api.suggestReviews({ cwd: process.cwd(), changedFiles: ['site/index.html'] }); if (!result.security.every((entry) => entry.command.startsWith('npx @ghostbyte/agent-docs-kit@latest '))) process.exit(1);"], { cwd: consumer, stdio: "ignore" });
   const invalid = spawnSync(process.execPath, [cli, "doctor", "unexpected"], { cwd: consumer, encoding: "utf8" });
   if (invalid.status === 0 || !invalid.stderr.includes("Invalid arguments")) throw new Error("CLI accepted an unexpected positional argument.");
   runNpm(["run", "validate"], { cwd: packageRoot, stdio: "ignore" });

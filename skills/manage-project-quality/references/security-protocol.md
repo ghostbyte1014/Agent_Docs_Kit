@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Security assurance looks for exploitable weaknesses and missing controls that can affect confidentiality, integrity, availability, privacy, or release safety. Its output is evidence-based and can block release when a Critical or High control fails.
+Security review looks for exploitable weaknesses and missing controls that can affect confidentiality, integrity, availability, privacy, or release safety. Its output is evidence-based. A project policy can require a blocking decision when a Critical or High control fails; enforcement requires an explicit CI or release control.
 
 ## Safety boundary
 
@@ -19,4 +19,4 @@ Never infer `Pass` from absence of evidence. A tool reporting no finding is evid
 
 ## Severity and release effect
 
-Use Critical, High, Medium, Low, or Informational. Critical and High failures block release by default. An exception must name the risk owner, justification, compensating control, and expiry date.
+Use Critical, High, Medium, Low, or Informational. Recommend a blocking decision for unresolved Critical and High failures. Actual enforcement depends on the project's release policy or an explicit CI/release control. An exception must name the risk owner, justification, compensating control, and expiry date.

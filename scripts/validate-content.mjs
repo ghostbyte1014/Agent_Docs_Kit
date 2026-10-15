@@ -9,6 +9,7 @@ const identities = new Set();
 const expectedGenerated = new Set();
 const aliases = { documentation: new Map(), security: new Map(), engineering: new Map() };
 const controlIds = new Set();
+const generatedReportValidatorHeader = "// Generated from src/core/report-validation.mjs by scripts/build-skill.mjs.\n// Run `npm run build` after changing the canonical source.\n\n";
 
 function validDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? "")) return false;
@@ -64,6 +65,14 @@ for (const kind of ["documentation", "security", "engineering"]) {
 
 for (const name of await readdir(resolve(root, "skills/manage-project-quality/references"))) {
   if (/^(?:documentation|security|engineering)-(?:\d{2}-.+|full-reference)\.md$/.test(name) && !expectedGenerated.has(name)) errors.push(`Unexpected generated skill reference: ${name}`);
+}
+
+try {
+  const canonicalValidator = await readFile(resolve(root, "src/core/report-validation.mjs"), "utf8");
+  const generatedValidator = await readFile(resolve(root, "skills/manage-project-quality/scripts/report-validation.mjs"), "utf8");
+  if (generatedValidator !== `${generatedReportValidatorHeader}${canonicalValidator}`) errors.push("Generated skill report validator is stale.");
+} catch {
+  errors.push("Missing canonical or generated report validator.");
 }
 
 if (catalog.documentation.length !== 7) errors.push(`Expected 7 documentation areas; found ${catalog.documentation.length}.`);

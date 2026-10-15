@@ -1,7 +1,7 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, extname, relative, resolve } from "node:path";
 import { loadCatalog, selectEntry } from "../core/catalog.mjs";
-import { loadProjectConfig } from "../core/config.mjs";
+import { documentationInitializationState, loadProjectConfig } from "../core/config.mjs";
 import { exists, writeUnique } from "../core/files.mjs";
 import { resolveFromPackage } from "../core/paths.mjs";
 
@@ -13,10 +13,19 @@ export function localDate(value = new Date()) {
 }
 
 async function reportFor(kind, selector, options = {}) {
+  const initialization = await documentationInitializationState(options.cwd);
+  if (!initialization.initialized) {
+    const missing = [
+      ...(!initialization.configPresent ? [".agent-docs/config.json"] : []),
+      ...(!initialization.documentationRootPresent ? [initialization.config.documentationRoot] : [])
+    ];
+    const article = kind === "engineering" ? "an" : "a";
+    throw new Error(`Initialize documentation before creating ${article} ${kind} worksheet. Missing: ${missing.join(", ")}. Run 'npx @ghostbyte/agent-docs-kit@latest setup --dry-run', then 'npx @ghostbyte/agent-docs-kit@latest setup'.`);
+  }
   const catalog = await loadCatalog();
   const entry = selectEntry(catalog[kind], selector);
   if (!entry) throw new Error(`Unknown ${kind} selection '${selector ?? ""}'. Run 'agent-docs list ${kind}'.`);
-  const { root, config } = await loadProjectConfig(options.cwd);
+  const { root, config } = initialization;
   const source = await readFile(resolveFromPackage(entry.source), "utf8");
   const reference = source.replace(/^#\s+(.+)$/m, "### $1");
   const isSecurity = kind === "security";
@@ -143,7 +152,8 @@ function renderAudit(result, format) {
     const rows = result.checks.map((row) => `| ${row.pass ? "PASS" : "FAIL"} | ${row.rule} | ${row.path} | ${row.detail} |`).join("\n");
     return `# Documentation audit\n\n- Checked: ${result.checkedAt}\n- Result: ${result.pass ? "PASS" : "FAIL"}\n\n| Status | Rule | Path | Detail |\n|---|---|---|---|\n${rows}\n`;
   }
-  return result.checks.map((row) => `${row.pass ? "PASS" : "FAIL"} ${row.rule} ${row.path}${row.detail ? ` — ${row.detail}` : ""}`).join("\n");
+  const rows = result.checks.map((row) => `${row.pass ? "PASS" : "FAIL"} ${row.rule} ${row.path}${row.detail ? ` — ${row.detail}` : ""}`).join("\n");
+  return `Checked: ${result.checkedAt}\nResult: ${result.pass ? "PASS" : "FAIL"}\n${rows}`;
 }
 
 export async function auditDocumentation(options = {}) {

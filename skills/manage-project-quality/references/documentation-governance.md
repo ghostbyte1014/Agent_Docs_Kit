@@ -34,6 +34,12 @@ Keep the layout proportional to the project. Do not create empty documents merel
 4. Classify each document as `Current`, `Needs update`, `Reference`, or `Archived`.
 5. Propose the smallest repair that restores a single clear source of truth.
 
+## Continuous change loop
+
+For each material repository change, inspect behavior, configuration, tests, dependencies, and operating assumptions. Update only the documentation areas affected by the evidence, then run the configured documentation audit. Summarize the records updated or explain why the change has no documentation impact. This loop is continuous; security and engineering worksheets remain separate reviews chosen for a specific risk, release gate, or engineering question.
+
+An `AGENTS.md` policy directs a compatible coding agent but does not start one. The user or development environment must run the agent and grant appropriate repository access. `agent-docs suggest reviews` may be called manually, from an explicitly configured Git hook, or from CI to display path-based candidates; its output is advisory and is not an audit result.
+
 ## Change records
 
 Record what changed, why it changed, files affected, validation performed, and approval when required by the project. Prefer commit-linked records. Treat a "change freeze" as a declared collaboration policy unless a technical hook or CI rule actually enforces it.

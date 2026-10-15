@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 
-export const websiteUrl = "https://ghostbyte1014.github.io/Agent_Docs_Kit/";
+export const websiteUrl = "https://agent-docs-kit.ghostbyte1014.workers.dev/";
 
 export function browserCommand(platform = process.platform) {
   if (platform === "win32") {

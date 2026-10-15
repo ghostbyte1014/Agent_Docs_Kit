@@ -14,6 +14,7 @@ npm-debug.log*
 
 # Local Agent Docs workspace and generated reports
 # Keep the package's existing maintainer guides in docs/ tracked.
+# Ignored documentation remains readable, writable, and auditable by Agent Docs.
 /docs/README.md
 /docs/01-system/
 /docs/02-project/
@@ -23,3 +24,8 @@ npm-debug.log*
 /docs/06-future-proposals/
 /docs/archive/
 /docs/audits/
+
+# Repository-installed generated skill; it can be recreated from the package.
+/.agents/skills/manage-project-quality/
+
+# Keep .github/ tracked: it owns CI, release, deployment, and issue metadata.

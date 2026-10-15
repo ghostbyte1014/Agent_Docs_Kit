@@ -12,6 +12,7 @@ import { openWebsite } from "../commands/website.mjs";
 import { createTemplate, listTemplates } from "../commands/template.mjs";
 import { showDocumentationGuide } from "../commands/guide.mjs";
 import { nextWorkflow, startWorkflow } from "../commands/workflow.mjs";
+import { suggestReviews } from "../commands/suggest.mjs";
 import { readFile } from "node:fs/promises";
 import { resolveFromPackage } from "../core/paths.mjs";
 
@@ -85,6 +86,10 @@ export async function main(argv) {
   if (command === "setup") {
     assertInvocation(positionals, flags, { counts: [1], allowedFlags: ["cwd", "dry-run", "force"], usage: "agent-docs setup [--cwd <path>] [--dry-run] [--force]" });
     return setupProject(options);
+  }
+  if (command === "suggest" && subject === "reviews") {
+    assertInvocation(positionals, flags, { counts: [2], allowedFlags: ["cwd", "staged", "base"], usage: "agent-docs suggest reviews [--staged | --base <git-ref>] [--cwd <path>]" });
+    return suggestReviews(options);
   }
   if (command === "audit" && subject === "documentation") {
     assertInvocation(positionals, flags, { counts: [2], allowedFlags: ["cwd", "dry-run", "force", "report", "strict", "format"], usage: "agent-docs audit documentation [--strict] [--report] [--format text|markdown|json]" });
