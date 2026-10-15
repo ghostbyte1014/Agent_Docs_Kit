@@ -2,9 +2,24 @@
 
 Notable user-visible changes are recorded here. Versions follow semantic versioning.
 
+## 6.1.0 - 2026-10-15
+
+### Added
+
+- Expand the `setup` template `AGENTS.md` with governance switches (`CHANGE RECORDS` and `FREEZE`), a change-records policy (timestamped per-topic files in Philippine time, UTC+8), a change-freeze protocol (per-file confirmation, scope verification, and allowed read-only operations), an `## Always` section covering commit, secret, and data-boundary constraints, a documentation routing table, a development-commands reference, and starter sections for architecture and design rules.
+- Scaffold `docs/05-operations/agents/CHANGE_FREEZE_GUIDE.md` explaining switch semantics, session-restart requirements, tool-specific configuration locks, and the freeze protocol for all AI coding agents in any mode.
+- Scaffold `docs/05-operations/agents/feature-updates/README.md` providing the naming convention (`YYYY-MM-DD_HHMM_short-topic.md`) and a copy-paste change-record template with date, AI tool, files changed, approval, and type fields.
+- Update the generated `docs/05-operations/README.md` to include an `## Agent operations` section linking to the two new guides.
+
+### Changed
+
+- The generated `AGENTS.md` attribution header now includes `> Created by ghostbyte1014 · Agent Docs Kit` and a project-summary placeholder.
+- The governance scope line explicitly names all major AI coding agents and modes (Claude Code, Codex, Gemini CLI, Cursor, Copilot, Antigravity, and any other) including auto, auto-accept, full-access, YOLO, and skip-permissions modes.
+
 ## 6.0.0 - 2026-10-15
 
 ### Breaking
+
 
 - Security and engineering worksheet commands now require an initialized documentation workspace. Existing users who previously created standalone worksheets must first run `setup --dry-run`, review the planned files, and then run `setup`.
 - Explicit setup now creates a root `AGENTS.md` when one is absent. An existing `AGENTS.md` is always preserved, including with `--force`; merge the continuous-documentation policy from the generated `docs/README.md` deliberately when repository instructions already exist.

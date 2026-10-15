@@ -192,7 +192,7 @@ Legacy v4 forms `audit security <phase>` and `review engineering <topic>` remain
 Project-local installation modifies the project's package manifest and lockfile:
 
 ```bash
-npm install --save-dev @ghostbyte/agent-docs-kit@6.0.0
+npm install --save-dev @ghostbyte/agent-docs-kit@6.1.0
 npx agent-docs --version
 npx agent-docs setup --dry-run
 ```
@@ -200,7 +200,7 @@ npx agent-docs setup --dry-run
 Global installation modifies the npm global prefix, not the target project:
 
 ```bash
-npm install --global @ghostbyte/agent-docs-kit@6.0.0
+npm install --global @ghostbyte/agent-docs-kit@6.1.0
 agent-docs --version
 agent-docs setup --dry-run
 ```

@@ -62,6 +62,11 @@ test("setup is explicit, non-destructive, and repeatable", async () => {
     const created = await setupProject({ cwd: root });
     assert.ok(created.every((item) => item.status === "created"));
     assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /Documentation maintenance is continuous/);
+    assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /CHANGE RECORDS: ON/);
+    assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /FREEZE: OFF/);
+    assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /every AI coding agent/);
+    assert.match(await readFile(join(root, "docs", "05-operations", "agents", "CHANGE_FREEZE_GUIDE.md"), "utf8"), /Change freeze guide/);
+    assert.match(await readFile(join(root, "docs", "05-operations", "agents", "feature-updates", "README.md"), "utf8"), /Feature updates and change records/);
     const documentationIndex = await readFile(join(root, "docs", "README.md"), "utf8");
     assert.match(documentationIndex, /Maintain documentation with every change/);
     assert.match(documentationIndex, /does not automatically start a security or engineering review/);

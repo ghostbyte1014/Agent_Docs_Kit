@@ -1,6 +1,6 @@
 {
   "name": "@ghostbyte/agent-docs-kit",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "A lightweight, evidence-first CLI for project documentation and guided security and engineering reviews.",
   "type": "module",
   "bin": {
