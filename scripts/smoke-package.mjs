@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { access, mkdtemp, mkdir, readFile, rm } from "node:fs/promises";
+import { access, mkdtemp, mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { publicDocs as publicDocNames } from "./public-docs.mjs";
@@ -46,7 +46,7 @@ try {
   const cli = resolve(packageRoot, "bin", "agent-docs.mjs");
   const runCli = (...arguments_) => execFileSync(process.execPath, [cli, ...arguments_], { cwd: consumer, encoding: "utf8" });
   const help = execFileSync(process.execPath, [cli, "--help"], { cwd: consumer, encoding: "utf8" });
-  if (!help.includes("start [new|existing|agent|manual]") || !help.includes("Detect project state") || !help.includes("suggest reviews") || !help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("template create")) throw new Error("Packed CLI help is incomplete.");
+  if (!help.includes("start [new|existing|agent|manual]") || !help.includes("Detect project state") || !help.includes("suggest reviews") || !help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("template create") || !help.includes("--ai") || !help.includes("--agents")) throw new Error("Packed CLI help is incomplete.");
   const agentStart = runCli("start", "agent");
   if (!agentStart.includes("$manage-project-quality") || !agentStart.includes("does not grant authority")) throw new Error("Packed CLI agent onboarding is incomplete.");
   const emptyNext = runCli("next");
@@ -60,6 +60,16 @@ try {
   await access(resolve(consumer, "AGENTS.md"));
   const initializedNext = runCli("next");
   if (!initializedNext.includes("Stage 3: Build the documentation baseline")) throw new Error("Packed CLI did not detect the generated baseline.");
+  const untouchedStrict = spawnSync(process.execPath, [cli, "audit", "documentation", "--strict"], { cwd: consumer, encoding: "utf8" });
+  if (untouchedStrict.status === 0) throw new Error("A freshly generated scaffold must fail 'audit documentation --strict'.");
+  if (!untouchedStrict.stdout.includes("starter-text")) throw new Error("The strict failure must name the starter-text rule.");
+  const lenientAudit = spawnSync(process.execPath, [cli, "audit", "documentation"], { cwd: consumer, encoding: "utf8" });
+  if (lenientAudit.status !== 0) throw new Error("'audit documentation' without --strict must exit 0 even when checks fail.");
+  for (const [relativePath, heading, body] of [
+    ["docs/01-system/overview.md", "# System overview", "Verified system boundary, users, and dependencies."],
+    ["docs/02-project/README.md", "# Project", "Verified requirements, decisions, and delivery status."],
+    ["docs/05-operations/README.md", "# Operations", "Verified setup, deployment, and recovery procedure."]
+  ]) await writeFile(resolve(consumer, relativePath), [heading, "", body, ""].join("\n"), "utf8");
   runCli("audit", "documentation", "--strict", "--report", "--format", "json");
   const securityOutput = runCli("security", "worksheet", "api-layer");
   const engineeringOutput = runCli("engineering", "worksheet", "testing-types");
@@ -71,6 +81,23 @@ try {
   for (const type of ["adr", "runbook", "change", "incident", "evidence"]) runCli("template", "create", type, "--name", `smoke-${type}`);
   runCli("documentation", "guide", "system-documentation");
   runCli("skill", "install", "--target", "project");
+  const aiProject = resolve(scratch, "ai-consumer");
+  await mkdir(aiProject);
+  const isolatedHome = resolve(scratch, "isolated-home");
+  await mkdir(isolatedHome);
+  execFileSync(process.execPath, [cli, "setup", "--ai"], {
+    cwd: aiProject,
+    encoding: "utf8",
+    env: { ...process.env, HOME: isolatedHome, USERPROFILE: isolatedHome }
+  });
+  for (const required of ["AGENTS.md", "CLAUDE.md", "GEMINI.md", ".agent-docs/config.json", ".agents/skills/manage-project-quality/SKILL.md", ".claude/skills/manage-project-quality/SKILL.md"]) {
+    await access(resolve(aiProject, required));
+  }
+  const pointer = await readFile(resolve(aiProject, "CLAUDE.md"), "utf8");
+  if (!pointer.includes("@AGENTS.md")) throw new Error("setup --ai must create a CLAUDE.md that imports AGENTS.md.");
+  const generatedPolicy = await readFile(resolve(aiProject, "AGENTS.md"), "utf8");
+  if (generatedPolicy.includes("Philippine time") || generatedPolicy.includes("Created by")) throw new Error("Generated AGENTS.md must carry no author-specific defaults.");
+  if ((await readdir(isolatedHome)).length) throw new Error("setup --ai wrote outside the project directory.");
   runCli("validate");
   await access(resolve(consumer, ".agents/skills/manage-project-quality/SKILL.md"));
   execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function' || typeof api.startWorkflow !== 'function' || typeof api.nextWorkflow !== 'function' || typeof api.suggestReviews !== 'function') process.exit(1); const result = await api.suggestReviews({ cwd: process.cwd(), changedFiles: ['site/index.html'] }); if (!result.security.every((entry) => entry.command.startsWith('npx @ghostbyte/agent-docs-kit@latest '))) process.exit(1);"], { cwd: consumer, stdio: "ignore" });

@@ -18,6 +18,7 @@ import { main } from "../src/cli/main.mjs";
 import { nextWorkflow, npxCommand, startWorkflow } from "../src/commands/workflow.mjs";
 import { renderMarkdown } from "../scripts/markdown.mjs";
 import { suggestReviews, traceChangedFiles } from "../src/commands/suggest.mjs";
+import { versionPlaceholder } from "../src/core/version.mjs";
 
 async function completeDocumentationBaseline(root) {
   await setupProject({ cwd: root });
@@ -516,7 +517,21 @@ test("canonical website and mirror relationship stay consistent across public su
   assert.match(hosting, /canonical public URL/);
   assert.match(hosting, /GitHub Pages mirror/);
   assert.ok(readme.includes(`@ghostbyte/agent-docs-kit@${metadata.version}`));
-  assert.ok(site.includes(`@ghostbyte/agent-docs-kit@${metadata.version}`));
+  // The page source carries a placeholder; scripts/build-site.mjs substitutes
+  // the real version, so the built output is the only place it appears.
+  assert.ok(site.includes(versionPlaceholder), "site/index.html must keep the version placeholder");
+  assert.doesNotMatch(site, new RegExp("@ghostbyte/agent-docs-kit@[0-9]+[.][0-9]+[.][0-9]+"), "site/index.html must not pin a literal version");
+  execFileSync(process.execPath, ["scripts/build-site.mjs"], { cwd: projectRoot, stdio: "pipe" });
+  const builtSite = await readFile(join(projectRoot, "build", "site", "index.html"), "utf8");
+  assert.ok(builtSite.includes(`@ghostbyte/agent-docs-kit@${metadata.version}`));
+  assert.ok(!builtSite.includes(versionPlaceholder));
+  // One source for the version: the lockfile must agree too.
+  const lock = JSON.parse(await readFile(join(projectRoot, "package-lock.json"), "utf8"));
+  assert.equal(lock.version, metadata.version);
+  assert.equal(lock.packages[""].version, metadata.version);
+  const releaseProcess = await readFile(join(projectRoot, "docs", "RELEASE_PROCESS.md"), "utf8");
+  assert.ok(releaseProcess.includes(`npm version ${metadata.version}`), "docs/RELEASE_PROCESS.md must pin the current version");
+  assert.doesNotMatch(releaseProcess, new RegExp("npm[.]cmd version"), "release commands must be portable");
   assert.match(pagesWorkflow, /- run: npm test/);
 });
 
@@ -606,27 +621,41 @@ test("site preview builds first and the artifact exposes only public documentati
   const builtDocs = (await readdir(join(projectRoot, "build", "site", "docs"))).sort();
   assert.deepEqual(builtDocs, [
     "ARCHITECTURE.html",
-    "BETA_TESTING_GUIDE.html",
+    "COMPATIBILITY.html",
     "CONTENT_MAINTENANCE.html",
     "GITHUB_AND_NPM_SETUP.html",
     "PURPOSE.html",
     "RELEASE_PROCESS.html",
-    "SECURITY_MODEL.html"
+    "SECURITY_MODEL.html",
+    "TESTING_GUIDE.html"
   ]);
   await assert.rejects(access(join(projectRoot, "build", "site", "docs", "README.md")));
+  // Every local link on a built page must resolve to a file that was published.
+  // check-links.mjs validates Markdown against the repository, which cannot see
+  // that a root file such as SECURITY.md is absent from the site.
+  const siteRoot = join(projectRoot, "build", "site");
+  for (const name of builtDocs) {
+    const page = await readFile(join(siteRoot, "docs", name), "utf8");
+    for (const [, target] of page.matchAll(/href="([^"#][^"]*)"/g)) {
+      if (/^(?:https?:|mailto:)/i.test(target)) continue;
+      await access(join(siteRoot, "docs", target.split("#")[0]));
+    }
+  }
   const purposePage = await readFile(join(projectRoot, "build", "site", "docs", "PURPOSE.html"), "utf8");
   const securityPage = await readFile(join(projectRoot, "build", "site", "docs", "SECURITY_MODEL.html"), "utf8");
-  const betaPage = await readFile(join(projectRoot, "build", "site", "docs", "BETA_TESTING_GUIDE.html"), "utf8");
+  const testingPage = await readFile(join(projectRoot, "build", "site", "docs", "TESTING_GUIDE.html"), "utf8");
   assert.match(purposePage, /<h1>Purpose and boundaries<\/h1>/);
   assert.match(purposePage, /href="\.\.\/privacy\.html">Privacy/);
   assert.match(purposePage, /href="\.\.\/terms\.html">Terms of use/);
   assert.doesNotMatch(purposePage, />GitHub and npm setup<\/a>|>Release process<\/a>/);
   assert.match(securityPage, /href="SECURITY_MODEL\.html" class="is-current">Security model/);
-  assert.match(betaPage, /<h1>Closed-beta testing guide<\/h1>/);
-  assert.match(betaPage, /rel="canonical" href="https:\/\/agent-docs-kit\.ghostbyte1014\.workers\.dev\/docs\/BETA_TESTING_GUIDE\.html"/);
-  assert.match(betaPage, /AGENTS\.md/);
-  assert.match(betaPage, /suggest reviews --staged/);
-  assert.match(betaPage, /byte-for-byte unchanged/);
+  assert.match(testingPage, /<h1>Testing guide<\/h1>/);
+  assert.match(testingPage, /rel="canonical" href="https:\/\/agent-docs-kit\.ghostbyte1014\.workers\.dev\/docs\/TESTING_GUIDE\.html"/);
+  assert.match(testingPage, /AGENTS\.md/);
+  assert.match(testingPage, /suggest reviews --staged/);
+  assert.match(testingPage, /byte-for-byte unchanged/);
+  // The guide documents ordinary verification, not a time-boxed beta programme.
+  assert.doesNotMatch(testingPage, /[Cc]losed-beta/);
   const privacyPage = await readFile(join(projectRoot, "build", "site", "privacy.html"), "utf8");
   const termsPage = await readFile(join(projectRoot, "build", "site", "terms.html"), "utf8");
   assert.match(privacyPage, /agent-docs-command-mode/);

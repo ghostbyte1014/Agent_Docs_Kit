@@ -1,5 +1,9 @@
-const booleanFlags = new Set(["dry-run", "force", "report", "strict", "staged", "help", "version"]);
-const valueFlags = new Set(["cwd", "style", "target", "phase", "topic", "format", "type", "name", "base"]);
+import { parseAgentSelection } from "../core/agents.mjs";
+import { assertTimezone } from "../core/timezone.mjs";
+import { skillTargets } from "../commands/skill.mjs";
+
+const booleanFlags = new Set(["dry-run", "force", "report", "strict", "staged", "ai", "help", "version"]);
+const valueFlags = new Set(["cwd", "style", "target", "phase", "topic", "format", "type", "name", "base", "agents", "timezone", "attribution"]);
 const allowedStyles = new Set(["standard", "learning"]);
 const allowedFormats = new Set(["text", "markdown", "json"]);
 
@@ -35,14 +39,20 @@ export function optionsFromFlags(flags) {
   const format = flags.format ?? "text";
   if (style !== undefined && !allowedStyles.has(style)) throw new Error(`Invalid style '${style}'. Use standard or learning.`);
   if (!allowedFormats.has(format)) throw new Error(`Invalid format '${format}'. Use text, markdown, or json.`);
-  if (flags.target && !["project", "codex"].includes(flags.target)) {
-    throw new Error(`Invalid target '${flags.target}'. Use project or codex.`);
+  if (flags.target && !skillTargets.includes(flags.target)) {
+    throw new Error(`Invalid target '${flags.target}'. Use ${skillTargets.join(", ")}.`);
   }
+  if (flags.agents !== undefined) parseAgentSelection(flags.agents);
+  if (flags.timezone !== undefined) assertTimezone(flags.timezone, "--timezone");
   if (flags.name && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(flags.name)) {
     throw new Error(`Invalid name '${flags.name}'. Use a lowercase hyphenated slug.`);
   }
   return {
     cwd: flags.cwd,
+    ai: Boolean(flags.ai),
+    agents: flags.agents,
+    timezone: flags.timezone,
+    attribution: flags.attribution,
     dryRun: Boolean(flags["dry-run"]),
     force: Boolean(flags.force),
     style,

@@ -5,7 +5,7 @@ import { helpText } from "./help.mjs";
 import { setupProject } from "../commands/setup.mjs";
 import { auditDocumentation, auditSecurity, reviewEngineering } from "../commands/audit.mjs";
 import { listCatalog } from "../commands/list.mjs";
-import { installSkill } from "../commands/skill.mjs";
+import { installSkill, skillTargets } from "../commands/skill.mjs";
 import { doctor } from "../commands/doctor.mjs";
 import { validatePackage } from "../commands/validate.mjs";
 import { openWebsite } from "../commands/website.mjs";
@@ -84,8 +84,10 @@ export async function main(argv) {
     return nextWorkflow(options);
   }
   if (command === "setup") {
-    assertInvocation(positionals, flags, { counts: [1], allowedFlags: ["cwd", "dry-run", "force"], usage: "agent-docs setup [--cwd <path>] [--dry-run] [--force]" });
-    return setupProject(options);
+    assertInvocation(positionals, flags, { counts: [1], allowedFlags: ["cwd", "dry-run", "force", "ai", "agents", "timezone", "attribution"], usage: "agent-docs setup [--cwd <path>] [--dry-run] [--force] [--ai] [--agents claude,gemini|all|auto|none] [--timezone <zone>] [--attribution <text>]" });
+    const result = await setupProject(options);
+    if (result.failures?.length) process.exitCode = 1;
+    return result;
   }
   if (command === "suggest" && subject === "reviews") {
     assertInvocation(positionals, flags, { counts: [2], allowedFlags: ["cwd", "staged", "base"], usage: "agent-docs suggest reviews [--staged | --base <git-ref>] [--cwd <path>]" });
@@ -114,7 +116,7 @@ export async function main(argv) {
     return showDocumentationGuide(selector);
   }
   if (command === "skill" && subject === "install") {
-    assertInvocation(positionals, flags, { counts: [2], allowedFlags: ["cwd", "dry-run", "force", "target"], usage: "agent-docs skill install --target project|codex" });
+    assertInvocation(positionals, flags, { counts: [2], allowedFlags: ["cwd", "dry-run", "force", "target"], usage: `agent-docs skill install --target ${skillTargets.join("|")}` });
     return installSkill(flags.target ?? "project", options);
   }
   if (command === "template" && subject === "list") {
@@ -134,8 +136,8 @@ export async function main(argv) {
     return openWebsite();
   }
   if (command === "doctor") {
-    assertInvocation(positionals, flags, { counts: [1], usage: "agent-docs doctor" });
-    if (!doctor()) process.exitCode = 1;
+    assertInvocation(positionals, flags, { counts: [1], allowedFlags: ["cwd"], usage: "agent-docs doctor [--cwd <path>]" });
+    if (!(await doctor(options))) process.exitCode = 1;
     return;
   }
   throw new Error(`Unknown command.\n\n${helpText}`);

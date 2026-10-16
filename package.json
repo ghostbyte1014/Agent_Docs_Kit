@@ -1,6 +1,6 @@
 {
   "name": "@ghostbyte/agent-docs-kit",
-  "version": "6.1.0",
+  "version": "6.2.1",
   "description": "A lightweight, evidence-first CLI for project documentation and guided security and engineering reviews.",
   "type": "module",
   "bin": {
@@ -16,7 +16,8 @@
     "templates/",
     "skills/",
     "docs/ARCHITECTURE.md",
-    "docs/BETA_TESTING_GUIDE.md",
+    "docs/TESTING_GUIDE.md",
+    "docs/COMPATIBILITY.md",
     "docs/CONTENT_MAINTENANCE.md",
     "docs/GITHUB_AND_NPM_SETUP.md",
     "docs/PURPOSE.md",
@@ -25,6 +26,7 @@
     "scripts/",
     "site/",
     "tests/",
+    "!tests/fixtures",
     "README.md",
     "CHANGELOG.md",
     "SECURITY.md",
@@ -38,8 +40,10 @@
     "validate": "node scripts/validate-content.mjs && node scripts/check-links.mjs && node bin/agent-docs.mjs validate",
     "smoke:package": "node scripts/smoke-package.mjs",
     "review:dates": "node scripts/check-review-dates.mjs",
-    "release:check": "npm test && npm run validate && npm run review:dates && npm run build && npm run smoke:package && npm audit --cache .npm-cache",
-    "prepublishOnly": "npm run release:check"
+    "release:check": "npm test && npm run validate && node scripts/sync-version.mjs --check && npm run review:dates && npm run build && npm run smoke:package && npm audit --cache .npm-cache",
+    "prepublishOnly": "npm run release:check",
+    "sync:version": "node scripts/sync-version.mjs",
+    "version": "node scripts/sync-version.mjs && git add README.md docs/RELEASE_PROCESS.md docs/GITHUB_AND_NPM_SETUP.md"
   },
   "engines": {
     "node": ">=22"

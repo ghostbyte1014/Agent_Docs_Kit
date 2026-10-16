@@ -16,7 +16,7 @@ Agent Docs & Quality Kit is an AI-first, agent-assisted CLI for setting up proje
 &middot; [npm](https://www.npmjs.com/package/@ghostbyte/agent-docs-kit)
 &middot; [Documentation](docs/PURPOSE.md)
 &middot; [Security model](docs/SECURITY_MODEL.md)
-&middot; [Beta guide](docs/BETA_TESTING_GUIDE.md)
+&middot; [Testing guide](docs/TESTING_GUIDE.md)
 
 ## Quick start
 
@@ -40,11 +40,17 @@ The commands above do not write target-project files. The `npx` commands can sti
 # Writes the owned scaffold; existing files are skipped by default
 npx @ghostbyte/agent-docs-kit@latest setup
 
+# Or do it all at once: scaffold, AGENTS.md, CLAUDE.md/GEMINI.md pointers, project skill
+npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai
+npx @ghostbyte/agent-docs-kit@latest setup --ai
+
 # Checks the next suggested action without writing files
 npx @ghostbyte/agent-docs-kit@latest next
 ```
 
-For a reproducible team workflow, replace `@latest` with a reviewed version such as `@6.0.0` and update the pin deliberately.
+A freshly generated scaffold **fails** `audit documentation --strict` on purpose: every starter document carries an `agent-docs:starter` marker. Replace the starter text with verified project facts and delete the marker, and the strict audit passes. This keeps a green CI check from meaning "empty documentation".
+
+For a reproducible team workflow, replace `@latest` with a reviewed version such as `@6.2.1` and update the pin deliberately.
 
 ## Example output
 
@@ -52,7 +58,11 @@ After explicit setup, representative generated paths include:
 
 ```text
 AGENTS.md
+CLAUDE.md
+GEMINI.md
 .agent-docs/config.json
+.agents/skills/manage-project-quality/
+.claude/skills/manage-project-quality/
 docs/README.md
 docs/01-system/overview.md
 docs/02-project/README.md
@@ -134,6 +144,36 @@ The write command creates `.agents/skills/manage-project-quality`. Open or resta
 
 > Use `$manage-project-quality`. Inspect this repository, determine the current Agent Docs stage, and guide me through the next safe step. Do not infer facts without evidence.
 
+### One canonical policy, thin pointer files
+
+`AGENTS.md` is the single canonical policy. Tools that read their own instruction file get a thin pointer that imports it, so the policy is never copied and cannot drift:
+
+```bash
+# Create pointer files for specific tools
+npx @ghostbyte/agent-docs-kit@latest setup --agents claude,gemini
+
+# Or only for tools this repository already shows signs of using
+npx @ghostbyte/agent-docs-kit@latest setup --agents auto
+```
+
+Each pointer is a few lines beginning with `@AGENTS.md`. An existing `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md` is **never** replaced, including with `--force`; when one lacks the import, the CLI prints the single line to add. `audit documentation` then checks that every configured pointer still imports `AGENTS.md`.
+
+Where a tool documents a project-level skill directory, `skill install --target <agent>` uses it (`--target claude` writes `.claude/skills/`). Every project-level target writes only inside the repository; `--target codex` is the one user-level target and must be requested explicitly.
+
+Installed skills record the CLI version that produced them in `.agent-docs-skill.json`. `next` and `audit documentation` report a copy older than the running CLI and name the refresh command. A mismatch is reported, never failed.
+
+### Generated AGENTS.md defaults
+
+The generated policy carries no author attribution and no hardcoded time zone. Change-record instructions use UTC by default:
+
+```bash
+npx @ghostbyte/agent-docs-kit@latest setup --timezone local
+npx @ghostbyte/agent-docs-kit@latest setup --timezone Europe/Berlin
+npx @ghostbyte/agent-docs-kit@latest setup --attribution "Platform Team"
+```
+
+Both are stored in `.agent-docs/config.json` as `timezone` and `attribution`, and a later `setup` inherits them.
+
 Support for `AGENTS.md` and repository skills depends on the coding agent. If an agent does not support the skill, the CLI guides and generated records remain usable manually. Package or skill installation does not grant authority to run active security tests.
 
 Do not send private code, credentials, personal data, or sensitive vulnerability evidence to an AI provider unless your organization permits it and you have reviewed that provider's data policies.
@@ -187,12 +227,14 @@ Use `--dry-run` where supported. Existing files are protected by default; `--for
 
 Legacy v4 forms `audit security <phase>` and `review engineering <topic>` remain aliases for the canonical worksheet commands.
 
+[`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) states what the CLI surface, exit codes, report formats, configuration schema, owned files, and programmatic API guarantee, and what may change.
+
 ### Installation alternatives
 
 Project-local installation modifies the project's package manifest and lockfile:
 
 ```bash
-npm install --save-dev @ghostbyte/agent-docs-kit@6.1.0
+npm install --save-dev @ghostbyte/agent-docs-kit@6.2.1
 npx agent-docs --version
 npx agent-docs setup --dry-run
 ```
@@ -200,7 +242,7 @@ npx agent-docs setup --dry-run
 Global installation modifies the npm global prefix, not the target project:
 
 ```bash
-npm install --global @ghostbyte/agent-docs-kit@6.1.0
+npm install --global @ghostbyte/agent-docs-kit@6.2.1
 agent-docs --version
 agent-docs setup --dry-run
 ```
@@ -225,12 +267,12 @@ Report suspected vulnerabilities privately as described in [SECURITY.md](SECURIT
 - [Content maintenance](docs/CONTENT_MAINTENANCE.md)
 - [Security policy](SECURITY.md)
 - [Security model](docs/SECURITY_MODEL.md)
-- [Beta testing guide](docs/BETA_TESTING_GUIDE.md)
+- [Testing guide](docs/TESTING_GUIDE.md)
 - [Release process](docs/RELEASE_PROCESS.md)
 - [GitHub, hosting, and npm setup](docs/GITHUB_AND_NPM_SETUP.md)
 - [Changelog](CHANGELOG.md)
 
-General defects and beta feedback can use the repository's [issue tracker](https://github.com/ghostbyte1014/Agent_Docs_Kit/issues). The beta feedback template asks reporters not to include secrets or private project content.
+General defects and feedback can use the repository's [issue tracker](https://github.com/ghostbyte1014/Agent_Docs_Kit/issues). The feedback template asks reporters not to include secrets or private project content. [`docs/TESTING_GUIDE.md`](docs/TESTING_GUIDE.md) walks through a safe end-to-end run in a disposable project.
 
 ## Development and release
 
@@ -243,7 +285,7 @@ npm run smoke:package
 npm run release:check
 ```
 
-There are no runtime dependencies. Publishing is performed only by the authorized version-tag workflow after the documented release checks; ordinary development and this pre-beta refinement do not publish npm packages or deploy the site.
+There are no runtime dependencies. Publishing is performed only by the authorized version-tag workflow after the documented release checks; ordinary development does not publish npm packages or deploy the site.
 
 ## License
 

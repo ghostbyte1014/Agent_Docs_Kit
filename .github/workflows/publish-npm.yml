@@ -4,6 +4,13 @@ on:
   push:
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      dist_tag:
+        description: "npm dist-tag to publish under (latest or beta)"
+        required: false
+        default: beta
+        type: choice
+        options: [beta, latest]
 
 permissions:
   contents: write
@@ -16,6 +23,11 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    outputs:
+      package_name: ${{ steps.registry.outputs.package_name }}
+      package_version: ${{ steps.registry.outputs.package_version }}
+      published: ${{ steps.registry.outputs.publish }}
+      dist_tag: ${{ steps.tag.outputs.dist_tag }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -27,12 +39,30 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Verify tag matches package version
+        if: github.event_name == 'push'
         shell: bash
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           TAG_VERSION="${GITHUB_REF_NAME#v}"
           test "$PACKAGE_VERSION" = "$TAG_VERSION" || { echo "Tag v$TAG_VERSION does not match package version $PACKAGE_VERSION."; exit 1; }
           git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "Release tag must point to a commit on main."; exit 1; }
+      # A prerelease version publishes to the beta tag so @latest never moves
+      # until testers confirm the release. See docs/RELEASE_PROCESS.md.
+      - name: Resolve dist-tag
+        id: tag
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            DIST_TAG="${{ inputs.dist_tag }}"
+          else
+            PACKAGE_VERSION=$(node -p "require('./package.json').version")
+            case "$PACKAGE_VERSION" in
+              *-*) DIST_TAG=beta ;;
+              *) DIST_TAG=latest ;;
+            esac
+          fi
+          echo "dist_tag=$DIST_TAG" >> "$GITHUB_OUTPUT"
+          echo "Publishing under dist-tag: $DIST_TAG" >> "$GITHUB_STEP_SUMMARY"
       - run: npm run release:check
       - name: Check whether this version is already published
         id: registry
@@ -51,15 +81,95 @@ jobs:
           fi
       - name: Publish new version
         if: steps.registry.outputs.publish == 'true'
-        run: npm publish --ignore-scripts --access public
+        run: npm publish --ignore-scripts --access public --provenance --tag "${{ steps.tag.outputs.dist_tag }}"
       - name: Record published version
         if: steps.registry.outputs.publish == 'true'
         run: |
           echo "### Published to npm" >> "$GITHUB_STEP_SUMMARY"
-          echo "\`${{ steps.registry.outputs.package_name }}@${{ steps.registry.outputs.package_version }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "\`${{ steps.registry.outputs.package_name }}@${{ steps.registry.outputs.package_version }}\` under dist-tag \`${{ steps.tag.outputs.dist_tag }}\`" >> "$GITHUB_STEP_SUMMARY"
       - name: Create GitHub release
+        if: github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
+          PRERELEASE=""
+          case "${{ steps.registry.outputs.package_version }}" in *-*) PRERELEASE="--prerelease" ;; esac
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME" $PRERELEASE
+
+  # Installs the published artifact from the registry on a clean runner and
+  # drives the documented first-run path. Nothing from the repository is reused.
+  smoke:
+    needs: publish
+    if: needs.publish.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Wait for the published version to become installable
+        shell: bash
+        env:
+          SPEC: ${{ needs.publish.outputs.package_name }}@${{ needs.publish.outputs.package_version }}
+        run: |
+          # A freshly published version takes time to propagate and may sit in
+          # npm's automated validation, so retry for several minutes.
+          for attempt in $(seq 1 20); do
+            if npm view "$SPEC" version --registry=https://registry.npmjs.org/ >/dev/null 2>&1; then
+              echo "Available after attempt $attempt."
+              exit 0
+            fi
+            echo "Attempt $attempt: not installable yet; waiting 20s."
+            sleep 20
+          done
+          echo "::error::$SPEC did not become installable within the retry window."
+          exit 1
+      - name: Install the published version in a clean project
+        shell: bash
+        env:
+          SPEC: ${{ needs.publish.outputs.package_name }}@${{ needs.publish.outputs.package_version }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/consumer"
+          cd "$RUNNER_TEMP/consumer"
+          npm init --yes >/dev/null
+          npm install --ignore-scripts "$SPEC"
+      - name: Verify provenance attestation
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/consumer"
+          npm audit signatures
+      - name: Run the documented first-run path
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/consumer"
+          # Call the installed entry point directly rather than relying on npx
+          # resolution from a nested directory.
+          CLI="node $RUNNER_TEMP/consumer/node_modules/@ghostbyte/agent-docs-kit/bin/agent-docs.mjs"
+          $CLI --version
+          $CLI doctor
+          mkdir -p project && cd project
+          $CLI setup --dry-run
+          test -z "$(ls -A .)" || { echo "::error::setup --dry-run wrote files."; exit 1; }
+          $CLI setup
+          test -f AGENTS.md
+          test -f .agent-docs/config.json
+          # A freshly generated scaffold must fail the strict audit on purpose.
+          if $CLI audit documentation --strict; then
+            echo "::error::A fresh scaffold must fail 'audit documentation --strict'."
+            exit 1
+          fi
+          $CLI audit documentation
+          $CLI next | grep -q "Stage 3" || { echo "::error::next did not report stage 3."; exit 1; }
+          printf '# System overview\n\nVerified facts.\n' > docs/01-system/overview.md
+          printf '# Project\n\nVerified status.\n' > docs/02-project/README.md
+          printf '# Operations\n\nVerified procedure.\n' > docs/05-operations/README.md
+          $CLI audit documentation --strict
+      - name: Record smoke result
+        if: always()
+        shell: bash
+        run: |
+          echo "### Post-publish smoke test: ${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Installed \`${{ needs.publish.outputs.package_name }}@${{ needs.publish.outputs.package_version }}\` from the registry on a clean runner." >> "$GITHUB_STEP_SUMMARY"

@@ -11,13 +11,14 @@ Choose exactly one primary workflow for the request: documentation governance, s
 
 When the user hands you this skill, names the npm package, or asks what to do after setup:
 
-1. Inspect the repository before choosing a workflow. Look for `.agent-docs/config.json`, required documents, starter prompts, saved audits, and open `Unverified` worksheets.
+1. Inspect the repository before choosing a workflow. Look for `.agent-docs/config.json`, required documents, starter prompts, saved audits, and open `Unverified` worksheets. A starter document is unfinished while it still carries an `agent-docs:starter` marker comment or the generated starter prose.
 2. If the CLI is available, run or recommend `agent-docs next --cwd <project>` to obtain the current stage. Otherwise apply the same order: initialize, complete the baseline, audit documentation, complete one focused review, then maintain.
 3. Do not begin a security or engineering worksheet before documentation initialization. If `.agent-docs/config.json` or the configured documentation root is absent, recommend `setup --dry-run` followed by explicit `setup` first.
 4. Distinguish a new project from an existing implementation. In a new project, record intended behavior as planned. In an existing project, derive statements from code, configuration, tests, workflows, and authorized operational evidence.
 5. Explain proposed writes before making them unless the user has already authorized that exact setup or report action.
-6. If the skill is not installed in the repository, recommend `npx @ghostbyte/agent-docs-kit@latest skill install --target project`. Installation alone does not initialize files, run an audit, or authorize active testing.
-7. End each response with the completed stage, unresolved evidence, and one concrete next action.
+6. If the skill is not installed in the repository, recommend `npx @ghostbyte/agent-docs-kit@latest skill install --target project`, or `setup --ai` to initialize documentation, the agent instruction files, and the skill together. Installation alone does not initialize files, run an audit, or authorize active testing.
+7. If the CLI reports that the installed skill is older than the running CLI, say so and name `skill install --target <target> --force`. Treat it as a report, not a failure.
+8. End each response with the completed stage, unresolved evidence, and one concrete next action.
 
 ## Establish the operating context
 
@@ -34,6 +35,12 @@ When the user hands you this skill, names the npm package, or asks what to do af
 Read [references/documentation-governance.md](references/documentation-governance.md) and only the selected documentation area below. Use them to establish a navigable structure, identify stale or missing material, separate current scope from future ideas, and preserve decision/change history.
 
 When repository instructions establish continuous documentation, assess documentation impact during every material change: update only affected records from evidence, run the configured documentation audit, and state which documents changed or why none were needed. Do not automatically create or update security and engineering worksheets; those remain explicitly selected, point-in-time reviews.
+
+**Starter text.** `audit documentation --strict` fails while a starter document still holds its `agent-docs:starter` marker or its generated prose. Replace the text with verified project facts **and** delete the marker line in the same edit. Never delete a marker to make the audit pass: the same check also recognizes the untouched prose, and removing the marker without writing real content is a false signal, not a fix. If you cannot establish a fact from evidence, write what is known, label the unknown explicitly, and leave the document failing rather than inventing content.
+
+**Agent instruction files.** `AGENTS.md` is the single canonical policy. `CLAUDE.md` and `GEMINI.md` are thin pointers that import it with one `@AGENTS.md` line. Never copy policy text between them; that recreates the drift this tool exists to catch. Never overwrite an existing `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md`; when one lacks the import, state the single line the user should add. If the audit reports an `agent-pointer` failure, fix the import or remove the agent from `agents` in `.agent-docs/config.json`, whichever matches the user's intent.
+
+**Change records.** When the repository's instructions require change records, read the time zone from `timezone` in `.agent-docs/config.json` rather than assuming one, and use the clock command that `AGENTS.md` names. If you cannot read the clock, ask; never guess a timestamp.
 
 Documentation controls are governance aids, not an infallible technical lock. Report whether evidence supports the stated process; never claim that Markdown alone enforces agent behavior.
 

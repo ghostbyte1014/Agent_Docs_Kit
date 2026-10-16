@@ -80,6 +80,9 @@ if (catalog.security.length !== 12) errors.push(`Expected 12 security phases; fo
 if (catalog.engineering.length !== 14) errors.push(`Expected 14 engineering topics; found ${catalog.engineering.length}.`);
 if (!Number(metadata.engines?.node?.match(/\d+/)?.[0]) || Number(metadata.engines.node.match(/\d+/)[0]) < 22) errors.push("Node.js engine must require 22 or newer.");
 for (const directory of metadata.files ?? []) {
+  // A leading '!' is an npm exclusion pattern, not a path that must exist.
+  // It is absent by design in the packed copy, which runs this same check.
+  if (directory.startsWith("!")) continue;
   try { await access(resolve(root, directory)); }
   catch { errors.push(`package.json files entry does not exist: ${directory}`); }
 }
