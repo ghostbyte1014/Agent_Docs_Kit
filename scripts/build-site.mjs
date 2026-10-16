@@ -2,10 +2,12 @@ import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { publicDocs } from "./public-docs.mjs";
 import { escapeHtml, renderMarkdown } from "./markdown.mjs";
+import { versionPlaceholder } from "../src/core/version.mjs";
 
 const docLabels = {
   "ARCHITECTURE.md": "Architecture",
-  "BETA_TESTING_GUIDE.md": "Beta testing guide",
+  "TESTING_GUIDE.md": "Testing guide",
+  "COMPATIBILITY.md": "Compatibility and public contract",
   "CONTENT_MAINTENANCE.md": "Content maintenance",
   "GITHUB_AND_NPM_SETUP.md": "GitHub and npm setup",
   "PURPOSE.md": "Purpose",
@@ -59,6 +61,12 @@ const output = resolve(root, "build/site");
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 await cp(resolve(root, "site"), output, { recursive: true });
+// package.json is the only source for the pinned version shown on the page.
+const metadata = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+const indexPath = resolve(output, "index.html");
+const indexSource = await readFile(indexPath, "utf8");
+if (!indexSource.includes(versionPlaceholder)) throw new Error(`site/index.html must contain ${versionPlaceholder}.`);
+await writeFile(indexPath, indexSource.replaceAll(versionPlaceholder, metadata.version), "utf8");
 await mkdir(resolve(output, "docs"));
 for (const name of publicDocs) {
   const source = await readFile(resolve(root, "docs", name), "utf8");

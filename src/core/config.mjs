@@ -1,6 +1,8 @@
 import { readFile, realpath, stat } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { exists } from "./files.mjs";
+import { agentDefinition } from "./agents.mjs";
+import { assertTimezone, defaultTimezone } from "./timezone.mjs";
 
 export const defaultConfig = Object.freeze({
   schemaVersion: 2,
@@ -12,6 +14,9 @@ export const defaultConfig = Object.freeze({
   interactionStyle: "standard",
   maxAgeDays: 180,
   requireMetadata: false,
+  timezone: defaultTimezone,
+  attribution: "",
+  agents: [],
   requiredDocuments: ["docs/README.md", "docs/01-system/overview.md", "docs/02-project/README.md", "docs/05-operations/README.md"]
 });
 
@@ -44,17 +49,27 @@ export async function loadProjectConfig(cwd = process.cwd()) {
   const configPath = resolve(root, ".agent-docs/config.json");
   let user = {};
   if (await exists(configPath)) {
-    try { user = JSON.parse(await readFile(configPath, "utf8")); }
+    const raw = await readFile(configPath, "utf8");
+    if (raw.charCodeAt(0) === 0xfeff) {
+      throw new Error(`Invalid ${configPath}: the file starts with a UTF-8 byte-order mark, which JSON does not allow. Re-save it as UTF-8 without a BOM.`);
+    }
+    try { user = JSON.parse(raw); }
     catch (error) { throw new Error(`Invalid ${configPath}: ${error.message}`); }
   }
   if (!user || typeof user !== "object" || Array.isArray(user)) throw new Error(`${configPath} must contain a JSON object.`);
   for (const key of Object.keys(user)) if (!configKeys.has(key)) throw new Error(`Unknown agent-docs configuration key '${key}'.`);
   const config = { ...defaultConfig, ...user };
-  if (![1, 2].includes(config.schemaVersion)) throw new Error("Unsupported agent-docs configuration schemaVersion.");
+  if (![1, 2].includes(config.schemaVersion)) {
+    throw new Error(`Unsupported agent-docs configuration schemaVersion '${config.schemaVersion}'. This CLI reads schemaVersion 1 and 2. Upgrade the CLI, or correct ${configPath}.`);
+  }
   if (!Number.isInteger(config.maxAgeDays) || config.maxAgeDays < 1) throw new Error("maxAgeDays must be a positive integer.");
   if (typeof config.requireMetadata !== "boolean") throw new Error("requireMetadata must be a boolean.");
   if (!["standard", "learning"].includes(config.interactionStyle)) throw new Error("interactionStyle must be standard or learning.");
   if (!Array.isArray(config.requiredDocuments)) throw new Error("requiredDocuments must be an array.");
+  assertTimezone(config.timezone, "timezone");
+  if (typeof config.attribution !== "string") throw new Error("attribution must be a string; use an empty string for no attribution line.");
+  if (!Array.isArray(config.agents)) throw new Error("agents must be an array of agent ids.");
+  for (const id of config.agents) agentDefinition(id);
   for (const key of ["documentationRoot", "documentationReports", "securityReports", "engineeringReports", "templateOutput"]) config[key] = await safeRelativePath(root, config[key], key);
   config.requiredDocuments = await Promise.all(config.requiredDocuments.map((value, index) => safeRelativePath(root, value, `requiredDocuments[${index}]`)));
   return { root, config, configPath };

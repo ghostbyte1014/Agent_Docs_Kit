@@ -21,7 +21,8 @@ Commands:
   (no command)                       Open the guided menu (TTY only)
   start [new|existing|agent|manual]  Show a complete onboarding path
   next                               Detect project state and show the next step
-  setup [--dry-run]                  Create the workspace and protected agent policy
+  setup [--dry-run] [--ai]           Create the workspace and protected agent policy
+  setup --agents <list>              Add CLAUDE.md / GEMINI.md pointers to AGENTS.md
   suggest reviews [--staged|--base <ref>]
                                      Suggest focused reviews from changed Git paths
   audit documentation [--strict]     Check documentation health
@@ -35,10 +36,10 @@ Commands:
   template list                      List reusable documentation templates
   template create <type> [--name <slug>]
                                      Create a uniquely named documentation record
-  skill install --target project|codex
+  skill install --target project|claude|codex
                                      Install the unified quality skill
   validate                           Validate the distributed library
-  doctor                             Check Node.js and Git prerequisites
+  doctor                             Check prerequisites and report version drift
   website                            Open the documentation website
   --version                          Show the package version
 
@@ -46,6 +47,9 @@ Examples:
   npx @ghostbyte/agent-docs-kit@latest start existing
   npx @ghostbyte/agent-docs-kit@latest next
   npx @ghostbyte/agent-docs-kit@latest setup --dry-run
+  npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai
+  npx @ghostbyte/agent-docs-kit@latest setup --ai
+  npx @ghostbyte/agent-docs-kit@latest setup --agents claude,gemini
   ${npxCommand} suggest reviews --staged
   ${npxCommand} suggest reviews --base origin/main
   npx @ghostbyte/agent-docs-kit@latest audit documentation --strict --format text
@@ -63,6 +67,10 @@ Check or update a global installation:
 
 Options:
   --cwd <path>                Target project (default: current directory)
+  --ai                        Set up docs, agent files, and the project skill together
+  --agents <list>             claude, gemini, all, auto, or none (setup only)
+  --timezone <zone>           UTC (default), local, or an IANA zone for change records
+  --attribution <text>        Opt in to a "Created by" line in the generated AGENTS.md
   --style standard|learning   Select concise or teaching-oriented output
   --format text|markdown|json Select documentation-audit output
   --name <slug>               Give a template a lowercase hyphenated name
@@ -76,6 +84,10 @@ Options:
 
 Recommended first run:
   npx @ghostbyte/agent-docs-kit@latest start
+
+AGENTS.md is the single canonical policy. Pointer files import it with one '@AGENTS.md'
+line, so the policy is never copied between tools. An existing AGENTS.md, CLAUDE.md, or
+GEMINI.md is never overwritten, including with --force.
 
 Installing the npm package performs no project setup. Run 'start' for a guided path
 or 'next' to continue an initialized project.`;

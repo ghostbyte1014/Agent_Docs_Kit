@@ -167,6 +167,7 @@ h3 { letter-spacing: -.025em; }
 .prerequisite-check h3, .installation-maintenance h3 { margin: .55rem 0 .35rem; font-size: 1.25rem; }
 .prerequisite-check p, .installation-maintenance p { margin: 0; color: var(--muted); font-size: .84rem; }
 .install-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.install-options { grid-template-columns: repeat(3, 1fr); }
 .install-paths > article { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: rgba(9,12,10,.72); }
 .install-paths > article.recommended { border-color: #5d753d; box-shadow: inset 0 3px 0 var(--lime); }
 .install-paths header { padding: 1.5rem 1.5rem 1.25rem; border-bottom: 1px solid var(--line); }

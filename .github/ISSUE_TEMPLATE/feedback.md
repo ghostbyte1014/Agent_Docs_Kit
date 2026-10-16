@@ -1,15 +1,16 @@
 ---
-name: Closed-beta feedback
+name: Testing feedback
 about: Share safe, actionable feedback from a disposable Agent Docs & Quality Kit trial
-title: "[Beta] "
-labels: beta-feedback
+title: "[Feedback] "
+labels: feedback
 assignees: ""
 ---
 
 <!--
-Thank you for testing. Do not attach credentials, private code, personal data,
-or unredacted vulnerability evidence. Report exploitable vulnerabilities
-privately as described in SECURITY.md.
+Thank you for testing. docs/TESTING_GUIDE.md walks through a safe run.
+Do not attach credentials, private code, personal data, or unredacted
+vulnerability evidence. Report exploitable vulnerabilities privately as
+described in SECURITY.md.
 -->
 
 ## Environment

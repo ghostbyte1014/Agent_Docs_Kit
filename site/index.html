@@ -120,14 +120,18 @@
 ├─ package.json
 ├─ src/
 └─ tests/</code></pre></article>
-          <article class="example-card"><span>After explicit setup</span><h3>Representative generated paths</h3><pre><code>AGENTS.md
+          <article class="example-card"><span>After explicit setup --ai</span><h3>Real generated paths</h3><pre><code>AGENTS.md
+CLAUDE.md
+GEMINI.md
 .agent-docs/config.json
+.agents/skills/manage-project-quality/
+.claude/skills/manage-project-quality/
 docs/README.md
 docs/01-system/overview.md
 docs/02-project/README.md
 docs/03-development/engineering-reviews/
 docs/04-testing/security-audits/
-docs/05-operations/README.md</code></pre></article>
+docs/05-operations/README.md</code></pre><p>Plain <code>setup</code> writes the same paths without the agent files or skill. Add them later with <code>setup --agents all</code>.</p></article>
           <article class="example-card"><span>Documentation audit sample</span><h3>A real structural result shape</h3><pre><code># Documentation audit
 
 - Result: FAIL
@@ -158,13 +162,39 @@ npm --version</code><button class="copy-button light" data-copy-visible aria-lab
             <li><div><strong>Check the next action</strong><small><code>next</code> is read-only and evaluates project evidence.</small></div><div class="install-code"><code data-command="next">npx @ghostbyte/agent-docs-kit@latest next</code><button class="copy-button light" data-copy-visible aria-label="Copy the visible next command">Copy</button></div></li>
           </ol></article>
         </div>
-        <aside class="install-troubleshooting"><div><span>Reproducible team use</span><h3>Pin a reviewed version</h3></div><p>Replace <code>@latest</code> with an approved version such as <code>@ghostbyte/agent-docs-kit@6.1.0</code>. The website examples use <code>@latest</code> for discovery, not reproducible automation.</p></aside>
+        <div class="install-paths install-options" id="install-options">
+          <article>
+            <header><span>Option A &middot; No install</span><h3>npx</h3><p>Nothing is added to your project or your global npm prefix. <code>npx</code> may download and cache the package.</p></header>
+            <ol>
+              <li><div><strong>Run the published package</strong><small>Pin a version for repeatable team use.</small></div><div class="install-code"><code>npx @ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__ --version</code><button class="copy-button light" data-copy-visible aria-label="Copy the npx version command">Copy</button></div></li>
+            </ol>
+          </article>
+          <article class="recommended">
+            <header><span>Option B &middot; Writes package.json</span><h3>Project-local</h3><p>Adds a dev dependency and updates the lockfile. Recommended for teams.</p></header>
+            <ol>
+              <li><div><strong>Install</strong><small>Pinned to a reviewed version.</small></div><div class="install-code"><code>npm install --save-dev @ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__</code><button class="copy-button light" data-copy-visible aria-label="Copy the project-local install command">Copy</button></div></li>
+              <li><div><strong>Check it</strong><small>Run through npx from the project.</small></div><div class="install-code"><code>npx agent-docs --version</code><button class="copy-button light" data-copy-visible aria-label="Copy the version check command">Copy</button></div></li>
+              <li><div><strong>Remove it</strong><small>Reverses the dependency change.</small></div><div class="install-code"><code>npm uninstall @ghostbyte/agent-docs-kit</code><button class="copy-button light" data-copy-visible aria-label="Copy the uninstall command">Copy</button></div></li>
+            </ol>
+          </article>
+          <article>
+            <header><span>Option C &middot; Global</span><h3>Global</h3><p>Changes your global npm prefix, not the target project. Gives the short <code>agent-docs</code> command.</p></header>
+            <ol>
+              <li><div><strong>Install</strong><small>Check for updates periodically.</small></div><div class="install-code"><code>npm install --global @ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__</code><button class="copy-button light" data-copy-visible aria-label="Copy the global install command">Copy</button></div></li>
+              <li><div><strong>Check it</strong><small>Runs without npx.</small></div><div class="install-code"><code>agent-docs --version</code><button class="copy-button light" data-copy-visible aria-label="Copy the global version command">Copy</button></div></li>
+              <li><div><strong>Remove it</strong><small>Reverses the global install.</small></div><div class="install-code"><code>npm uninstall --global @ghostbyte/agent-docs-kit</code><button class="copy-button light" data-copy-visible aria-label="Copy the global uninstall command">Copy</button></div></li>
+            </ol>
+          </article>
+        </div>
+        <aside class="install-troubleshooting"><div><span>Reproducible team use</span><h3>Pin a reviewed version</h3></div><p>Replace <code>@latest</code> with an approved version such as <code>@ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__</code>. The website examples use <code>@latest</code> for discovery, not reproducible automation.</p></aside>
       </div>
     </section>
 
     <section class="section shell journey-section" id="agentic-coding">
       <header class="section-heading split-heading"><div><p class="eyebrow">AI-first documentation</p><h2>Repository instructions, not a built-in model.</h2></div><p>The workflow is designed primarily for compatible AI coding agents, while remaining usable manually. Setup creates <code>AGENTS.md</code> only when absent; the package does not bundle an AI model or background process.</p></header>
-      <div class="agent-handoff"><div><span>Agent required for agent-assisted updates</span><h3>Connect policy, skill, and an active coding agent.</h3></div><div><code data-command="skill install --target project">npx @ghostbyte/agent-docs-kit@latest skill install --target project</code><p>Open or restart a compatible agent so it reads <code>AGENTS.md</code> and discovers <code>.agents/skills/</code>. Give it repository write access appropriate to the task. Provider support varies; the same impact loop remains available manually.</p></div></div>
+      <div class="agent-handoff"><div><span>Agent required for agent-assisted updates</span><h3>Initialize documentation, agent files, and the skill together.</h3></div><div><code data-command="setup --ai">npx @ghostbyte/agent-docs-kit@latest setup --ai</code><p>Creates the documentation scaffold, <code>AGENTS.md</code>, thin <code>CLAUDE.md</code> and <code>GEMINI.md</code> files that import it, and the project skill. Open or restart a compatible agent so it discovers them. Provider support varies; the same impact loop remains available manually.</p></div></div>
+      <div class="agentic-prompt"><span>Preview first (writes nothing)</span><code data-command="setup --dry-run --ai">npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai</code></div>
+      <p class="agentic-note"><strong>Existing agent files:</strong> An existing <code>AGENTS.md</code>, <code>CLAUDE.md</code>, or <code>GEMINI.md</code> is never replaced, even with <code>--force</code>. If one lacks the import line, the CLI prints the single <code>@AGENTS.md</code> line to add. The skill is a copy committed to your repository, and <code>next</code> warns when it is older than the installed CLI.</p>
       <p class="agentic-note"><strong>New versus existing projects:</strong> Choose <code>start new</code> or <code>start existing</code>; the CLI does not guess project maturity or whether an agent is running. Setup creates <code>AGENTS.md</code> when absent, preserves an existing one exactly, and leaves unrelated repository skills untouched.</p>
       <div class="agentic-prompt"><span>Suggested prompt</span><code>Use $manage-project-quality. Inspect this repository, determine the current Agent Docs stage, and guide me through the next safe step. Do not infer facts without evidence.</code></div>
       <div class="agentic-prompt"><span>Read-only commit or push reminder</span><code>npx @ghostbyte/agent-docs-kit@latest suggest reviews --staged
@@ -199,6 +229,7 @@ npx @ghostbyte/agent-docs-kit@latest suggest reviews --base origin/main</code></
           <div id="code-panel-setup" class="code-panel" role="tabpanel" aria-labelledby="code-tab-setup" data-code-panel="setup"><pre><code data-command-example="setup">npx @ghostbyte/agent-docs-kit@latest start existing
 
 npx @ghostbyte/agent-docs-kit@latest setup --dry-run
+npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai
 npx @ghostbyte/agent-docs-kit@latest audit documentation --strict</code></pre><button class="copy-button" data-copy-visible aria-label="Copy all visible documentation commands">Copy visible commands</button></div>
           <div id="code-panel-security" class="code-panel" role="tabpanel" aria-labelledby="code-tab-security" data-code-panel="security"><pre><code data-command-example="security">npx @ghostbyte/agent-docs-kit@latest list security
 npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer --style learning</code></pre><button class="copy-button" data-copy-visible aria-label="Copy all visible security commands">Copy visible commands</button></div>
@@ -207,7 +238,13 @@ npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types</code><
           <div id="code-panel-skill" class="code-panel" role="tabpanel" aria-labelledby="code-tab-skill" data-code-panel="skill"><pre><code data-command-example="skill">npx @ghostbyte/agent-docs-kit@latest skill install --target project
 
 # Creates:
-# .agents/skills/manage-project-quality</code></pre><button class="copy-button" data-copy-visible aria-label="Copy all visible skill commands">Copy visible commands</button></div>
+# .agents/skills/manage-project-quality
+
+# Per-agent project target, where the tool documents one:
+npx @ghostbyte/agent-docs-kit@latest skill install --target claude
+
+# Creates:
+# .claude/skills/manage-project-quality</code></pre><button class="copy-button" data-copy-visible aria-label="Copy all visible skill commands">Copy visible commands</button></div>
         </div>
       </div>
     </section>
@@ -219,6 +256,7 @@ npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types</code><
         <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="start [new|existing|agent|manual]">npx @ghostbyte/agent-docs-kit@latest start [new|existing|agent|manual]</code></div><div><h3>Choose an onboarding path</h3><p>Explains ordered steps and safety boundaries without changing project files.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="next">npx @ghostbyte/agent-docs-kit@latest next</code></div><div><h3>Continue from project evidence</h3><p>Evaluates configuration, required documents, prompts, the latest applicable audit result, and worksheets. It never writes files.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code data-command="setup">npx @ghostbyte/agent-docs-kit@latest setup</code></div><div><h3>Create the documentation scaffold and agent policy</h3><p>Use <code>setup --dry-run</code> first. Existing files are skipped unless <code>--force</code> is explicit; an existing root <code>AGENTS.md</code> is always preserved.</p></div></article>
+      <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code data-command="setup --ai">npx @ghostbyte/agent-docs-kit@latest setup --ai</code></div><div><h3>Set up documentation, agent files, and the project skill together</h3><p>Preview with <code>setup --dry-run --ai</code>. Writes only inside the project. Use <code>--agents claude,gemini</code> to create only some pointer files, or <code>--agents auto</code> for the tools this repository already shows signs of using.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="suggest reviews --staged">npx @ghostbyte/agent-docs-kit@latest suggest reviews --staged</code><code data-command="suggest reviews --base origin/main">npx @ghostbyte/agent-docs-kit@latest suggest reviews --base origin/main</code></div><div><h3>Suggest focused reviews from Git changes</h3><p>Prints matched paths, reasons, and optional worksheet commands. It does not create a report, perform an audit, or prove that unmatched changes are safe.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="read-label">Read-only*</span><code data-command="audit documentation">npx @ghostbyte/agent-docs-kit@latest audit documentation</code></div><div><h3>Run documentation structure checks</h3><p>Checks configured files, placeholders, headings, metadata, and local links. It writes only when <code>--report</code> is supplied.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="list documentation">npx @ghostbyte/agent-docs-kit@latest list documentation</code><code data-command="documentation guide &lt;area&gt;">npx @ghostbyte/agent-docs-kit@latest documentation guide &lt;area&gt;</code></div><div><h3>Browse documentation guidance</h3><p>Lists all seven areas or prints one focused reference.</p></div></article>
@@ -230,10 +268,10 @@ npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types</code><
         <article role="listitem"><div class="command-meta"><span class="read-label">Opens browser</span><code data-command="website">npx @ghostbyte/agent-docs-kit@latest website</code></div><div><h3>Open the canonical website</h3><p>Opens <code>https://agent-docs-kit.ghostbyte1014.workers.dev/</code> and prints it as a fallback.</p></div></article>
         <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="--help">npx @ghostbyte/agent-docs-kit@latest --help</code><code data-command="--version">npx @ghostbyte/agent-docs-kit@latest --version</code></div><div><h3>Inspect commands and version</h3><p>Use these before following guidance written for a different release.</p></div></article>
       </div>
-      <div class="reference-links"><a href="docs/BETA_TESTING_GUIDE.html">Beta testing guide</a><a href="docs/PURPOSE.html">Purpose and boundaries</a><a href="docs/ARCHITECTURE.html">Architecture</a><a href="docs/CONTENT_MAINTENANCE.html">Content maintenance</a><a href="docs/SECURITY_MODEL.html">Security model</a><a href="docs/RELEASE_PROCESS.html">Release process</a><a href="https://www.npmjs.com/package/@ghostbyte/agent-docs-kit" target="_blank" rel="noopener noreferrer">npm package</a></div>
+      <div class="reference-links"><a href="docs/TESTING_GUIDE.html">Testing guide</a><a href="docs/PURPOSE.html">Purpose and boundaries</a><a href="docs/ARCHITECTURE.html">Architecture</a><a href="docs/CONTENT_MAINTENANCE.html">Content maintenance</a><a href="docs/SECURITY_MODEL.html">Security model</a><a href="docs/RELEASE_PROCESS.html">Release process</a><a href="https://www.npmjs.com/package/@ghostbyte/agent-docs-kit" target="_blank" rel="noopener noreferrer">npm package</a></div>
     </section>
   </main>
 
-  <footer><div class="shell footer-layout"><div><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">AQ</span><span>Agent Docs &amp; Quality</span></a><p>A lightweight, evidence-first project documentation and quality-review CLI.</p></div><div><p>Explore</p><a href="#quick-start">Get started</a><a href="#example-output">Example output</a><a href="#command-reference">CLI reference</a><a href="docs/BETA_TESTING_GUIDE.html">Beta guide</a></div><div><p>Trust</p><a href="privacy.html">Privacy</a><a href="terms.html">Terms of use</a><a href="docs/SECURITY_MODEL.html">Security model</a><a href="https://github.com/ghostbyte1014/Agent_Docs_Kit/security" target="_blank" rel="noopener noreferrer">Report a vulnerability</a></div></div><div class="shell footer-bottom"><span>Canonical site: Cloudflare Workers</span><span>MIT License</span></div></footer>
+  <footer><div class="shell footer-layout"><div><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">AQ</span><span>Agent Docs &amp; Quality</span></a><p>A lightweight, evidence-first project documentation and quality-review CLI.</p></div><div><p>Explore</p><a href="#quick-start">Get started</a><a href="#example-output">Example output</a><a href="#command-reference">CLI reference</a><a href="docs/TESTING_GUIDE.html">Testing guide</a></div><div><p>Trust</p><a href="privacy.html">Privacy</a><a href="terms.html">Terms of use</a><a href="docs/SECURITY_MODEL.html">Security model</a><a href="https://github.com/ghostbyte1014/Agent_Docs_Kit/security" target="_blank" rel="noopener noreferrer">Report a vulnerability</a></div></div><div class="shell footer-bottom"><span>Canonical site: Cloudflare Workers</span><span>MIT License</span></div></footer>
 </body>
 </html>

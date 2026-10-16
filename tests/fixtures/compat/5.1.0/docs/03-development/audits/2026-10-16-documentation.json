@@ -1,0 +1,36 @@
+{
+  "checkedAt": "2026-10-16T06:53:42.100Z",
+  "pass": true,
+  "checks": [
+    {
+      "rule": "configuration",
+      "path": ".agent-docs\\config.json",
+      "pass": true,
+      "detail": "Project audit configuration"
+    },
+    {
+      "rule": "required-document",
+      "path": "docs/README.md",
+      "pass": true,
+      "detail": "Required file from configuration"
+    },
+    {
+      "rule": "required-document",
+      "path": "docs/01-system/overview.md",
+      "pass": true,
+      "detail": "Required file from configuration"
+    },
+    {
+      "rule": "required-document",
+      "path": "docs/02-project/README.md",
+      "pass": true,
+      "detail": "Required file from configuration"
+    },
+    {
+      "rule": "required-document",
+      "path": "docs/05-operations/README.md",
+      "pass": true,
+      "detail": "Required file from configuration"
+    }
+  ]
+}

@@ -4,6 +4,9 @@ import { evaluateDocumentationReports } from "../core/audit-reports.mjs";
 import { loadProjectConfig } from "../core/config.mjs";
 import { exists } from "../core/files.mjs";
 import { worksheetReportState } from "../core/report-validation.mjs";
+import { containsStarterText, normalizeReportPath } from "../core/starter-text.mjs";
+import { installedSkillVersion, kitVersion, skillVersionFile } from "../core/version.mjs";
+import { skillDestination, skillTargets } from "./skill.mjs";
 
 export const npxCommand = "npx @ghostbyte/agent-docs-kit@latest";
 
@@ -97,13 +100,34 @@ async function markdownFiles(directory) {
   return found;
 }
 
-async function filesContaining(paths, pattern) {
+async function filesWithStarterText(paths, root) {
   const matching = [];
   for (const path of paths) {
-    const value = await readFile(path, "utf8");
-    if (pattern.test(value)) matching.push(path);
+    const reportPath = normalizeReportPath(relative(root, path));
+    if (containsStarterText(await readFile(path, "utf8"), { path: reportPath })) matching.push(path);
   }
   return matching;
+}
+
+// Reports a vendored skill that a newer CLI has outgrown.
+async function staleSkillInstalls(root) {
+  const running = await kitVersion();
+  const stale = [];
+  for (const target of skillTargets) {
+    if (target === "codex") continue;
+    const directory = skillDestination(target, root);
+    if (!(await exists(resolve(directory, "SKILL.md")))) continue;
+    const version = await installedSkillVersion(resolve(directory, skillVersionFile));
+    if (version !== running) stale.push({ target, path: relative(root, directory), version, running });
+  }
+  return stale;
+}
+
+function staleSkillLines(root, stale) {
+  return stale.flatMap((item) => [
+    `Installed skill ${item.path} records ${item.version ? `version ${item.version}` : "no version"}; this CLI is ${item.running}.`,
+    `Refresh the skill: ${npxCommand} skill install --target ${item.target} --force --cwd "${root}"`
+  ]);
 }
 
 function resemblesWorksheet(text, kind) {
@@ -131,13 +155,14 @@ function renderNext(result) {
   ];
   lines.push(...result.detected.map((item) => `- ${item}`), "", "Next actions");
   lines.push(...result.actions.map((item, index) => `${index + 1}. ${item}`));
+  if (result.notices?.length) lines.push("", "Maintenance", ...result.notices.map((item) => `- ${item}`));
   if (result.note) lines.push("", "Why this stage", result.note);
   lines.push("", `Re-run '${npxCommand} next' after completing these actions.`);
   return lines.join("\n");
 }
 
-function nextResult(stage, title, summary, detected, actions, note) {
-  const result = { stage, title, summary, detected, actions, note };
+function nextResult(stage, title, summary, detected, actions, note, notices = []) {
+  const result = { stage, title, summary, detected, actions, note, notices };
   result.text = renderNext(result);
   console.log(result.text);
   return result;
@@ -145,9 +170,11 @@ function nextResult(stage, title, summary, detected, actions, note) {
 
 export async function nextWorkflow(options = {}) {
   const root = resolve(options.cwd ?? process.cwd());
+  const notices = staleSkillLines(root, await staleSkillInstalls(root));
+  const stageResult = (stage, title, summary, detected, actions, note) => nextResult(stage, title, summary, detected, actions, note, notices);
   const configPath = resolve(root, ".agent-docs", "config.json");
   if (!(await exists(configPath))) {
-    return nextResult(1, "Initialize safely", "No Agent Docs workspace was found in this project.", [
+    return stageResult(1, "Initialize safely", "No Agent Docs workspace was found in this project.", [
       `Target: ${root}`,
       "Configuration: not found"
     ], [
@@ -161,7 +188,7 @@ export async function nextWorkflow(options = {}) {
   const missing = [];
   for (const path of config.requiredDocuments) if (!(await exists(resolve(root, path)))) missing.push(path);
   if (missing.length) {
-    return nextResult(2, "Complete the scaffold", "The workspace is configured, but one or more required documents are missing.", [
+    return stageResult(2, "Complete the scaffold", "The workspace is configured, but one or more required documents are missing.", [
       "Configuration: found",
       `Missing required documents: ${missing.join(", ")}`
     ], [
@@ -171,11 +198,11 @@ export async function nextWorkflow(options = {}) {
   }
 
   const documentationFiles = await markdownFiles(resolve(root, config.documentationRoot));
-  const placeholders = await filesContaining(documentationFiles, /Status:\s*Needs update|Describe the system boundary|Track requirements|Document setup, deployment/i);
+  const placeholders = await filesWithStarterText(documentationFiles, root);
   const skillInstalled = await exists(resolve(root, ".agents", "skills", "manage-project-quality", "SKILL.md"));
   if (placeholders.length) {
     const relativePlaceholders = placeholders.slice(0, 4).map((path) => relative(root, path));
-    return nextResult(3, "Build the documentation baseline", "The scaffold exists, but starter prompts still need verified project information.", [
+    return stageResult(3, "Build the documentation baseline", "The scaffold exists, but starter prompts still need verified project information.", [
       `Starter documents needing work: ${relativePlaceholders.join(", ")}${placeholders.length > 4 ? ` (+${placeholders.length - 4} more)` : ""}`,
       `Project AI skill: ${skillInstalled ? "installed" : "not installed"}`
     ], [
@@ -196,7 +223,7 @@ export async function nextWorkflow(options = {}) {
     const reportDescription = documentationAudit.relativePath
       ? `${documentationAudit.status.toUpperCase()}: ${documentationAudit.relativePath}`
       : documentationAudit.status === "missing" ? "not found" : "not recognized";
-    return nextResult(4, "Verify documentation", documentationAudit.status === "fail"
+    return stageResult(4, "Verify documentation", documentationAudit.status === "fail"
       ? "The latest documentation audit failed. Resolve its findings and save a new passing result."
       : "No trustworthy passing documentation audit was found. Run the structural checks and save the result.", [
       `Documentation files: ${documentationFiles.length}`,
@@ -217,7 +244,7 @@ export async function nextWorkflow(options = {}) {
     else if (report.state.open) outstandingReports.push({ path: report.path, label: "Open", detail: "Unverified findings or overall status remain." });
   }
   if (outstandingReports.length) {
-    return nextResult(5, "Complete the open review", "A worksheet is open or structurally invalid and needs evidence or an explicit N/A rationale.", [
+    return stageResult(5, "Complete the open review", "A worksheet is open or structurally invalid and needs evidence or an explicit N/A rationale.", [
       ...outstandingReports.slice(0, 5).map((item) => `${item.label}: ${relative(root, item.path)} — ${item.detail}`),
       ...(outstandingReports.length > 5 ? [`Additional open or invalid worksheets: ${outstandingReports.length - 5}`] : [])
     ], [
@@ -228,7 +255,7 @@ export async function nextWorkflow(options = {}) {
   }
 
   if (!securityReports.length && !engineeringReports.length) {
-    return nextResult(5, "Maintain documentation or choose a focused review", "Documentation is initialized and audited. Keep it aligned with every material project change. Security and engineering reviews are optional and should be selected by current risk or project need.", [
+    return stageResult(5, "Maintain documentation or choose a focused review", "Documentation is initialized and audited. Keep it aligned with every material project change. Security and engineering reviews are optional and should be selected by current risk or project need.", [
       `Latest documentation audit: PASS (${documentationAudit.relativePath})`,
       "Security worksheets: none",
       "Engineering worksheets: none"
@@ -241,7 +268,7 @@ export async function nextWorkflow(options = {}) {
     ], "Documentation maintenance continues independently. Select one narrow scope only when a security or engineering review is useful. Active security testing requires explicit authorization for the exact target.");
   }
 
-  return nextResult(6, "Maintain the project record", "The latest documentation audit passed and no open or invalid generated worksheet was detected.", [
+  return stageResult(6, "Maintain the project record", "The latest documentation audit passed and no open or invalid generated worksheet was detected.", [
     `Latest documentation audit: PASS (${documentationAudit.relativePath})`,
     `Security worksheets: ${securityReports.length}`,
     `Engineering worksheets: ${engineeringReports.length}`,

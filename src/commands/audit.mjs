@@ -4,6 +4,10 @@ import { loadCatalog, selectEntry } from "../core/catalog.mjs";
 import { documentationInitializationState, loadProjectConfig } from "../core/config.mjs";
 import { exists, writeUnique } from "../core/files.mjs";
 import { resolveFromPackage } from "../core/paths.mjs";
+import { normalizeReportPath, starterTextSignal, withoutFencedCode } from "../core/starter-text.mjs";
+import { agentDefinition, canonicalInstructions, importLine, importsCanonicalInstructions } from "../core/agents.mjs";
+import { installedSkillVersion, kitVersion, skillVersionFile } from "../core/version.mjs";
+import { skillDestination, skillTargets } from "./skill.mjs";
 
 export function localDate(value = new Date()) {
   const year = value.getFullYear();
@@ -81,10 +85,6 @@ function frontMatterValues(block) {
   return Object.fromEntries([...block.matchAll(/^([A-Za-z][\w-]*):\s*(.*?)\s*$/gm)].map((match) => [match[1], match[2].replace(/^['"]|['"]$/g, "")]));
 }
 
-function withoutFencedCode(value) {
-  return value.replace(/^(```|~~~)[\s\S]*?^\1\s*$/gm, "");
-}
-
 async function inspectMarkdown(file, root, config, cache) {
   const readCached = async (path) => {
     if (!cache.has(path)) cache.set(path, await readFile(path, "utf8"));
@@ -92,35 +92,38 @@ async function inspectMarkdown(file, root, config, cache) {
   };
   const value = await readCached(file);
   const inspectable = withoutFencedCode(value);
+  const reportPath = normalizeReportPath(relative(root, file));
   const issues = [];
   const frontMatter = value.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   const h1Count = (inspectable.match(/^#\s+/gm) ?? []).length;
-  if (h1Count !== 1) issues.push({ rule: "single-h1", path: relative(root, file), detail: `Expected one H1; found ${h1Count}.` });
+  if (h1Count !== 1) issues.push({ rule: "single-h1", path: reportPath, detail: `Expected one H1; found ${h1Count}.` });
   const headingCounts = new Map();
   for (const [, heading] of inspectable.matchAll(/^#{1,6}\s+(.+)$/gm)) {
     const key = heading.toLowerCase().trim();
     headingCounts.set(key, (headingCounts.get(key) ?? 0) + 1);
   }
   for (const [heading, count] of headingCounts) {
-    if (count > 1) issues.push({ rule: "duplicate-heading", path: relative(root, file), detail: `Heading '${heading}' appears ${count} times.` });
+    if (count > 1) issues.push({ rule: "duplicate-heading", path: reportPath, detail: `Heading '${heading}' appears ${count} times.` });
   }
-  if (/\b(?:TODO|TBD|FIXME)\b/i.test(inspectable)) issues.push({ rule: "placeholder", path: relative(root, file), detail: "Contains TODO, TBD, or FIXME outside a fenced code block." });
-  if (config.requireMetadata && !frontMatter) issues.push({ rule: "metadata", path: relative(root, file), detail: "Required front matter is missing." });
+  if (/\b(?:TODO|TBD|FIXME)\b/i.test(inspectable)) issues.push({ rule: "placeholder", path: reportPath, detail: "Contains TODO, TBD, or FIXME outside a fenced code block." });
+  const starter = starterTextSignal(inspectable, { stripFences: false, path: reportPath });
+  if (starter) issues.push({ rule: "starter-text", path: reportPath, detail: starter.detail });
+  if (config.requireMetadata && !frontMatter) issues.push({ rule: "metadata", path: reportPath, detail: "Required front matter is missing." });
   if (frontMatter) {
     const metadata = frontMatterValues(frontMatter[1]);
     if (config.requireMetadata) {
       for (const key of ["owner", "status", "lastReviewed", "reviewDue"]) {
-        if (!metadata[key]) issues.push({ rule: "metadata", path: relative(root, file), detail: `Required front matter field '${key}' is missing.` });
+        if (!metadata[key]) issues.push({ rule: "metadata", path: reportPath, detail: `Required front matter field '${key}' is missing.` });
       }
     }
     for (const key of ["lastReviewed", "reviewDue"]) {
-      if (metadata[key] && !validDate(metadata[key])) issues.push({ rule: "metadata-date", path: relative(root, file), detail: `Front matter field '${key}' is not a valid YYYY-MM-DD date.` });
+      if (metadata[key] && !validDate(metadata[key])) issues.push({ rule: "metadata-date", path: reportPath, detail: `Front matter field '${key}' is not a valid YYYY-MM-DD date.` });
     }
     const { lastReviewed, reviewDue } = metadata;
-    if (validDate(reviewDue) && reviewDue < localDate()) issues.push({ rule: "review-overdue", path: relative(root, file), detail: `Review was due ${reviewDue}.` });
+    if (validDate(reviewDue) && reviewDue < localDate()) issues.push({ rule: "review-overdue", path: reportPath, detail: `Review was due ${reviewDue}.` });
     if (validDate(lastReviewed)) {
       const ageDays = Math.floor((Date.now() - new Date(`${lastReviewed}T00:00:00`).getTime()) / 86400000);
-      if (ageDays > config.maxAgeDays) issues.push({ rule: "stale-document", path: relative(root, file), detail: `Last reviewed ${ageDays} days ago; limit is ${config.maxAgeDays}.` });
+      if (ageDays > config.maxAgeDays) issues.push({ rule: "stale-document", path: reportPath, detail: `Last reviewed ${ageDays} days ago; limit is ${config.maxAgeDays}.` });
     }
   }
   for (const match of inspectable.matchAll(/\[[^\]]+\]\((<[^>]+>|[^\s)]+)(?:\s+["'][^"']*["'])?\)/g)) {
@@ -133,14 +136,14 @@ async function inspectMarkdown(file, root, config, cache) {
       decodedTarget = target ? decodeURIComponent(target) : "";
       decodedFragment = fragment ? decodeURIComponent(fragment).toLowerCase() : "";
     } catch {
-      issues.push({ rule: "invalid-link", path: relative(root, file), detail: `Invalid URL encoding: ${rawTarget}` });
+      issues.push({ rule: "invalid-link", path: reportPath, detail: `Invalid URL encoding: ${rawTarget}` });
       continue;
     }
     const linked = decodedTarget ? resolve(dirname(file), decodedTarget) : file;
-    if (!(await exists(linked))) issues.push({ rule: "broken-link", path: relative(root, file), detail: `Missing target: ${rawTarget}` });
+    if (!(await exists(linked))) issues.push({ rule: "broken-link", path: reportPath, detail: `Missing target: ${rawTarget}` });
     else if (fragment && extname(linked).toLowerCase() === ".md") {
       const targetValue = await readCached(linked);
-      if (!anchors(targetValue).has(decodedFragment)) issues.push({ rule: "broken-anchor", path: relative(root, file), detail: `Missing anchor: ${rawTarget}` });
+      if (!anchors(targetValue).has(decodedFragment)) issues.push({ rule: "broken-anchor", path: reportPath, detail: `Missing anchor: ${rawTarget}` });
     }
   }
   return issues;
@@ -159,7 +162,7 @@ function renderAudit(result, format) {
 export async function auditDocumentation(options = {}) {
   const { root, config, configPath } = await loadProjectConfig(options.cwd);
   const checks = [];
-  checks.push({ rule: "configuration", path: relative(root, configPath), pass: await exists(configPath), detail: "Project audit configuration" });
+  checks.push({ rule: "configuration", path: normalizeReportPath(relative(root, configPath)), pass: await exists(configPath), detail: "Project audit configuration" });
   for (const path of config.requiredDocuments) {
     let pass = false;
     try { pass = (await stat(resolve(root, path))).isFile(); } catch {}
@@ -169,7 +172,9 @@ export async function auditDocumentation(options = {}) {
   for (const file of await markdownFiles(resolve(root, config.documentationRoot))) {
     for (const issue of await inspectMarkdown(file, root, config, cache)) checks.push({ ...issue, pass: false });
   }
+  for (const check of await agentPointerChecks(root, config)) checks.push(check);
   const result = { checkedAt: new Date().toISOString(), pass: checks.every((row) => row.pass), checks };
+  result.skill = await skillVersionState(root);
   console.log(renderAudit(result, options.format));
   if (options.report) {
     const extension = options.format === "json" ? "json" : options.format === "markdown" ? "md" : "txt";
@@ -180,8 +185,60 @@ export async function auditDocumentation(options = {}) {
     result.reportPath = written.path;
   }
   if (options.format === "text") {
+    for (const line of skillVersionWarnings(root, result.skill)) console.log(line);
     console.log("\nThis is a structural documentation check; it does not prove that every statement is factually complete or current.");
     console.log(`Continue: npx @ghostbyte/agent-docs-kit@latest next --cwd "${root}"`);
   }
   return result;
+}
+
+// Each agent recorded in config.agents must keep a pointer file that imports
+// the canonical policy, so a tool-specific file can never silently drift.
+async function agentPointerChecks(root, config) {
+  const checks = [];
+  for (const id of config.agents ?? []) {
+    const definition = agentDefinition(id);
+    const path = resolve(root, definition.instructionFile);
+    if (!(await exists(path))) {
+      checks.push({ rule: "agent-pointer", path: definition.instructionFile, pass: false, detail: `Configured for ${definition.label} but the file is missing. Run 'setup --agents ${id}', or remove '${id}' from config.agents.` });
+      continue;
+    }
+    const imports = importsCanonicalInstructions(await readFile(path, "utf8"));
+    checks.push({
+      rule: "agent-pointer",
+      path: definition.instructionFile,
+      pass: imports,
+      detail: imports
+        ? `Imports ${canonicalInstructions} for ${definition.label}.`
+        : `Does not import ${canonicalInstructions}. Add the single line '${importLine}' near the top of ${definition.instructionFile}.`
+    });
+  }
+  return checks;
+}
+
+// Informational only: a vendored skill older than the running CLI is reported,
+// never failed, so upgrading the CLI cannot break an existing pipeline.
+async function skillVersionState(root) {
+  const running = await kitVersion();
+  const installed = [];
+  for (const target of skillTargets) {
+    if (target === "codex") continue;
+    const directory = skillDestination(target, root);
+    if (!(await exists(resolve(directory, "SKILL.md")))) continue;
+    const version = await installedSkillVersion(resolve(directory, skillVersionFile));
+    installed.push({ target, path: normalizeReportPath(relative(root, directory)), version, matches: version === running });
+  }
+  return { running, installed, stale: installed.filter((item) => !item.matches).map((item) => item.target) };
+}
+
+export function skillVersionWarnings(root, skill) {
+  if (!skill) return [];
+  const lines = [];
+  for (const item of skill.installed) {
+    if (item.matches) continue;
+    lines.push(`
+Installed skill ${item.path} records ${item.version ? `version ${item.version}` : "no version"}; this CLI is ${skill.running}.`);
+    lines.push(`Refresh it: npx @ghostbyte/agent-docs-kit@latest skill install --target ${item.target} --force --cwd "${root}"`);
+  }
+  return lines;
 }
