@@ -41,9 +41,20 @@ On Windows PowerShell, call `npm.cmd` and `npx.cmd` if the execution policy bloc
 
 Run the sync immediately after `npm version`, before `release:check`. The `version` npm lifecycle script also invokes it, but verify the rewrite landed rather than assuming the hook fired.
 
-## Publish to the beta tag first
+## Choose the dist-tag
 
-A release reaches `@latest` only after testers confirm it.
+The workflow derives the dist-tag from the version in `package.json`: a plain version publishes to `latest`, and a prerelease version such as `<version>-beta.1` publishes to `beta`. `workflow_dispatch` accepts an explicit `dist_tag` input.
+
+Publishing straight to `latest` is the owner's decision. It is the shorter path, and it means the first execution of the publish workflow lands on the tag every consumer installs. Before tagging a release that goes directly to `latest`, confirm all of the following:
+
+- The full CI matrix passed on the release commit.
+- `npm run release:check` passed locally, including the packed-installation smoke test.
+- The rollback procedure below is understood, because a published version can never be replaced.
+- The site and npm will agree: the built site pins the new version in its install commands, so a merge that deploys the site before the version exists on npm leaves visitors with install instructions that return a 404. Merge and tag close together.
+
+The `beta` route below stays available and is worth using for a large or risky change, because it lets testers confirm a build before `@latest` moves.
+
+### Optional: publish to the beta tag first
 
 1. Publish under the `beta` dist-tag. The workflow derives the dist-tag from the version in `package.json`: a prerelease version such as `<version>-beta.1` publishes to `beta`, and a plain `<version>` publishes to `latest`. `workflow_dispatch` accepts an explicit `dist_tag` input.
 
@@ -64,7 +75,7 @@ git push origin v<version>-beta.1
 npm install --save-dev @ghostbyte/agent-docs-kit@beta
 ```
 
-3. Promote only after the agent-behavior checks and the post-publish smoke test pass:
+3. Promote after the agent-behavior checks and the post-publish smoke test pass:
 
 ```bash
 npm dist-tag add @ghostbyte/agent-docs-kit@6.2.1 latest
@@ -93,7 +104,7 @@ While a release sits under the `beta` dist-tag and has not been promoted:
 - Accept bug fixes only, for about two weeks. No new commands, no new options, and no changes to generated text.
 - No major version during the window. A breaking change needs a deprecation cycle first, as [`COMPATIBILITY.md`](COMPATIBILITY.md) describes.
 - Triage tester feedback into "fix now" (correctness, data loss, safety) and "after promotion" (everything else).
-- Promote to `@latest` only when the agent-behavior scenarios in [`TESTING_GUIDE.md`](TESTING_GUIDE.md) and the post-publish smoke test both pass on the prerelease build.
+- Promote to `@latest` only when the agent-behavior scenarios in [`TESTING_GUIDE.md`](TESTING_GUIDE.md) and the post-publish smoke test both pass on the prerelease build. This applies to the prerelease route; a release published directly to `latest` has no promotion step, so its verification happens before the tag.
 
 Generated text is part of the contract because it changes what AI agents do, so a wording change during the freeze is a release decision, not a cleanup.
 
@@ -107,7 +118,14 @@ Published versions cannot be overwritten or re-uploaded.
 npm deprecate @ghostbyte/agent-docs-kit@6.2.1 "Superseded: <reason>. Install @latest."
 ```
 
-2. If the bad version holds `latest`, move the tag back to the last good version with `npm dist-tag add`.
+2. If the bad version holds `latest`, move the tag back to the last good version immediately. This is the primary safety net for a release published directly to `latest`:
+
+```bash
+npm dist-tag add @ghostbyte/agent-docs-kit@<last-good-version> latest
+npm dist-tag ls @ghostbyte/agent-docs-kit
+```
+
+   Moving `latest` does not unpublish the bad version; it stops new installs from resolving to it.
 3. Publish a corrective patch version. Never reuse the bad version number.
 4. Record what happened in the changelog and in a dated evidence record.
 
