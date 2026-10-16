@@ -45,7 +45,19 @@ Run the sync immediately after `npm version`, before `release:check`. The `versi
 
 A release reaches `@latest` only after testers confirm it.
 
-1. Publish under the `beta` dist-tag. The workflow derives the tag from the pushed tag: `v6.2.1-beta.1` publishes to `beta`, and a plain `v6.2.1` publishes to `latest`. `workflow_dispatch` accepts an explicit `dist_tag` input.
+1. Publish under the `beta` dist-tag. The workflow derives the dist-tag from the version in `package.json`: a prerelease version such as `<version>-beta.1` publishes to `beta`, and a plain `<version>` publishes to `latest`. `workflow_dispatch` accepts an explicit `dist_tag` input.
+
+   The publish workflow requires the pushed tag to equal the version in `package.json`, so a prerelease is a real version bump, not just a differently named tag:
+
+```bash
+git switch -c release/v<version>-beta.1
+npm version <version>-beta.1 --no-git-tag-version   # also runs sync-version
+npm run release:check
+git commit -am "release: prepare v<version>-beta.1"
+# merge to main, then:
+git tag v<version>-beta.1
+git push origin v<version>-beta.1
+```
 2. Testers install the beta explicitly:
 
 ```bash

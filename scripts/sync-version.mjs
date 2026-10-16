@@ -7,6 +7,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { versionPlaceholder } from "../src/core/version.mjs";
+import { versionRules, versionTargets } from "./version-rules.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const check = process.argv.includes("--check");
@@ -17,23 +18,9 @@ const lock = JSON.parse(await readFile(resolve(root, "package-lock.json"), "utf8
 
 const packageName = metadata.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Every pinned occurrence this script owns, as [description, pattern, replacement].
-const rules = [
-  ["package pin", new RegExp(`(${packageName}@)\\d+\\.\\d+\\.\\d+`, "g"), `$1${version}`],
-  ["bare version pin in backticks", /(`@)\d+\.\d+\.\d+(`)/g, `$1${version}$2`],
-  ["npm version command", /(npm version )\d+\.\d+\.\d+/g, `$1${version}`],
-  ["release branch", /(release\/v)\d+\.\d+\.\d+/g, `$1${version}`],
-  // Anchored to the commands and prose that actually name a release tag, so an
-  // unrelated version mentioned elsewhere in these documents is left alone.
-  ["release tag", /(git tag v|git push origin v|release: prepare v|`v)\d+\.\d+\.\d+/g, `$1${version}`]
-];
-
-const targets = [
-  { path: "README.md", rules: ["package pin", "bare version pin in backticks"] },
-  { path: "docs/TESTING_GUIDE.md", rules: ["package pin", "bare version pin in backticks"] },
-  { path: "docs/RELEASE_PROCESS.md", rules: ["package pin", "bare version pin in backticks", "npm version command", "release branch", "release tag"] },
-  { path: "docs/GITHUB_AND_NPM_SETUP.md", rules: ["package pin", "bare version pin in backticks", "npm version command", "release branch", "release tag"] }
-];
+// Rules and targets live in ./version-rules.mjs so they can be unit tested.
+const rules = versionRules(version, metadata.name);
+const targets = versionTargets;
 
 const problems = [];
 const updated = [];
