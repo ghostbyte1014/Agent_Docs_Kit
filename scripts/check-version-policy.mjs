@@ -9,14 +9,19 @@ const history = await readFile(resolve(root, "docs", "RELEASE_HISTORY.md"), "utf
 const errors = [...versionPolicyErrors(metadata.version), ...releaseHistoryErrors(history)];
 
 try {
+  const isShallow = execFileSync("git", ["rev-parse", "--is-shallow-repository"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim() === "true";
   const tags = new Set(execFileSync("git", ["tag", "--list"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] })
     .split(/\r?\n/u)
     .map((tag) => tag.trim())
     .filter(Boolean));
-  for (const entry of historicalVersions) {
-    if (!entry.gitTag.startsWith("`")) continue;
-    const tag = entry.gitTag.slice(1, -1);
-    if (!tags.has(tag)) errors.push(`Historical Git tag ${tag} is missing. Do not recreate it without verifying the original commit.`);
+  if (isShallow && tags.size === 0) {
+    console.warn("SKIP historical Git-tag verification (shallow clone without tags). The version and ledger checks still ran.");
+  } else {
+    for (const entry of historicalVersions) {
+      if (!entry.gitTag.startsWith("`")) continue;
+      const tag = entry.gitTag.slice(1, -1);
+      if (!tags.has(tag)) errors.push(`Historical Git tag ${tag} is missing. Do not recreate it without verifying the original commit.`);
+    }
   }
 } catch {
   console.warn("SKIP historical Git-tag verification (Git repository unavailable). The version and ledger checks still ran.");
