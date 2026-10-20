@@ -12,7 +12,8 @@ export const escapeHtml = (value) => value
 function normalizeHref(href) {
   const decoded = href.replaceAll("&amp;", "&");
   if (/^[a-z][a-z0-9+.-]*:/i.test(decoded) && !/^(?:https?:|mailto:)/i.test(decoded)) return undefined;
-  const rewritten = decoded.replace(/\.md(?=([?#]|$))/i, ".html");
+  const external = /^(?:https?:|\/\/)/i.test(decoded);
+  const rewritten = external ? decoded : decoded.replace(/\.md(?=([?#]|$))/i, ".html");
   return escapeHtml(rewritten);
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@ghostbyte/agent-docs-kit",
-  "version": "6.2.1",
+  "version": "1.3.7",
   "description": "A lightweight, evidence-first CLI for project documentation and guided security and engineering reviews.",
   "type": "module",
   "bin": {
@@ -18,9 +18,13 @@
     "docs/ARCHITECTURE.md",
     "docs/TESTING_GUIDE.md",
     "docs/COMPATIBILITY.md",
+    "docs/VERSIONING_AND_UPGRADES.md",
     "docs/CONTENT_MAINTENANCE.md",
     "docs/GITHUB_AND_NPM_SETUP.md",
+    "docs/PUBLISHING_AND_HOSTING.md",
     "docs/PURPOSE.md",
+    "docs/REVIEW_GUIDE.md",
+    "docs/RELEASE_HISTORY.md",
     "docs/RELEASE_PROCESS.md",
     "docs/SECURITY_MODEL.md",
     "scripts/",
@@ -40,10 +44,11 @@
     "validate": "node scripts/validate-content.mjs && node scripts/check-links.mjs && node bin/agent-docs.mjs validate",
     "smoke:package": "node scripts/smoke-package.mjs",
     "review:dates": "node scripts/check-review-dates.mjs",
-    "release:check": "npm test && npm run validate && node scripts/sync-version.mjs --check && npm run review:dates && npm run build && npm run smoke:package && npm audit --cache .npm-cache",
+    "release:version-policy": "node scripts/check-version-policy.mjs",
+    "release:check": "npm test && npm run validate && node scripts/sync-version.mjs --check && npm run release:version-policy && npm run review:dates && npm run build && npm run smoke:package && npm audit --cache .npm-cache",
     "prepublishOnly": "npm run release:check",
     "sync:version": "node scripts/sync-version.mjs",
-    "version": "node scripts/sync-version.mjs && git add README.md docs/RELEASE_PROCESS.md docs/GITHUB_AND_NPM_SETUP.md"
+    "version": "node scripts/sync-version.mjs && git add README.md docs/RELEASE_PROCESS.md docs/PUBLISHING_AND_HOSTING.md"
   },
   "engines": {
     "node": ">=22"

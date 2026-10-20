@@ -2,9 +2,13 @@ export const publicDocs = Object.freeze([
   "ARCHITECTURE.md",
   "TESTING_GUIDE.md",
   "COMPATIBILITY.md",
+  "VERSIONING_AND_UPGRADES.md",
   "CONTENT_MAINTENANCE.md",
   "GITHUB_AND_NPM_SETUP.md",
+  "PUBLISHING_AND_HOSTING.md",
   "PURPOSE.md",
+  "REVIEW_GUIDE.md",
+  "RELEASE_HISTORY.md",
   "RELEASE_PROCESS.md",
   "SECURITY_MODEL.md"
 ]);

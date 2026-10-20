@@ -152,6 +152,64 @@ test("the prose fallback applies only to the documents setup owns", async () => 
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
+test("next and audit spell the same file identically", async () => {
+  const root = await scratch();
+  try {
+    await setupProject({ cwd: root, agents: "claude" });
+    const audit = await auditDocumentation({ cwd: root, format: "json" });
+    const auditPaths = audit.checks
+      .filter((check) => check.rule === "starter-text")
+      .map((check) => check.path)
+      .sort();
+
+    const next = await nextWorkflow({ cwd: root });
+    const nextPaths = next.detected
+      .find((line) => line.startsWith("Starter documents needing work:"))
+      .replace("Starter documents needing work: ", "")
+      .split(", ")
+      .sort();
+
+    assert.deepEqual(nextPaths, auditPaths, "both commands must print the same spelling");
+    for (const line of next.detected) {
+      assert.ok(!line.includes("\\"), `next must not display a backslash path: ${line}`);
+    }
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("next reports starter-document progress against the owned set", async () => {
+  const root = await scratch();
+  try {
+    await setupProject({ cwd: root });
+    const progress = async () => (await nextWorkflow({ cwd: root })).detected.find((line) => line.startsWith("Starter documents completed:"));
+    assert.equal(await progress(), "Starter documents completed: 0 of 3");
+
+    await writeFile(join(root, "docs", "01-system", "overview.md"), "# System overview\n\nVerified.\n", "utf8");
+    assert.equal(await progress(), "Starter documents completed: 1 of 3");
+
+    await writeFile(join(root, "docs", "02-project", "README.md"), "# Project\n\nVerified.\n", "utf8");
+    assert.equal(await progress(), "Starter documents completed: 2 of 3");
+
+    // A document that is not part of the owned starter set must not skew it.
+    await writeFile(join(root, "docs", "01-system", "caching.md"), "# Caching\n\nStatus: Needs update\n\nReal content.\n", "utf8");
+    assert.equal(await progress(), "Starter documents completed: 2 of 3");
+
+    await writeFile(join(root, "docs", "05-operations", "README.md"), "# Operations\n\nVerified.\n", "utf8");
+    assert.equal((await nextWorkflow({ cwd: root })).stage, 4, "all three complete advances the stage");
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("setup warns that the first strict audit fails by design", async () => {
+  const root = await scratch();
+  try {
+    const output = runCli(["setup", "--cwd", root]);
+    assert.equal(output.status, 0);
+    assert.match(output.stdout, /Expect the first 'audit documentation --strict' to fail/);
+    assert.match(output.stdout, /That is deliberate/);
+    // The claim the message makes must actually hold.
+    assert.equal(runCli(["audit", "documentation", "--strict", "--cwd", root]).status, 1);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
 test("report paths use forward slashes on every platform", async () => {
   const root = await scratch();
   try {
@@ -239,9 +297,18 @@ test("generated agent instructions carry no author-specific defaults", async () 
     assert.doesNotMatch(policy, /Philippine time/);
     assert.doesNotMatch(policy, /Created by/);
     assert.doesNotMatch(policy, /UTC\+8/);
+    assert.doesNotMatch(policy, /git config user\.(?:name|email)/);
+    assert.doesNotMatch(policy, /- Development: `npm run dev`/);
+    assert.match(policy, /Discover the actual install, development, test/);
+    assert.match(policy, /Do not infer approval or identity/);
+    assert.match(policy, /Documentation maintenance is always active/);
+    assert.match(policy, /recommend the narrowest relevant security or engineering topic/);
+    assert.match(policy, /suggest reviews --staged/);
     assert.match(policy, /24-hour time in UTC/);
     const records = await readFile(join(root, "docs", "05-operations", "agents", "feature-updates", "README.md"), "utf8");
     assert.doesNotMatch(records, /Philippine time/);
+    assert.doesNotMatch(records, /git config user\.(?:name|email)/);
+    assert.match(records, /\*\*Authorization:\*\*/);
     assert.match(records, /24-hour time in UTC/);
     const { config } = await loadProjectConfig(root);
     assert.equal(config.timezone, "UTC");

@@ -2,6 +2,40 @@
 
 Notable user-visible changes are recorded here. Versions follow semantic versioning.
 
+## 1.3.7 - 2026-10-18
+
+Intentional version-line reset and usability polish, including a read-only review-guide command. No change to generated scaffold content.
+
+### Version-line reset
+
+- The maintained release line restarts at `1.3.7`. Versions `4.0.0` through `6.2.1` remain immutable npm history from the earlier fast-moving development period; this reset does not rewrite or erase them.
+- Because `1.3.7` is numerically lower than the published 6.x line, existing 6.x installations will not receive it as a semantic-version upgrade. They must install `@ghostbyte/agent-docs-kit@1.3.7` explicitly if they choose to move to the reset line.
+- Compatibility commitments below begin at `1.3.7`. Historical 5.x and 6.x project fixtures remain in the test suite as migration evidence.
+
+### Added
+
+- A public security and engineering review guide maps every phase and topic to its purpose, copyable selector, and typical evidence. It explains every supported status and provides fictional completed findings for developer review.
+- `review guide` prints the packaged guide, while `review guide --open` opens the canonical hosted page. Both forms are read-only and do not create a worksheet or perform a review.
+- Content validation prevents catalog/guide drift by requiring every security and engineering title/selector pair exactly once. The website links directly to the guide from primary navigation, the CLI reference, and the footer.
+- A public release-history ledger distinguishes npm publications, Git tags, and changelog-only versions, including the historical `4.0.0`/`4.0.1` mismatch.
+- The release gate rejects package versions in the retired 4.x, 5.x, and 6.x lines, verifies retained historical tags, and checks the ledger for drift.
+
+### Fixed
+
+- `next` and `audit documentation` now spell the same file identically. 6.2.1 normalized the audit's machine-readable report paths but not the paths `next` prints, so on Windows the two commands displayed the same document with different separators. Every path `next` displays, including stale-skill and open-worksheet lines, now uses forward slashes.
+- Agent pointer validation now compares an exact trimmed `@AGENTS.md` line. The earlier dynamically constructed regular expression mishandled whitespace and the literal dot, which could reject a valid indented import or accept a malformed filename.
+- Manual npm publication now requires the selected commit to be on `main`, matching the release-tag path and preventing manual dispatch from bypassing the merge boundary.
+- Public documentation no longer rewrites `.md` inside external URLs. The website now generates a first-party security-policy page from the canonical root policy, routes vulnerability guidance there, and contains no direct link to the source repository.
+
+### Changed
+
+- `setup` states that the first `audit documentation --strict` is expected to fail, and why. A new user's first result is a red FAIL by design, which reads like a defect without this.
+- `next` reports starter-document progress as `Starter documents completed: 1 of 3` so the baseline stage shows movement instead of a binary state. The count is measured against the documents `setup` owns, so unrelated documentation does not skew it.
+- The website now presents a shorter choose-your-workflow path and keeps secondary examples, installation variants, agent notes, package internals, and the full CLI reference in accessible disclosure panels. Its opening message connects focused agent context and durable project records to project traceability, reduced AI drift, and targeted security and engineering reviews without claiming measured token savings or automatic scanning.
+- Direct links to the project repository were removed from the landing page and website terms. The public documentation and npm package remain available from the website.
+- Newly generated agent instructions no longer assume npm, TypeScript, a server architecture, or a fixed set of repository-root Markdown files. They require command discovery from repository evidence and use explicit authorization references instead of reading a developer's Git name and email.
+- Newly generated agent instructions keep documentation maintenance active for every material change and direct agents to recommend the narrowest relevant security or engineering review when risk or design evidence warrants it. Suggestions remain advisory and cannot be reported as completed reviews without evidence.
+
 ## 6.2.1 - 2026-10-16
 
 Fixes for defects found in 6.2.0 before it was published. 6.2.0 was never released to npm, so no installed version is affected.

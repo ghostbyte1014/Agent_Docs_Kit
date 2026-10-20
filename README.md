@@ -1,6 +1,5 @@
 # Agent Docs & Quality Kit
 
-[![CI](https://github.com/ghostbyte1014/Agent_Docs_Kit/actions/workflows/ci.yml/badge.svg)](https://github.com/ghostbyte1014/Agent_Docs_Kit/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@ghostbyte/agent-docs-kit.svg)](https://www.npmjs.com/package/@ghostbyte/agent-docs-kit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -15,6 +14,8 @@ Agent Docs & Quality Kit is an AI-first, agent-assisted CLI for setting up proje
 [Website](https://agent-docs-kit.ghostbyte1014.workers.dev/)
 &middot; [npm](https://www.npmjs.com/package/@ghostbyte/agent-docs-kit)
 &middot; [Documentation](docs/PURPOSE.md)
+&middot; [Review guide](docs/REVIEW_GUIDE.md)
+&middot; [Release history](docs/RELEASE_HISTORY.md)
 &middot; [Security model](docs/SECURITY_MODEL.md)
 &middot; [Testing guide](docs/TESTING_GUIDE.md)
 
@@ -50,7 +51,9 @@ npx @ghostbyte/agent-docs-kit@latest next
 
 A freshly generated scaffold **fails** `audit documentation --strict` on purpose: every starter document carries an `agent-docs:starter` marker. Replace the starter text with verified project facts and delete the marker, and the strict audit passes. This keeps a green CI check from meaning "empty documentation".
 
-For a reproducible team workflow, replace `@latest` with a reviewed version such as `@6.2.1` and update the pin deliberately.
+For a reproducible team workflow, replace `@latest` with a reviewed version such as `@1.3.7` and update the pin deliberately.
+
+> **Version-line reset:** the maintained package line restarts at `1.3.7` after earlier 4.x–6.x development releases advanced before the contract stabilized. Existing 6.x installations will not move to the numerically lower line automatically; install `@ghostbyte/agent-docs-kit@1.3.7` explicitly when opting into it.
 
 ## Example output
 
@@ -117,7 +120,7 @@ npx @ghostbyte/agent-docs-kit@latest start manual
 
 ## AI-first documentation workflow
 
-`setup` creates the documentation workspace and a root `AGENTS.md` when one does not already exist. That file tells a compatible coding agent to assess documentation impact during each material repository change, update only affected records from evidence, run the documentation audit, and report when no documentation update is necessary. Existing `AGENTS.md` files are always preserved, including with `--force`, so teams must merge the policy deliberately when they already have repository instructions.
+`setup` creates the documentation workspace and a root `AGENTS.md` when one does not already exist. That file keeps documentation maintenance active for every material repository change: assess impact, update only affected records from evidence, run the documentation audit, and report when no documentation update is necessary. It also tells the agent to recommend the narrowest relevant security or engineering review when a change creates a risk, release concern, design tradeoff, reliability question, or testing gap, while keeping those reviews scoped and evidence-based. Existing `AGENTS.md` files are always preserved, including with `--force`, so teams must merge the policy deliberately when they already have repository instructions.
 
 `AGENTS.md` is an instruction file, not a running agent. The npm package has no bundled model, watcher, or background service. For agent-assisted maintenance, the user must open a compatible AI coding agent in the repository, ensure it loads the instructions, grant appropriate file access, and request the development work. The manual path follows the same impact loop in `docs/README.md`.
 
@@ -205,6 +208,7 @@ If documentation is not initialized, the suggestion output and any direct worksh
 | `suggest reviews [--staged \| --base <git-ref>]` | Trace selected Git changes and print advisory documentation, security, and engineering prompts without writing files. |
 | `list documentation\|security\|engineering` | List catalog selectors. |
 | `documentation guide <area>` | Print one documentation reference. |
+| `review guide [--open]` | Print the packaged security and engineering review guide, or open its canonical web page. |
 | `audit documentation` | Run structure checks; writes only when `--report` is supplied. |
 | `template list` | List available record templates. |
 | `validate` | Validate the distributed catalog and content. |
@@ -227,14 +231,14 @@ Use `--dry-run` where supported. Existing files are protected by default; `--for
 
 Legacy v4 forms `audit security <phase>` and `review engineering <topic>` remain aliases for the canonical worksheet commands.
 
-[`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) states what the CLI surface, exit codes, report formats, configuration schema, owned files, and programmatic API guarantee, and what may change.
+[`docs/VERSIONING_AND_UPGRADES.md`](docs/VERSIONING_AND_UPGRADES.md) states what the CLI surface, exit codes, report formats, configuration schema, owned files, and programmatic API guarantee, and explains safe upgrades and the 1.3.7 version-line reset.
 
 ### Installation alternatives
 
 Project-local installation modifies the project's package manifest and lockfile:
 
 ```bash
-npm install --save-dev @ghostbyte/agent-docs-kit@6.2.1
+npm install --save-dev @ghostbyte/agent-docs-kit@1.3.7
 npx agent-docs --version
 npx agent-docs setup --dry-run
 ```
@@ -242,7 +246,7 @@ npx agent-docs setup --dry-run
 Global installation modifies the npm global prefix, not the target project:
 
 ```bash
-npm install --global @ghostbyte/agent-docs-kit@6.2.1
+npm install --global @ghostbyte/agent-docs-kit@1.3.7
 agent-docs --version
 agent-docs setup --dry-run
 ```
@@ -263,16 +267,19 @@ Report suspected vulnerabilities privately as described in [SECURITY.md](SECURIT
 ## Documentation and contribution
 
 - [Purpose and boundaries](docs/PURPOSE.md)
+- [Security and engineering review guide](docs/REVIEW_GUIDE.md)
 - [Architecture and file structure](docs/ARCHITECTURE.md)
 - [Content maintenance](docs/CONTENT_MAINTENANCE.md)
 - [Security policy](SECURITY.md)
 - [Security model](docs/SECURITY_MODEL.md)
 - [Testing guide](docs/TESTING_GUIDE.md)
 - [Release process](docs/RELEASE_PROCESS.md)
-- [GitHub, hosting, and npm setup](docs/GITHUB_AND_NPM_SETUP.md)
+- [Release history and reserved versions](docs/RELEASE_HISTORY.md)
+- [Publishing and hosting setup](docs/PUBLISHING_AND_HOSTING.md)
+- [Versioning and upgrades](docs/VERSIONING_AND_UPGRADES.md)
 - [Changelog](CHANGELOG.md)
 
-General defects and feedback can use the repository's [issue tracker](https://github.com/ghostbyte1014/Agent_Docs_Kit/issues). The feedback template asks reporters not to include secrets or private project content. [`docs/TESTING_GUIDE.md`](docs/TESTING_GUIDE.md) walks through a safe end-to-end run in a disposable project.
+General defects and feedback can use the maintainer's published feedback channel. Do not include secrets or private project content. [`docs/TESTING_GUIDE.md`](docs/TESTING_GUIDE.md) walks through a safe end-to-end run in a disposable project.
 
 ## Development and release
 

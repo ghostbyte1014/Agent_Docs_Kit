@@ -7,7 +7,7 @@ This guide walks through verifying the CLI end to end in a disposable project: w
 The examples use `@latest` for discovery. Pin an exact version in anything you keep:
 
 ```bash
-npm install --save-dev @ghostbyte/agent-docs-kit@6.2.1
+npm install --save-dev @ghostbyte/agent-docs-kit@1.3.7
 ```
 
 To test a prerelease before it reaches `@latest`, install the `beta` dist-tag instead: `npm install --save-dev @ghostbyte/agent-docs-kit@beta`. [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) describes when a version sits under that tag.
@@ -149,6 +149,17 @@ npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types
 
 Open the new dated report. Confirm that the overall status and finding begin as `Unverified`, and that evidence, owner, remediation or recommendation, and verification fields are visible. Worksheet creation should not claim that a control passed or a practice was applied.
 
+[`REVIEW_GUIDE.md`](REVIEW_GUIDE.md) maps every security phase and engineering topic to its purpose and includes fictional completed findings that another developer can inspect.
+
+Confirm that both read-only guide forms work:
+
+```bash
+npx @ghostbyte/agent-docs-kit@latest review guide
+npx @ghostbyte/agent-docs-kit@latest review guide --open
+```
+
+The first command prints the packaged Markdown. The second opens the canonical hosted guide and prints its URL as a fallback; it does not create a worksheet or perform a review.
+
 Run `next` again. An open or structurally invalid worksheet should keep the workflow at the review stage until evidence-supported outcomes are recorded.
 
 ## Optional AI-assisted path
@@ -176,7 +187,7 @@ Do not use a wildcard, an environment-variable-only path, your home directory, a
 
 ## Send useful feedback
 
-For general defects and feedback, use the [issue tracker](https://github.com/ghostbyte1014/Agent_Docs_Kit/issues) and select the feedback template. Include:
+For general defects and feedback, use the maintainer's published feedback channel and include:
 
 1. operating system and Node.js version;
 2. whether you understood the tool before running it (Yes / Partly / No);
@@ -187,7 +198,7 @@ For general defects and feedback, use the [issue tracker](https://github.com/gho
 7. whether you would use it on a real project and why; and
 8. the one highest-value improvement you want next.
 
-Do not attach credentials, private code, personal data, or unredacted vulnerability evidence. Report exploitable vulnerabilities privately through GitHub private vulnerability reporting as described in [the security policy](https://github.com/ghostbyte1014/Agent_Docs_Kit/blob/main/SECURITY.md).
+Do not attach credentials, private code, personal data, or unredacted vulnerability evidence. Report exploitable vulnerabilities privately through GitHub private vulnerability reporting as described in [the security policy](https://agent-docs-kit.ghostbyte1014.workers.dev/docs/SECURITY_POLICY.html).
 
 ## What success looks like
 

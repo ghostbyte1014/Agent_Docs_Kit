@@ -2,7 +2,7 @@ import { parseAgentSelection } from "../core/agents.mjs";
 import { assertTimezone } from "../core/timezone.mjs";
 import { skillTargets } from "../commands/skill.mjs";
 
-const booleanFlags = new Set(["dry-run", "force", "report", "strict", "staged", "ai", "help", "version"]);
+const booleanFlags = new Set(["dry-run", "force", "report", "strict", "staged", "ai", "open", "help", "version"]);
 const valueFlags = new Set(["cwd", "style", "target", "phase", "topic", "format", "type", "name", "base", "agents", "timezone", "attribution"]);
 const allowedStyles = new Set(["standard", "learning"]);
 const allowedFormats = new Set(["text", "markdown", "json"]);
@@ -50,6 +50,7 @@ export function optionsFromFlags(flags) {
   return {
     cwd: flags.cwd,
     ai: Boolean(flags.ai),
+    open: Boolean(flags.open),
     agents: flags.agents,
     timezone: flags.timezone,
     attribution: flags.attribution,
