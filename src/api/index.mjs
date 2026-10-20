@@ -3,6 +3,7 @@ export { auditDocumentation, auditSecurity, reviewEngineering } from "../command
 export { installSkill } from "../commands/skill.mjs";
 export { createTemplate, listTemplates, templateTypes } from "../commands/template.mjs";
 export { showDocumentationGuide } from "../commands/guide.mjs";
+export { showReviewGuide, reviewGuideUrl } from "../commands/review-guide.mjs";
 export { openWebsite, websiteUrl } from "../commands/website.mjs";
 export { startWorkflow, nextWorkflow, npxCommand } from "../commands/workflow.mjs";
 export { suggestReviews, traceChangedFiles } from "../commands/suggest.mjs";

@@ -13,6 +13,7 @@ import { auditDocumentation } from "../src/commands/audit.mjs";
 import { createTemplate } from "../src/commands/template.mjs";
 import { validateReport } from "../skills/manage-project-quality/scripts/check-report.mjs";
 import { showDocumentationGuide } from "../src/commands/guide.mjs";
+import { reviewGuideUrl, showReviewGuide } from "../src/commands/review-guide.mjs";
 import { installSkill } from "../src/commands/skill.mjs";
 import { main } from "../src/cli/main.mjs";
 import { nextWorkflow, npxCommand, startWorkflow } from "../src/commands/workflow.mjs";
@@ -388,6 +389,30 @@ test("documentation guidance is discoverable from the canonical catalog", async 
   assert.match(result.contents, /# System Documentation/);
 });
 
+test("review guide can be printed or opened without creating a worksheet", async () => {
+  const printed = await main(["review", "guide"]);
+  assert.equal(printed.opened, false);
+  assert.equal(printed.url, reviewGuideUrl);
+  assert.match(printed.contents, /# Security and engineering review guide/);
+  assert.match(printed.contents, /`api-layer`/);
+  assert.match(printed.contents, /\| Fail \|/);
+  assert.match(printed.contents, /\| Recommended \|/);
+
+  let invocation;
+  const child = { once() {}, unref() {} };
+  const opened = await showReviewGuide({
+    open: true,
+    platform: "darwin",
+    spawnProcess(executable, arguments_, options) {
+      invocation = { executable, arguments_, options };
+      return child;
+    }
+  });
+  assert.equal(opened.opened, true);
+  assert.equal(opened.url, reviewGuideUrl);
+  assert.deepEqual(invocation.arguments_, [reviewGuideUrl]);
+});
+
 test("report validation rejects unknown statuses and unsupported claims", () => {
   assert.ok(validateReport("| Check | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| A | Definitely fine | proof | Sam | retest |").length > 0);
   assert.ok(validateReport("| Check | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| A | Pass | | Unassigned | Not verified |").length >= 3);
@@ -478,6 +503,8 @@ test("CLI rejects extra positional arguments and command-inapplicable options", 
   await assert.rejects(main(["website", "--report"]), /not valid here/);
   await assert.rejects(main(["audit", "worksheet", "04"]), /Unknown command/);
   await assert.rejects(main(["engineering", "engineering", "08"]), /Unknown command/);
+  await assert.rejects(main(["review", "guide", "extra"]), /Invalid arguments/);
+  await assert.rejects(main(["review", "guide", "--report"]), /not valid here/);
   assert.throws(() => optionsFromFlags({ name: "Not valid" }), /Invalid name/);
 });
 
@@ -506,7 +533,7 @@ test("canonical website and mirror relationship stay consistent across public su
   const readme = await readFile(join(projectRoot, "README.md"), "utf8");
   const site = await readFile(join(projectRoot, "site", "index.html"), "utf8");
   const privacy = await readFile(join(projectRoot, "site", "privacy.html"), "utf8");
-  const hosting = await readFile(join(projectRoot, "docs", "GITHUB_AND_NPM_SETUP.md"), "utf8");
+  const hosting = await readFile(join(projectRoot, "docs", "PUBLISHING_AND_HOSTING.md"), "utf8");
   const pagesWorkflow = await readFile(join(projectRoot, ".github", "workflows", "pages.yml"), "utf8");
   assert.equal(metadata.homepage, canonical);
   assert.equal(websiteUrl, canonical);
@@ -548,6 +575,7 @@ test("help distinguishes no-install, local, and global command forms", () => {
   assert.match(helpText, /separate point-in-time/);
   assert.match(helpText, /protected agent policy/);
   assert.match(helpText, /suggest reviews \[--staged\|--base <ref>\]/);
+  assert.match(helpText, /review guide \[--open\]/);
   assert.ok(helpText.includes(`${npxCommand} suggest reviews --staged`));
   assert.doesNotMatch(helpText, /^\s+npx agent-docs suggest reviews/m);
   assert.match(helpText, /Initialize documentation with 'setup'/);
@@ -556,13 +584,19 @@ test("help distinguishes no-install, local, and global command forms", () => {
 
 test("website leads with accurate boundaries, safe onboarding, and genuine examples", async () => {
   const site = await readFile(new URL("../site/index.html", import.meta.url), "utf8");
+  const terms = await readFile(new URL("../site/terms.html", import.meta.url), "utf8");
   const app = await readFile(new URL("../site/app.js", import.meta.url), "utf8");
   const styles = await readFile(new URL("../site/styles.css", import.meta.url), "utf8");
   assert.match(site, /Keep project documentation organized/);
   assert.match(site, /What runs automatically\?/);
   assert.match(site, /no active network scans run automatically/);
   assert.match(site, /One project memory\. Three quality lenses\./);
-  assert.match(site, /View source on GitHub/);
+  assert.match(site, /keep agent context focused, preserve a traceable project record, reduce avoidable AI drift, and run targeted security and engineering reviews/i);
+  assert.match(site, /evidence-based review worksheets/);
+  assert.match(site, /How this helps with AI drift/);
+  assert.match(site, /cannot guarantee an agent will follow instructions/);
+  assert.doesNotMatch(site, /github\.com\/ghostbyte1014\/Agent_Docs_Kit/i);
+  assert.doesNotMatch(terms, /github\.com\/ghostbyte1014\/Agent_Docs_Kit/i);
   assert.match(site, /Sanitized, reproducible example/);
   assert.match(site, /Fresh security worksheet sample/);
   assert.match(site, /Fictional, manually reviewed evidence sample/);
@@ -571,6 +605,7 @@ test("website leads with accurate boundaries, safe onboarding, and genuine examp
   assert.match(site, /npx.*may download and cache the package/);
   assert.match(site, /Catalog areas, not scans/);
   assert.match(site, /documentation guide/);
+  assert.match(site, /href="docs\/REVIEW_GUIDE\.html">Review guide/);
   assert.match(site, /role="tab" aria-selected="true" aria-controls="code-panel-setup"/);
   assert.match(site, /start \[new\|existing\|agent\|manual\]/);
   assert.match(site, /does not bundle an AI model or background process/);
@@ -580,6 +615,9 @@ test("website leads with accurate boundaries, safe onboarding, and genuine examp
   assert.doesNotMatch(site, /npx agent-docs suggest reviews/);
   assert.match(site, /Requires initialized documentation/);
   assert.match(site, /data-copy-visible/);
+  assert.match(site, /<details class="content-drawer install-drawer"/);
+  assert.match(site, /<details class="content-drawer agent-drawer"/);
+  assert.match(site, /<details class="content-drawer reference-drawer"/);
   assert.doesNotMatch(site, /data-copy-command/);
   assert.doesNotMatch(site, /data-panel="[^"]+"[^>]* hidden/);
   assert.doesNotMatch(site, /data-code-panel="[^"]+"[^>]* hidden/);
@@ -624,10 +662,15 @@ test("site preview builds first and the artifact exposes only public documentati
     "COMPATIBILITY.html",
     "CONTENT_MAINTENANCE.html",
     "GITHUB_AND_NPM_SETUP.html",
+    "PUBLISHING_AND_HOSTING.html",
     "PURPOSE.html",
+    "RELEASE_HISTORY.html",
     "RELEASE_PROCESS.html",
+    "REVIEW_GUIDE.html",
     "SECURITY_MODEL.html",
-    "TESTING_GUIDE.html"
+    "SECURITY_POLICY.html",
+    "TESTING_GUIDE.html",
+    "VERSIONING_AND_UPGRADES.html"
   ]);
   await assert.rejects(access(join(projectRoot, "build", "site", "docs", "README.md")));
   // Every local link on a built page must resolve to a file that was published.
@@ -636,6 +679,7 @@ test("site preview builds first and the artifact exposes only public documentati
   const siteRoot = join(projectRoot, "build", "site");
   for (const name of builtDocs) {
     const page = await readFile(join(siteRoot, "docs", name), "utf8");
+    assert.doesNotMatch(page, /github\.com\/ghostbyte1014\/Agent_Docs_Kit/i, `${name} must not link directly to the source repository`);
     for (const [, target] of page.matchAll(/href="([^"#][^"]*)"/g)) {
       if (/^(?:https?:|mailto:)/i.test(target)) continue;
       await access(join(siteRoot, "docs", target.split("#")[0]));
@@ -644,6 +688,7 @@ test("site preview builds first and the artifact exposes only public documentati
   const purposePage = await readFile(join(projectRoot, "build", "site", "docs", "PURPOSE.html"), "utf8");
   const securityPage = await readFile(join(projectRoot, "build", "site", "docs", "SECURITY_MODEL.html"), "utf8");
   const testingPage = await readFile(join(projectRoot, "build", "site", "docs", "TESTING_GUIDE.html"), "utf8");
+  const securityPolicyPage = await readFile(join(projectRoot, "build", "site", "docs", "SECURITY_POLICY.html"), "utf8");
   assert.match(purposePage, /<h1>Purpose and boundaries<\/h1>/);
   assert.match(purposePage, /href="\.\.\/privacy\.html">Privacy/);
   assert.match(purposePage, /href="\.\.\/terms\.html">Terms of use/);
@@ -654,6 +699,10 @@ test("site preview builds first and the artifact exposes only public documentati
   assert.match(testingPage, /AGENTS\.md/);
   assert.match(testingPage, /suggest reviews --staged/);
   assert.match(testingPage, /byte-for-byte unchanged/);
+  assert.match(testingPage, /href="https:\/\/agent-docs-kit\.ghostbyte1014\.workers\.dev\/docs\/SECURITY_POLICY\.html"/);
+  assert.doesNotMatch(testingPage, /github\.com\/ghostbyte1014\/Agent_Docs_Kit/i);
+  assert.match(securityPolicyPage, /<h1>Security policy<\/h1>/);
+  assert.match(securityPolicyPage, /href="SECURITY_POLICY\.html" class="is-current">Security policy/);
   // The guide documents ordinary verification, not a time-boxed beta programme.
   assert.doesNotMatch(testingPage, /[Cc]losed-beta/);
   const privacyPage = await readFile(join(projectRoot, "build", "site", "privacy.html"), "utf8");
@@ -672,10 +721,13 @@ test("site Markdown rendering escapes content and permits only safe links", () =
     "",
     "[Architecture](ARCHITECTURE.md#components)",
     "[External](https://example.com/docs?a=1&b=2)",
+    "[External Markdown](https://example.com/SECURITY.md)",
     "[Unsafe](javascript:alert(1))"
   ].join("\n"));
   assert.match(html, /<h1>&lt;unsafe&gt;<\/h1>/);
   assert.match(html, /href="ARCHITECTURE\.html#components"/);
   assert.match(html, /href="https:\/\/example\.com\/docs\?a=1&amp;b=2" target="_blank" rel="noopener noreferrer"/);
+  assert.match(html, /href="https:\/\/example\.com\/SECURITY\.md" target="_blank" rel="noopener noreferrer"/);
+  assert.doesNotMatch(html, /https:\/\/example\.com\/SECURITY\.html/);
   assert.doesNotMatch(html, /javascript:/i);
 });

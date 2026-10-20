@@ -85,5 +85,7 @@ export function pointerFileContents(id) {
 
 // A pointer file is healthy when it imports the canonical policy.
 export function importsCanonicalInstructions(value) {
-  return new RegExp(`^\s*@${canonicalInstructions.replace(".", "\.")}\s*$`, "m").test(value ?? "");
+  return String(value ?? "")
+    .split(/\r?\n/u)
+    .some((line) => line.trim() === importLine);
 }

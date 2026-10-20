@@ -4,7 +4,7 @@ import { evaluateDocumentationReports } from "../core/audit-reports.mjs";
 import { loadProjectConfig } from "../core/config.mjs";
 import { exists } from "../core/files.mjs";
 import { worksheetReportState } from "../core/report-validation.mjs";
-import { containsStarterText, normalizeReportPath } from "../core/starter-text.mjs";
+import { containsStarterText, isStarterDocument, normalizeReportPath, starterDocumentPaths } from "../core/starter-text.mjs";
 import { installedSkillVersion, kitVersion, skillVersionFile } from "../core/version.mjs";
 import { skillDestination, skillTargets } from "./skill.mjs";
 
@@ -118,7 +118,7 @@ async function staleSkillInstalls(root) {
     const directory = skillDestination(target, root);
     if (!(await exists(resolve(directory, "SKILL.md")))) continue;
     const version = await installedSkillVersion(resolve(directory, skillVersionFile));
-    if (version !== running) stale.push({ target, path: relative(root, directory), version, running });
+    if (version !== running) stale.push({ target, path: normalizeReportPath(relative(root, directory)), version, running });
   }
   return stale;
 }
@@ -201,8 +201,16 @@ export async function nextWorkflow(options = {}) {
   const placeholders = await filesWithStarterText(documentationFiles, root);
   const skillInstalled = await exists(resolve(root, ".agents", "skills", "manage-project-quality", "SKILL.md"));
   if (placeholders.length) {
-    const relativePlaceholders = placeholders.slice(0, 4).map((path) => relative(root, path));
+    // Forward slashes everywhere, matching the audit's report paths so the two
+    // commands never spell the same file differently.
+    const relativePlaceholders = placeholders.slice(0, 4).map((path) => normalizeReportPath(relative(root, path)));
+    // Starter documents are the ones `setup` owns, so progress is measured
+    // against that fixed set rather than every Markdown file in the project.
+    const starterTotal = starterDocumentPaths.length;
+    const remaining = placeholders.filter((path) => isStarterDocument(normalizeReportPath(relative(root, path)))).length;
+    const completed = Math.max(starterTotal - remaining, 0);
     return stageResult(3, "Build the documentation baseline", "The scaffold exists, but starter prompts still need verified project information.", [
+      `Starter documents completed: ${completed} of ${starterTotal}`,
       `Starter documents needing work: ${relativePlaceholders.join(", ")}${placeholders.length > 4 ? ` (+${placeholders.length - 4} more)` : ""}`,
       `Project AI skill: ${skillInstalled ? "installed" : "not installed"}`
     ], [
@@ -245,7 +253,7 @@ export async function nextWorkflow(options = {}) {
   }
   if (outstandingReports.length) {
     return stageResult(5, "Complete the open review", "A worksheet is open or structurally invalid and needs evidence or an explicit N/A rationale.", [
-      ...outstandingReports.slice(0, 5).map((item) => `${item.label}: ${relative(root, item.path)} — ${item.detail}`),
+      ...outstandingReports.slice(0, 5).map((item) => `${item.label}: ${normalizeReportPath(relative(root, item.path))} — ${item.detail}`),
       ...(outstandingReports.length > 5 ? [`Additional open or invalid worksheets: ${outstandingReports.length - 5}`] : [])
     ], [
       "Inspect the named report and collect code, configuration, test, metric, or authorized environment evidence.",

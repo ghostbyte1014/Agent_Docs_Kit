@@ -2,10 +2,16 @@
 
 Published npm versions are immutable. A matching version-tag push can publish a new version, but it cannot replace the contents of an existing version.
 
+## Reset release line
+
+The maintained line restarts at `1.3.7` after the earlier `4.0.0` through `6.2.1` releases advanced before the public contract stabilized. npm accepts a previously unused lower version, but SemVer clients treat it as older than 6.x. Existing 6.x users must opt into `1.3.7` explicitly; they will not receive it through a normal upgrade range.
+
+The stable publish workflow maps a plain version to `latest`. Therefore, publishing `1.3.7` through the current tag workflow intentionally moves `latest` from the 6.x line to the reset line. Confirm that decision immediately before tagging, and verify the exact registry dist-tags afterward. Do not represent the reset as an automatic upgrade for existing 6.x consumers.
+
 1. Update canonical content and run `npm run build` to refresh progressive skill references and the site.
 2. Set the intended release version on the release branch with `npm version <version> --no-git-tag-version`. This updates `package.json` and `package-lock.json` without creating a premature commit or tag.
-3. Update the changelog, migration guidance, and any public examples that pin a reviewed version.
-4. Run `npm run release:check`. This includes tests, validation, review dates, builds, a clean tarball installation, and `npm audit`.
+3. Update the changelog, migration guidance, release-history ledger, and any public examples that pin a reviewed version. Do not mark the candidate as published before registry evidence exists.
+4. Run `npm run release:check`. This includes tests, validation, the retired-version policy, review dates, builds, a clean tarball installation, and `npm audit`.
 5. Confirm the package archive contains no credentials, local reports, nested repositories, or generated consumer data. `npm pack --dry-run --json` must show only the approved public files under `docs/` listed in `scripts/public-docs.mjs`, and every `main`, `bin`, and `exports` target must exist in the archive.
 6. Commit and push the release branch, open a pull request, and require the configured CI matrix to pass before merge.
 7. After the reviewed release commit is on `main`, create and push the matching `v<version>` tag on that exact commit. A matching `v*` tag on `main` runs `.github/workflows/publish-npm.yml`, verifies the version and ancestry, and publishes through npm trusted publishing.
@@ -13,20 +19,20 @@ Published npm versions are immutable. A matching version-tag push can publish a 
 9. After npm marks the version Published and moves `latest`, verify `npx --yes @ghostbyte/agent-docs-kit@<version> --help` from a clean directory outside this package's source repository.
 
 ```bash
-git switch -c release/v6.2.1
-npm version 6.2.1 --no-git-tag-version
+git switch -c release/v1.3.7
+npm version 1.3.7 --no-git-tag-version
 node scripts/sync-version.mjs          # rewrites every pinned version from package.json
 npm ci
 npm run release:check
 git add -A
-git commit -m "release: prepare v6.2.1"
-git push -u origin release/v6.2.1
+git commit -m "release: prepare v1.3.7"
+git push -u origin release/v1.3.7
 
 # After the pull request is approved, CI passes, and the merge commit is on main:
 git switch main
 git pull --ff-only
-git tag v6.2.1
-git push origin v6.2.1
+git tag v1.3.7
+git push origin v1.3.7
 ```
 
 On Windows PowerShell, call `npm.cmd` and `npx.cmd` if the execution policy blocks `npm.ps1`.
@@ -34,6 +40,8 @@ On Windows PowerShell, call `npm.cmd` and `npx.cmd` if the execution policy bloc
 ## One source for the version number
 
 `package.json` `version` is the only place a release version is authored.
+
+The historical 4.x, 5.x, and 6.x lines are retired. The reset line may progress through 1.x, 2.x, and 3.x; its next major after 3.x is 7.0.0. See [`RELEASE_HISTORY.md`](RELEASE_HISTORY.md), and run `npm run release:version-policy` before committing a version change.
 
 - `node scripts/sync-version.mjs` rewrites the pinned version in `README.md` and both release documents.
 - `site/index.html` stores the placeholder `__AGENT_DOCS_KIT_VERSION__`; `scripts/build-site.mjs` substitutes the real version at build time, so the page source cannot drift.
@@ -43,7 +51,7 @@ Run the sync immediately after `npm version`, before `release:check`. The `versi
 
 ## Choose the dist-tag
 
-The workflow derives the dist-tag from the version in `package.json`: a plain version publishes to `latest`, and a prerelease version such as `<version>-beta.1` publishes to `beta`. `workflow_dispatch` accepts an explicit `dist_tag` input.
+The workflow derives the dist-tag from the version in `package.json`: a plain version publishes to `latest`, and a prerelease version such as `<version>-beta.1` publishes to `beta`. `workflow_dispatch` accepts an explicit `dist_tag` input, but it is subject to the same requirement that the selected commit is already on `main`.
 
 Publishing straight to `latest` is the owner's decision. It is the shorter path, and it means the first execution of the publish workflow lands on the tag every consumer installs. Before tagging a release that goes directly to `latest`, confirm all of the following:
 
@@ -56,7 +64,7 @@ The `beta` route below stays available and is worth using for a large or risky c
 
 ### Optional: publish to the beta tag first
 
-1. Publish under the `beta` dist-tag. The workflow derives the dist-tag from the version in `package.json`: a prerelease version such as `<version>-beta.1` publishes to `beta`, and a plain `<version>` publishes to `latest`. `workflow_dispatch` accepts an explicit `dist_tag` input.
+1. Publish under the `beta` dist-tag. The workflow derives the dist-tag from the version in `package.json`: a prerelease version such as `<version>-beta.1` publishes to `beta`, and a plain `<version>` publishes to `latest`. `workflow_dispatch` accepts an explicit `dist_tag` input and rejects a selected commit that is not already on `main`.
 
    The publish workflow requires the pushed tag to equal the version in `package.json`, so a prerelease is a real version bump, not just a differently named tag:
 
@@ -78,7 +86,7 @@ npm install --save-dev @ghostbyte/agent-docs-kit@beta
 3. Promote after the agent-behavior checks and the post-publish smoke test pass:
 
 ```bash
-npm dist-tag add @ghostbyte/agent-docs-kit@6.2.1 latest
+npm dist-tag add @ghostbyte/agent-docs-kit@1.3.7 latest
 npm dist-tag ls @ghostbyte/agent-docs-kit
 ```
 
@@ -93,6 +101,8 @@ npm audit signatures
 
 The npm package page must also show the provenance badge for the exact version. Record the result as release evidence. Keep 2FA on the npm account, branch protection on `main`, and OIDC trusted publishing instead of a long-lived token.
 
+Protect the `v*` tag namespace against deletion and force-updates in the Git host. Do not recreate a missing historical tag unless the exact original release commit has been established from trustworthy evidence.
+
 ## Post-publish smoke test
 
 The `smoke` job in `.github/workflows/publish-npm.yml` runs after publication on a clean runner: it installs the exact published version from the registry and runs `--version`, `doctor`, `setup --dry-run`, `setup`, and `audit documentation` in a temporary directory. It retries for several minutes because a freshly published version takes time to propagate and may sit in npm's automated validation.
@@ -102,7 +112,7 @@ The `smoke` job in `.github/workflows/publish-npm.yml` runs after publication on
 While a release sits under the `beta` dist-tag and has not been promoted:
 
 - Accept bug fixes only, for about two weeks. No new commands, no new options, and no changes to generated text.
-- No major version during the window. A breaking change needs a deprecation cycle first, as [`COMPATIBILITY.md`](COMPATIBILITY.md) describes.
+- No major version during the window. A breaking change needs a deprecation cycle first, as [`VERSIONING_AND_UPGRADES.md`](VERSIONING_AND_UPGRADES.md) describes.
 - Triage tester feedback into "fix now" (correctness, data loss, safety) and "after promotion" (everything else).
 - Promote to `@latest` only when the agent-behavior scenarios in [`TESTING_GUIDE.md`](TESTING_GUIDE.md) and the post-publish smoke test both pass on the prerelease build. This applies to the prerelease route; a release published directly to `latest` has no promotion step, so its verification happens before the tag.
 
@@ -115,7 +125,7 @@ Published versions cannot be overwritten or re-uploaded.
 1. Deprecate the bad version with a reason users will see on install:
 
 ```bash
-npm deprecate @ghostbyte/agent-docs-kit@6.2.1 "Superseded: <reason>. Install @latest."
+npm deprecate @ghostbyte/agent-docs-kit@1.3.7 "Superseded: <reason>. Install @latest."
 ```
 
 2. If the bad version holds `latest`, move the tag back to the last good version immediately. This is the primary safety net for a release published directly to `latest`:

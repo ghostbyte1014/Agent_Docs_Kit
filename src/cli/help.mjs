@@ -27,6 +27,7 @@ Commands:
                                      Suggest focused reviews from changed Git paths
   audit documentation [--strict]     Check documentation health
   documentation guide <area>         Print one documentation guidance area
+  review guide [--open]              Print or open the security/engineering guide
   security worksheet <phase>         Create a scoped security worksheet
   engineering worksheet <topic>      Create a scoped engineering worksheet
   audit security <phase>              Legacy alias for security worksheet
@@ -54,6 +55,8 @@ Examples:
   ${npxCommand} suggest reviews --base origin/main
   npx @ghostbyte/agent-docs-kit@latest audit documentation --strict --format text
   npx @ghostbyte/agent-docs-kit@latest documentation guide system-documentation
+  npx @ghostbyte/agent-docs-kit@latest review guide
+  npx @ghostbyte/agent-docs-kit@latest review guide --open
   npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer
   npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types
   npx @ghostbyte/agent-docs-kit@latest template create adr --name cache-policy
@@ -80,6 +83,7 @@ Options:
   --strict                    Fail when documentation checks fail
   --staged                    Inspect staged changes only for review suggestions
   --base <git-ref>            Compare <git-ref>...HEAD for review suggestions
+  --open                      Open the review guide in a browser (review guide only)
   --help                      Show this help
 
 Recommended first run:

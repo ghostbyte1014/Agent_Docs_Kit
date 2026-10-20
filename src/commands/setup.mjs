@@ -27,14 +27,14 @@ These rules apply to **every AI coding agent** (Claude Code, Codex, Gemini CLI, 
 
 ## Change records (when CHANGE RECORDS is ON)
 
-After every change to code (\`src/\`, \`tests/\`, \`public/\`, \`scripts/\`, \`.agents/skills/\`, \`.githooks/\`, \`.claude/\`, \`package.json\`, \`package-lock.json\`, etc.), create a change record in [\`docs/05-operations/agents/feature-updates/\`](docs/05-operations/agents/feature-updates/README.md) in the same change:
+After every material change to source, tests, configuration, build, or automation, create a change record in [\`docs/05-operations/agents/feature-updates/\`](docs/05-operations/agents/feature-updates/README.md) in the same change:
 
 - **One file per change topic**, named \`YYYY-MM-DD_HHMM_short-topic.md\` (24-hour time in ${zone}, taken from the device clock, e.g., \`${clock}\`; if two records share a minute, use \`HHMM-01\`, \`HHMM-02\` in creation order). Records then sort first-applied at the top. If you cannot read the clock, ask the developer for the time; never guess.
 - Copy the template in that folder's \`README.md\`. Fill in:
   - **Date:** \`YYYY-MM-DD HH:MM (${zone})\`, matching the file name.
   - **AI tool:** your own tool name (\`Claude Code\`, \`Codex\`, \`Gemini CLI\`, \`Cursor\`, \`Antigravity\`, …) and model if known. A change made without AI is recorded as \`Manual\`.
   - **Files changed:** every file path, in backticks.
-  - **Approved by (device owner):** the output of \`git config user.name\` and \`git config user.email\` on this device. If either is empty, ask the developer for their name; never guess.
+  - **Authorization:** the explicit request, issue, pull request, or decision that authorized the change. Do not infer approval or identity from local Git configuration.
   - **Type:** \`Fix\`, \`Polish\`, \`Feature\`, or (while the freeze is ON) \`New feature (approved outside the documented flow)\`.
 - Records are permanent: never edit or delete an existing record. A correction is a new record.
 - Writing the record is part of the change and needs no separate approval.
@@ -49,7 +49,7 @@ When FREEZE is ON, the project is in its polishing stage: the code must not drif
    - An implementation plan, task list, TODO, or an earlier approval is **not** approval. Even when a plan lists the work, confirm each file before editing it.
    - Silence or auto mode is not approval.
 3. **An approval covers only what was described.** Anything extra you notice gets reported and needs its own approval.
-4. **Allowed without asking:** reading and searching files, explaining code, and read-only checks (\`npm test\`, \`npx tsc --noEmit\`, \`npm run build\`, \`npm run lint\`, \`npx @ghostbyte/agent-docs-kit@latest audit documentation --strict\`, and source searches).
+4. **Allowed without asking:** reading and searching files, explaining code, and repository-defined read-only checks. Discover commands from the repository before running them; do not assume a language, package manager, or framework. Documentation audit: \`npx @ghostbyte/agent-docs-kit@latest audit documentation --strict\`.
 
 ## Always (whatever the switches say)
 
@@ -72,7 +72,7 @@ When FREEZE is ON, the project is in its polishing stage: the code must not drif
   | Setup, database, deployment, agent process                          | \`docs/05-operations/<topic>/\`                 |
   | Planned improvements, documented but not built                      | \`docs/06-future-proposals/\`                   |
   | Superseded, completed, or rejected material                         | \`docs/archive/<era-or-kind>/\`                 |
-- Name dated docs \`TOPIC_YYYY-MM-DD.md\`; living docs \`TOPIC.md\`. Do not create \`.md\` files in the repo root (only \`README.md\`, \`${canonicalInstructions}\`, and the one-line \`CLAUDE.md\`/\`GEMINI.md\` pointers live there).
+- Name dated docs \`TOPIC_YYYY-MM-DD.md\`; living docs \`TOPIC.md\`. Keep generated project records under \`docs/\`; preserve existing root documentation and repository conventions. \`${canonicalInstructions}\` and optional \`CLAUDE.md\`/\`GEMINI.md\` pointers remain at the root because agents discover them there.
 - Every time you add, move, archive, or retire a doc, update \`docs/README.md\` in the same change.
 - **\`docs/archive/\` is historical, not authoritative.** Do not use it as a source of truth or audit against it.
 - Move files with \`git mv\` so history is kept, then fix relative links.
@@ -81,32 +81,28 @@ When FREEZE is ON, the project is in its polishing stage: the code must not drif
 
 ## Workflow boundaries
 
-- Documentation maintenance is continuous and accompanies material project changes.
-- Security and engineering worksheets are scoped, point-in-time reviews. Do not create or update them merely because code changed.
+- Documentation maintenance is always active and accompanies every material project change. It is independent of whether another review is selected.
+- Before a commit, run \`${npxCommand} suggest reviews --staged\`; for a branch or pushed comparison, use \`${npxCommand} suggest reviews --base <git-ref>\`. Treat its path matches as advisory evidence, not proof of safety.
+- When changed behavior, data exposure, dependencies, authentication, release controls, architecture, reliability, testing, or operational risk warrants deeper review, recommend the narrowest relevant security or engineering topic to the developer. State why it applies, what evidence would be needed, and the exact worksheet command.
+- Security and engineering worksheets are scoped, point-in-time reviews. Do not create one merely because code changed or claim a review was completed until its evidence has been examined.
 - Never assign security or engineering conclusions without evidence. Active testing requires explicit authorization for the exact target.
 - Markdown policy guides collaboration but does not technically enforce it. Use tests, validation, CI, and branch controls where enforcement is required.
 
 ## Development commands
 
-- Install: \`npm install\`
-- Development: \`npm run dev\`
-- Tests: \`npm test\`
-- Type check: \`npx tsc --noEmit\`
-- Production build: \`npm run build\`
-- Lint: \`npm run lint\`
+- Discover the actual install, development, test, type-check, build, and lint commands from tracked manifests, contributor guidance, and CI. Record verified commands here; mark unavailable checks as unavailable rather than inventing them.
 - Documentation audit: \`npx @ghostbyte/agent-docs-kit@latest audit documentation --strict\`
 
 ## Architecture and data boundary
 
 - [Document project structure, framework conventions, domain boundaries, and persistence interfaces here]
-- Ensure server authorization, input validation, and transactional integrity before real data is accepted.
-- Protect sensitive data with authorization, encryption, and hashing as required in production; never rely on client-only checks for security boundaries.
+- For projects with server or data boundaries, document authorization, validation, transaction, encryption, and retention requirements. Mark non-applicable areas explicitly.
 
 ## Design and implementation rules
 
 - [Document visual design direction, color palettes, and component library conventions here]
-- Keep interface shells responsive, keyboard accessible, and usable across form factors.
-- Never render untrusted content. Validate inputs, state transitions, ownership, and permissions at runtime and on the server.
+- For projects with user interfaces, document responsiveness, keyboard accessibility, content trust, and supported form factors. Mark non-applicable areas explicitly.
+- Enforce validation, ownership, permissions, and state transitions at the system boundary that actually provides security; do not assume a client or server architecture that the repository does not use.
 `;
 }
 
@@ -164,7 +160,7 @@ For AI-assisted work, the protected root \`${canonicalInstructions}\` created wh
 
 The workflow is AI-first and agent-assisted, not an unattended background service. \`${canonicalInstructions}\` does not execute by itself: a compatible coding agent must be active, must load the repository instructions, and must be allowed to edit these records. Run \`${npxCommand} suggest reviews --staged\` before a commit, or compare a pushed branch with \`${npxCommand} suggest reviews --base <git-ref>\`, to receive advisory review candidates. These commands do not edit files or perform an audit.
 
-Documentation maintenance does not automatically start a security or engineering review. This workspace must be initialized before those worksheets can be created. Select them only for a risk, release gate, or engineering question, and complete them from evidence.
+Documentation maintenance does not automatically start a security or engineering review. This workspace must be initialized before those worksheets can be created. Keep documentation active for every material change, then recommend the narrowest relevant review when the change introduces a security risk, release concern, design tradeoff, reliability question, or testing gap. Explain the reason and evidence needed; create and complete a worksheet only when that review is actually selected.
 
 ## Areas
 
@@ -270,7 +266,7 @@ Copy the template below when creating a new change record:
 - **Date:** YYYY-MM-DD HH:MM (${zone})
 - **AI tool:** [AI Tool Name and model, or Manual]
 - **Files changed:** \`path/to/file1\`, \`path/to/file2\`
-- **Approved by:** [git config user.name and user.email]
+- **Authorization:** [explicit request, issue, pull request, or decision]
 - **Type:** [Fix | Polish | Feature | New feature (approved outside the documented flow)]
 
 ## Intent
@@ -459,6 +455,10 @@ function reportSetup({ root, options, agents, pointers, profile, skillInstalls, 
     return;
   }
   console.log("Nothing is running in the background, and no AI review has been performed.");
+  // Without this, a user's first result is a red FAIL that reads like a defect.
+  console.log("\nExpect the first 'audit documentation --strict' to fail: the starter documents are");
+  console.log("placeholders, not documentation. That is deliberate, so a passing check cannot mean");
+  console.log("empty records. Replace their text with verified facts and delete each starter marker.");
   console.log("\nTo use this workspace with an AI coding agent:");
   if (options.ai) console.log("1. The documentation, agent instructions, and project skill are in place.");
   else console.log(`1. npx @ghostbyte/agent-docs-kit@latest setup --ai --cwd "${root}"   (or: skill install --target project)`);

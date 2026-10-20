@@ -96,10 +96,13 @@ test("a pointer file without a trailing newline still imports the policy", async
   try {
     await setupProject({ cwd: root, agents: "claude" });
     await completeStarterDocuments(root);
-    for (const contents of ["@AGENTS.md", `@AGENTS.md${CRLF}`, "@AGENTS.md\n\n# Notes"]) {
+    for (const contents of ["@AGENTS.md", "  @AGENTS.md  ", `@AGENTS.md${CRLF}`, "@AGENTS.md\n\n# Notes"]) {
       await writeFile(join(root, "CLAUDE.md"), contents, "utf8");
       assert.ok(importsCanonicalInstructions(contents), `should import: ${JSON.stringify(contents)}`);
       assert.equal(runCli(["audit", "documentation", "--strict", "--cwd", root]).status, 0, JSON.stringify(contents));
+    }
+    for (const contents of ["s@AGENTS.md", "@AGENTSxmd", "@AGENTS.md-extra"]) {
+      assert.equal(importsCanonicalInstructions(contents), false, `must reject: ${JSON.stringify(contents)}`);
     }
   } finally { await rm(root, { recursive: true, force: true }); }
 });

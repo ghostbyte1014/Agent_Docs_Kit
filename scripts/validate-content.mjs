@@ -1,5 +1,7 @@
 import { access, readFile, readdir } from "node:fs/promises";
 import { basename, relative, resolve } from "node:path";
+import { reviewGuideErrors } from "./review-guide-validation.mjs";
+import { releaseHistoryErrors } from "./version-policy-rules.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const catalog = JSON.parse(await readFile(resolve(root, "content/catalog.json"), "utf8"));
@@ -10,6 +12,20 @@ const expectedGenerated = new Set();
 const aliases = { documentation: new Map(), security: new Map(), engineering: new Map() };
 const controlIds = new Set();
 const generatedReportValidatorHeader = "// Generated from src/core/report-validation.mjs by scripts/build-skill.mjs.\n// Run `npm run build` after changing the canonical source.\n\n";
+
+try {
+  const reviewGuide = await readFile(resolve(root, "docs/REVIEW_GUIDE.md"), "utf8");
+  errors.push(...reviewGuideErrors(reviewGuide, catalog));
+} catch {
+  errors.push("Missing public review guide: docs/REVIEW_GUIDE.md");
+}
+
+try {
+  const releaseHistory = await readFile(resolve(root, "docs/RELEASE_HISTORY.md"), "utf8");
+  errors.push(...releaseHistoryErrors(releaseHistory));
+} catch {
+  errors.push("Missing public release history: docs/RELEASE_HISTORY.md");
+}
 
 function validDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? "")) return false;
@@ -106,4 +122,4 @@ for (const id of new Set(duplicateIds)) errors.push(`Duplicate website id: ${id}
 for (const [, anchor] of site.matchAll(/href="#([^"]+)"/g)) if (!ids.includes(anchor)) errors.push(`Broken website anchor: #${anchor}`);
 
 if (errors.length) { console.error(errors.join("\n")); process.exitCode = 1; }
-else console.log(`Validated ${identities.size} catalog entries, package paths, and website anchors.`);
+else console.log(`Validated ${identities.size} catalog entries, review-guide coverage, release history, package paths, and website anchors.`);

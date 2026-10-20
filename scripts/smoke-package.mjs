@@ -49,6 +49,8 @@ try {
   if (!help.includes("start [new|existing|agent|manual]") || !help.includes("Detect project state") || !help.includes("suggest reviews") || !help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("template create") || !help.includes("--ai") || !help.includes("--agents")) throw new Error("Packed CLI help is incomplete.");
   const agentStart = runCli("start", "agent");
   if (!agentStart.includes("$manage-project-quality") || !agentStart.includes("does not grant authority")) throw new Error("Packed CLI agent onboarding is incomplete.");
+  const reviewGuide = runCli("review", "guide");
+  if (!reviewGuide.includes("# Security and engineering review guide") || !reviewGuide.includes("`api-layer`")) throw new Error("Packed CLI review guide is incomplete.");
   const emptyNext = runCli("next");
   if (!emptyNext.includes("Stage 1: Initialize safely")) throw new Error("Packed CLI did not detect an uninitialized project.");
   const blockedWorksheet = spawnSync(process.execPath, [cli, "security", "worksheet", "api-layer"], { cwd: consumer, encoding: "utf8" });
@@ -100,7 +102,7 @@ try {
   if ((await readdir(isolatedHome)).length) throw new Error("setup --ai wrote outside the project directory.");
   runCli("validate");
   await access(resolve(consumer, ".agents/skills/manage-project-quality/SKILL.md"));
-  execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function' || typeof api.startWorkflow !== 'function' || typeof api.nextWorkflow !== 'function' || typeof api.suggestReviews !== 'function') process.exit(1); const result = await api.suggestReviews({ cwd: process.cwd(), changedFiles: ['site/index.html'] }); if (!result.security.every((entry) => entry.command.startsWith('npx @ghostbyte/agent-docs-kit@latest '))) process.exit(1);"], { cwd: consumer, stdio: "ignore" });
+  execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function' || typeof api.startWorkflow !== 'function' || typeof api.nextWorkflow !== 'function' || typeof api.suggestReviews !== 'function' || typeof api.showReviewGuide !== 'function') process.exit(1); const result = await api.suggestReviews({ cwd: process.cwd(), changedFiles: ['site/index.html'] }); if (!result.security.every((entry) => entry.command.startsWith('npx @ghostbyte/agent-docs-kit@latest '))) process.exit(1);"], { cwd: consumer, stdio: "ignore" });
   const invalid = spawnSync(process.execPath, [cli, "doctor", "unexpected"], { cwd: consumer, encoding: "utf8" });
   if (invalid.status === 0 || !invalid.stderr.includes("Invalid arguments")) throw new Error("CLI accepted an unexpected positional argument.");
   runNpm(["run", "validate"], { cwd: packageRoot, stdio: "ignore" });

@@ -8,16 +8,22 @@ const docLabels = {
   "ARCHITECTURE.md": "Architecture",
   "TESTING_GUIDE.md": "Testing guide",
   "COMPATIBILITY.md": "Compatibility and public contract",
+  "VERSIONING_AND_UPGRADES.md": "Versioning, compatibility, and upgrades",
   "CONTENT_MAINTENANCE.md": "Content maintenance",
   "GITHUB_AND_NPM_SETUP.md": "GitHub and npm setup",
+  "PUBLISHING_AND_HOSTING.md": "Publishing and hosting setup",
   "PURPOSE.md": "Purpose",
+  "REVIEW_GUIDE.md": "Security and engineering review guide",
+  "RELEASE_HISTORY.md": "Release history and reserved versions",
   "RELEASE_PROCESS.md": "Release process",
+  "SECURITY_POLICY.md": "Security policy",
   "SECURITY_MODEL.md": "Security model"
 };
 
 function docPage(name, title, bodyHtml) {
   const safeTitle = escapeHtml(title);
   const securityCurrent = name === "SECURITY_MODEL.md" ? ' class="is-current"' : "";
+  const policyCurrent = name === "SECURITY_POLICY.md" ? ' class="is-current"' : "";
   const canonicalUrl = `https://agent-docs-kit.ghostbyte1014.workers.dev/docs/${name.replace(/\.md$/, ".html")}`;
   return `<!doctype html>
 <html lang="en">
@@ -47,7 +53,7 @@ function docPage(name, title, bodyHtml) {
       <article class="doc-body">
         <p class="doc-eyebrow">Documentation</p>
         ${bodyHtml}
-        <nav class="doc-footer-nav" aria-label="Legal and trust pages"><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms of use</a><a href="SECURITY_MODEL.html"${securityCurrent}>Security model</a></nav>
+        <nav class="doc-footer-nav" aria-label="Legal and trust pages"><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms of use</a><a href="SECURITY_POLICY.html"${policyCurrent}>Security policy</a><a href="SECURITY_MODEL.html"${securityCurrent}>Security model</a></nav>
       </article>
     </div>
   </main>
@@ -74,6 +80,13 @@ for (const name of publicDocs) {
   const html = docPage(name, title, renderMarkdown(source));
   await writeFile(resolve(output, "docs", name.replace(/\.md$/, ".html")), html, "utf8");
 }
+const securityPolicySource = await readFile(resolve(root, "SECURITY.md"), "utf8");
+const securityPolicyTitle = securityPolicySource.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? docLabels["SECURITY_POLICY.md"];
+await writeFile(
+  resolve(output, "docs", "SECURITY_POLICY.html"),
+  docPage("SECURITY_POLICY.md", securityPolicyTitle, renderMarkdown(securityPolicySource)),
+  "utf8"
+);
 await cp(resolve(root, "README.md"), resolve(output, "README.md"));
 await cp(resolve(root, "LICENSE"), resolve(output, "LICENSE"));
 await writeFile(resolve(output, ".nojekyll"), "", "utf8");

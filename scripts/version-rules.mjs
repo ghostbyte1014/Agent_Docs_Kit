@@ -27,7 +27,7 @@ export const versionTargets = Object.freeze([
   { path: "README.md", rules: ["package pin", "bare version pin in backticks"] },
   { path: "docs/TESTING_GUIDE.md", rules: ["package pin", "bare version pin in backticks"] },
   { path: "docs/RELEASE_PROCESS.md", rules: ["package pin", "bare version pin in backticks", "npm version command", "release branch", "release tag"] },
-  { path: "docs/GITHUB_AND_NPM_SETUP.md", rules: ["package pin", "bare version pin in backticks", "npm version command", "release branch", "release tag"] }
+  { path: "docs/PUBLISHING_AND_HOSTING.md", rules: ["package pin", "bare version pin in backticks", "npm version command", "release branch", "release tag"] }
 ]);
 
 export function applyVersionRules(text, version, packageName, allowed) {
