@@ -22,6 +22,13 @@ export const defaultConfig = Object.freeze({
 
 const configKeys = new Set(Object.keys(defaultConfig));
 
+export function assertAttribution(value, label = "attribution") {
+  if (typeof value !== "string") throw new Error(`${label} must be a string; use an empty string for no attribution line.`);
+  if (value.length > 120) throw new Error(`${label} must be 120 characters or fewer.`);
+  if (/[\r\n\u0000-\u001f\u007f]/u.test(value)) throw new Error(`${label} must be a single line without control characters.`);
+  return value;
+}
+
 async function nearestExistingPath(path) {
   let current = path;
   while (!(await exists(current))) {
@@ -67,7 +74,7 @@ export async function loadProjectConfig(cwd = process.cwd()) {
   if (!["standard", "learning"].includes(config.interactionStyle)) throw new Error("interactionStyle must be standard or learning.");
   if (!Array.isArray(config.requiredDocuments)) throw new Error("requiredDocuments must be an array.");
   assertTimezone(config.timezone, "timezone");
-  if (typeof config.attribution !== "string") throw new Error("attribution must be a string; use an empty string for no attribution line.");
+  assertAttribution(config.attribution);
   if (!Array.isArray(config.agents)) throw new Error("agents must be an array of agent ids.");
   for (const id of config.agents) agentDefinition(id);
   for (const key of ["documentationRoot", "documentationReports", "securityReports", "engineeringReports", "templateOutput"]) config[key] = await safeRelativePath(root, config[key], key);

@@ -41,7 +41,7 @@ The commands above do not write target-project files. The `npx` commands can sti
 # Writes the owned scaffold; existing files are skipped by default
 npx @ghostbyte/agent-docs-kit@latest setup
 
-# Or do it all at once: scaffold, AGENTS.md, CLAUDE.md/GEMINI.md pointers, project skill
+# Or do it all at once: scaffold, coding-agent pointers, and project skill
 npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai
 npx @ghostbyte/agent-docs-kit@latest setup --ai
 
@@ -51,9 +51,9 @@ npx @ghostbyte/agent-docs-kit@latest next
 
 A freshly generated scaffold **fails** `audit documentation --strict` on purpose: every starter document carries an `agent-docs:starter` marker. Replace the starter text with verified project facts and delete the marker, and the strict audit passes. This keeps a green CI check from meaning "empty documentation".
 
-For a reproducible team workflow, replace `@latest` with a reviewed version such as `@1.3.7` and update the pin deliberately.
+For a reproducible team workflow, replace `@latest` with a reviewed version such as `@1.3.8` and update the pin deliberately.
 
-> **Version-line reset:** the maintained package line restarts at `1.3.7` after earlier 4.x–6.x development releases advanced before the contract stabilized. Existing 6.x installations will not move to the numerically lower line automatically; install `@ghostbyte/agent-docs-kit@1.3.7` explicitly when opting into it.
+> **Version-line reset:** the maintained package line restarts at `1.3.7` after earlier 4.x–6.x development releases advanced before the contract stabilized. Existing 6.x installations will not move to the numerically lower line automatically; install `@ghostbyte/agent-docs-kit@1.3.8` explicitly when opting into it.
 
 ## Example output
 
@@ -61,8 +61,11 @@ After explicit setup, representative generated paths include:
 
 ```text
 AGENTS.md
+CODEX.md
 CLAUDE.md
 GEMINI.md
+CURSOR.md
+COPILOT.md
 .agent-docs/config.json
 .agents/skills/manage-project-quality/
 .claude/skills/manage-project-quality/
@@ -88,17 +91,17 @@ A documentation audit emits text, Markdown, or JSON. This sanitized excerpt uses
 
 A saved failure remains a failure: `next` advances beyond the documentation-audit stage only when the latest applicable report is recognized, current for the configured document set, structurally valid, and passing. A structural pass does not prove that every statement is true or current.
 
-Fresh security and engineering worksheets start with `Unverified` findings. Creating a worksheet does not perform a scan or establish a result. Their commands require documentation initialization first; they do not require a passing documentation audit, so urgent scoped review is not blocked by unfinished prose.
+Fresh security and engineering worksheets preload every control or practice as `Unverified`. Creating one does not perform a scan or establish a result. Complete each row from evidence, run `report validate <worksheet>`, then run `next`. The commands require documentation initialization first, but not a passing documentation audit, so an urgent scoped review is not blocked by unfinished prose.
 
 ## Three workflows
 
 | Workflow | What it does | Boundary |
 |---|---|---|
 | Documentation | Creates structured project records and checks required files, placeholders, headings, metadata, and local links. | A structural pass does not prove statements are true or up to date. |
-| Security | Creates scoped worksheets for recording evidence, risk, remediation, ownership, and verification against selected controls. | Worksheet creation is not a vulnerability scan and does not certify security or compliance. |
-| Engineering | Guides reviews of testing, performance, reliability, API design, maintenance, deployment, operations, and cost. | Recommendations are advisory unless separately enforced or supported by a demonstrated defect. |
+| Security | Creates scoped worksheets for passive, authorized-active, external, or mixed evidence against selected controls, including agentic AI tooling. | Worksheet creation is not a vulnerability scan and does not certify security or compliance. |
+| Engineering | Guides reviews of architecture, builds, testing, performance, reliability, accessibility, APIs, operations, cost, and agent workflows. | Recommendations are advisory unless separately enforced or supported by a demonstrated defect. |
 
-The documentation workflow is continuous: each material project change should include a documentation-impact decision and update only the affected records. Security and engineering remain scoped, point-in-time reviews. The versioned catalog contains seven documentation areas, 12 security phases, and 14 engineering topics. Those 33 areas are selectable references, not 33 automatic scans. A project policy can treat a security result as release-blocking, but the package prevents deployment only when an explicit CI or release integration enforces that policy.
+The documentation workflow is continuous: each material project change should include a documentation-impact decision and update only the affected records. Security and engineering remain scoped, point-in-time reviews. The versioned catalog contains seven documentation areas, 13 security phases, and 18 engineering topics. Those 38 areas are selectable references, not 38 automatic scans. A project policy can treat a security result as release-blocking, but the package prevents deployment only when an explicit CI or release integration enforces that policy.
 
 ## Choose a path
 
@@ -153,13 +156,15 @@ The write command creates `.agents/skills/manage-project-quality`. Open or resta
 
 ```bash
 # Create pointer files for specific tools
-npx @ghostbyte/agent-docs-kit@latest setup --agents claude,gemini
+npx @ghostbyte/agent-docs-kit@latest setup --agents codex,claude,gemini,cursor,copilot
 
 # Or only for tools this repository already shows signs of using
 npx @ghostbyte/agent-docs-kit@latest setup --agents auto
 ```
 
-Each pointer is a few lines beginning with `@AGENTS.md`. An existing `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md` is **never** replaced, including with `--force`; when one lacks the import, the CLI prints the single line to add. `audit documentation` then checks that every configured pointer still imports `AGENTS.md`.
+Each pointer is a few lines beginning with `@AGENTS.md`. Existing instruction and pointer files are **never** replaced, including with `--force`; when one lacks the import, the CLI prints the single line to add. `audit documentation` checks that every configured pointer still imports `AGENTS.md`.
+
+Codex, Cursor, and supported GitHub Copilot surfaces can read `AGENTS.md` directly. Their named files are compatibility pointers for users and integrations that look for a tool name; automatic discovery varies by product and surface.
 
 Where a tool documents a project-level skill directory, `skill install --target <agent>` uses it (`--target claude` writes `.claude/skills/`). Every project-level target writes only inside the repository; `--target codex` is the one user-level target and must be requested explicitly.
 
@@ -210,6 +215,7 @@ If documentation is not initialized, the suggestion output and any direct worksh
 | `documentation guide <area>` | Print one documentation reference. |
 | `review guide [--open]` | Print the packaged security and engineering review guide, or open its canonical web page. |
 | `audit documentation` | Run structure checks; writes only when `--report` is supplied. |
+| `report validate <worksheet>` | Check expected IDs, valid statuses, evidence, and a consistent overall result. Evidence-supported or actionable outcomes require ownership and verification; `N/A` requires an evidence rationale. |
 | `template list` | List available record templates. |
 | `validate` | Validate the distributed catalog and content. |
 | `doctor` | Report local Node.js and Git prerequisites. |
@@ -238,7 +244,7 @@ Legacy v4 forms `audit security <phase>` and `review engineering <topic>` remain
 Project-local installation modifies the project's package manifest and lockfile:
 
 ```bash
-npm install --save-dev @ghostbyte/agent-docs-kit@1.3.7
+npm install --save-dev @ghostbyte/agent-docs-kit@1.3.8
 npx agent-docs --version
 npx agent-docs setup --dry-run
 ```
@@ -246,7 +252,7 @@ npx agent-docs setup --dry-run
 Global installation modifies the npm global prefix, not the target project:
 
 ```bash
-npm install --global @ghostbyte/agent-docs-kit@1.3.7
+npm install --global @ghostbyte/agent-docs-kit@1.3.8
 agent-docs --version
 agent-docs setup --dry-run
 ```

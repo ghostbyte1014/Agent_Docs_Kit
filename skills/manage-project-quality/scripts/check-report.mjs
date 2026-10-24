@@ -3,13 +3,16 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { validateReport } from "./report-validation.mjs";
+import { validateReport, worksheetReportState } from "./report-validation.mjs";
 
 export { validateReport } from "./report-validation.mjs";
 
 export async function checkReport(file) {
-  const errors = validateReport(await readFile(file, "utf8"));
+  const text = await readFile(file, "utf8");
+  const state = worksheetReportState(text);
+  const errors = state.kind ? state.errors : validateReport(text);
   if (errors.length) throw new Error(errors.join("\n"));
+  for (const warning of state.warnings ?? []) console.warn(`WARNING: ${warning}`);
   return true;
 }
 

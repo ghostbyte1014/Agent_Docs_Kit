@@ -334,6 +334,9 @@ test("timezone and attribution are configurable and inherited on a rerun", async
 
     assert.equal(runCli(["setup", "--timezone", "Mars/Olympus", "--cwd", root]).status, 1);
     assert.match(runCli(["setup", "--timezone", "Mars/Olympus", "--cwd", root]).stderr, /IANA time-zone name/);
+    const injected = runCli(["setup", "--attribution", "Platform Team\n# Injected heading", "--cwd", root]);
+    assert.equal(injected.status, 1);
+    assert.match(injected.stderr, /single line without control characters/);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
@@ -627,8 +630,8 @@ test("an unreadable or future configuration fails with a clear message, not a st
     assert.match(future.stderr, /reads schemaVersion 1 and 2/);
     assert.doesNotMatch(future.stderr, /at Object\./, "no stack trace");
 
-    await writeFile(configPath, `${JSON.stringify({ ...original, agents: ["cursor"] }, null, 2)}\n`, "utf8");
-    assert.match(runCli(["next", "--cwd", root]).stderr, /Unknown agent 'cursor'/);
+    await writeFile(configPath, `${JSON.stringify({ ...original, agents: ["unsupported-agent"] }, null, 2)}\n`, "utf8");
+    assert.match(runCli(["next", "--cwd", root]).stderr, /Unknown agent 'unsupported-agent'/);
 
     await writeFile(configPath, `${JSON.stringify({ ...original, timezone: "Mars/Olympus" }, null, 2)}\n`, "utf8");
     assert.match(runCli(["next", "--cwd", root]).stderr, /timezone must be 'UTC', 'local', or an IANA/);

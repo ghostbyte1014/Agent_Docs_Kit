@@ -245,6 +245,9 @@ export async function nextWorkflow(options = {}) {
 
   const securityReports = await worksheetFiles(await markdownFiles(resolve(root, config.securityReports)), "security");
   const engineeringReports = await worksheetFiles(await markdownFiles(resolve(root, config.engineeringReports)), "engineering");
+  for (const report of [...securityReports, ...engineeringReports]) {
+    for (const warning of report.state.warnings) notices.push(`${normalizeReportPath(relative(root, report.path))}: ${warning}`);
+  }
   const outstandingReports = [];
   for (const report of [...securityReports, ...engineeringReports]) {
     if (report.state.kind && report.state.kind !== report.kind) outstandingReports.push({ path: report.path, label: "Invalid", detail: `Expected a ${report.kind} worksheet but found ${report.state.kind} status rules.` });

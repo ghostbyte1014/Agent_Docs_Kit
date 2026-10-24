@@ -36,8 +36,8 @@ export async function validatePackage() {
   }
   if (catalog.schemaVersion !== 2) errors.push("Catalog schemaVersion must be 2.");
   if (catalog.documentation.length !== 7) errors.push("Catalog must contain 7 documentation areas.");
-  if (catalog.security.length !== 12) errors.push("Catalog must contain 12 security phases.");
-  if (catalog.engineering.length !== 14) errors.push("Catalog must contain 14 engineering topics.");
+  if (catalog.security.length !== 13) errors.push("Catalog must contain 13 security phases.");
+  if (catalog.engineering.length !== 18) errors.push("Catalog must contain 18 engineering topics.");
   for (const template of ["adr.md", "runbook.md", "change-record.md", "incident-review.md", "test-evidence.md"]) {
     try { await access(resolveFromPackage("templates", template)); }
     catch { errors.push(`Missing template: ${template}`); }

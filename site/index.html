@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A lightweight, evidence-first CLI for structured project documentation and guided security and engineering reviews.">
+  <meta name="description" content="Set up durable project documentation and guide evidence-based security and engineering reviews with AI coding agents.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Agent Docs &amp; Quality Kit">
-  <meta property="og:description" content="Keep project documentation organized. Review quality with evidence.">
+  <meta property="og:description" content="One project policy. Copyable agent prompts. Evidence-based reviews.">
   <meta property="og:url" content="https://agent-docs-kit.ghostbyte1014.workers.dev/">
   <meta name="twitter:card" content="summary">
   <link rel="canonical" href="https://agent-docs-kit.ghostbyte1014.workers.dev/">
@@ -22,280 +22,145 @@
   <header class="hero" id="top">
     <nav class="nav shell" aria-label="Primary navigation">
       <a class="brand" href="#top" aria-label="Agent Docs and Quality Kit home"><span class="brand-mark" aria-hidden="true">AQ</span><span>Agent Docs &amp; Quality</span></a>
-      <div class="nav-links">
-        <a href="#workflows">Workflows</a>
-        <a href="#quick-start">Get started</a>
-        <a href="#example-output">See output</a>
-        <a href="docs/REVIEW_GUIDE.html">Review guide</a>
-        <a class="nav-install" href="#resources">Resources</a>
-      </div>
+      <div class="nav-links"><a href="#workflow">Workflow</a><a href="#prompts">Agent prompts</a><a class="nav-install" href="#tutorials">Tutorials</a><a href="#agents">Agents</a><a href="#resources">Docs</a></div>
     </nav>
 
     <div class="hero-layout shell">
       <div class="hero-copy">
-        <p class="eyebrow">Documentation, security reviews, and engineering guidance &mdash; in one CLI</p>
-        <h1>Keep project documentation organized. <em>Review quality with evidence.</em></h1>
-        <p class="hero-lead">An AI-first, agent-assisted CLI for durable project records, automated documentation structure checks, and evidence-based security and engineering reviews. It also works without an agent.</p>
-        <p class="hero-promise"><strong>Want to keep agent context focused, preserve a traceable project record, reduce avoidable AI drift, and run targeted security and engineering reviews?</strong> Agent Docs &amp; Quality provides consistent repository instructions, on-demand guidance, and evidence-based review worksheets.</p>
-        <p class="brand-tagline">One project memory. Three quality lenses.</p>
-        <div class="actions">
-          <a class="button primary" href="#quick-start">Get started safely <span aria-hidden="true">&rarr;</span></a>
-          <a class="button secondary" href="#workflows">Choose a workflow</a>
-        </div>
-        <aside class="automation-boundary"><strong>What runs automatically?</strong> Explicit CLI structure checks. <strong>What needs an agent or person?</strong> Writing accurate documentation and completing security or engineering reviews. <code>AGENTS.md</code> supplies policy; it does not launch an AI, and no active network scans run automatically.</aside>
-        <dl class="hero-facts" aria-label="Toolkit facts">
-          <div><dt>3</dt><dd>Focused workflows</dd></div>
-          <div><dt>33</dt><dd>Catalog areas, not scans</dd></div>
-          <div><dt>0</dt><dd>Install-time actions</dd></div>
-        </dl>
+        <p class="eyebrow">Documentation and guided reviews for coding agents</p>
+        <h1>One project policy. <em>Three focused workflows.</em></h1>
+        <p class="hero-lead">Set up project documentation, then use a person or AI coding agent to review security and engineering evidence.</p>
+        <div class="actions"><a class="button primary" href="#workflow">Start the workflow <span aria-hidden="true">&rarr;</span></a><a class="button secondary" href="#prompts">Copy a prompt to your agent</a></div>
+        <aside class="automation-boundary"><strong>The CLI creates files and checks structure.</strong> A person or active coding agent writes verified content and completes reviews. No vulnerability scan runs automatically.</aside>
       </div>
-
-      <div class="console" aria-label="Example Agent Docs command line session">
-        <div class="console-bar"><span></span><span></span><span></span><b>agent-docs &mdash; project</b></div>
+      <div class="console" aria-label="Agent Docs quick start">
+        <div class="console-bar"><span></span><span></span><span></span><b>agent-docs</b></div>
         <div class="console-body">
-          <p><span class="prompt">$</span> <span data-command="setup --dry-run">npx @ghostbyte/agent-docs-kit@latest setup --dry-run</span></p>
-          <p class="console-title">Preview complete</p>
-          <ol>
-            <li class="active"><i>01</i> Inspect planned files <b>read-only preview</b></li>
-            <li><i>02</i> Choose whether to set up</li>
-            <li><i>03</i> Replace prompts with evidence</li>
-            <li><i>04</i> Run structure checks</li>
-            <li><i>05</i> Select optional reviews</li>
-          </ol>
-          <p class="console-result"><span>&check;</span> Existing files protected by default<br><span>&rarr;</span> Writes require an explicit command</p>
+          <p><span class="prompt">$</span> <span data-command="setup --dry-run --ai">npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai</span></p>
+          <p><span class="prompt">$</span> <span data-command="setup --ai">npx @ghostbyte/agent-docs-kit@latest setup --ai</span></p>
+          <p><span class="prompt">$</span> <span data-command="next">npx @ghostbyte/agent-docs-kit@latest next</span></p>
+          <p class="console-result"><span>&check;</span> Preview first<br><span>&rarr;</span> Continue from repository evidence</p>
         </div>
       </div>
     </div>
   </header>
 
   <main id="main">
-    <section class="principle-strip" aria-label="Core principles"><div class="shell"><p><span>Evidence over assumptions</span></p><p><span>Explicit actions only</span></p><p><span>Context loaded on demand</span></p><p><span>Human-readable outputs</span></p></div></section>
+    <section class="principle-strip" aria-label="Core principles"><div class="shell"><p><span>One source: AGENTS.md</span></p><p><span>Evidence over assumptions</span></p><p><span>Explicit writes</span></p><p><span>No automatic scans</span></p></div></section>
 
-    <section class="section shell outcome-section" id="outcome">
-      <header class="section-heading split-heading"><div><p class="eyebrow">Choose your starting point</p><h2>One toolkit, three focused jobs.</h2></div><p>Start with the task you need today. Each path keeps facts, review evidence, and future recommendations separate.</p></header>
-      <div class="outcome-grid">
-        <article><span>01 &middot; Documentation</span><h3>Set up project memory</h3><p>Create a predictable home for system facts, decisions, tests, operations, and change history.</p><a href="#quick-start">Start safely <span aria-hidden="true">&rarr;</span></a></article>
-        <article><span>02 &middot; Security</span><h3>Run a scoped review</h3><p>Choose one phase, inspect authorized evidence, and record risk, ownership, and verification.</p><a href="docs/REVIEW_GUIDE.html#security-phases">Explore security checks <span aria-hidden="true">&rarr;</span></a></article>
-        <article><span>03 &middot; Engineering</span><h3>Review engineering practice</h3><p>Assess one topic against repository or operational evidence and keep recommendations explicit.</p><a href="docs/REVIEW_GUIDE.html#engineering-topics">Explore engineering checks <span aria-hidden="true">&rarr;</span></a></article>
-      </div>
+    <section class="section shell outcome-section" id="workflow">
+      <header class="section-heading"><p class="eyebrow">Workflow</p><h2>Setup, prompt, verify.</h2></header>
+      <ol class="process-list">
+        <li><span>01</span><div><h3>Preview</h3><p><code>setup --dry-run --ai</code></p></div></li>
+        <li><span>02</span><div><h3>Create</h3><p><code>setup --ai</code></p></div></li>
+        <li><span>03</span><div><h3>Prompt</h3><p>Copy one focused prompt below into your coding agent.</p></div></li>
+        <li><span>04</span><div><h3>Verify</h3><p>Use <code>audit documentation --strict</code> for docs or <code>report validate &lt;worksheet&gt;</code> for a review.</p></div></li>
+        <li><span>05</span><div><h3>Continue</h3><p><code>next</code> shows the next repository-backed action.</p></div></li>
+      </ol>
+      <div class="install-code"><code data-command="setup --dry-run --ai">npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai</code><button class="copy-button light" data-copy-visible>Copy</button></div>
     </section>
 
-    <section class="section process-section" id="how-it-works">
+    <section class="section example-section" id="prompts">
       <div class="shell">
-        <header class="section-heading"><p class="eyebrow">A repeatable method</p><h2>From question to evidence in four steps.</h2><p>The CLI handles files and structure checks. A person or authorized AI-assisted workflow investigates review questions.</p></header>
-        <ol class="process-list">
-          <li><span>01</span><div><h3>Inspect</h3><p>Find the code, configuration, tests, and records that can answer the question.</p></div></li>
-          <li><span>02</span><div><h3>Scope</h3><p>Select one area, phase, or topic and state what is excluded.</p></div></li>
-          <li><span>03</span><div><h3>Collect</h3><p>Use paths, command output, metrics, or authorized observations.</p></div></li>
-          <li><span>04</span><div><h3>Record</h3><p>Keep status, impact, ownership, verification, and limitations together.</p></div></li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="section shell" id="workflows">
-      <header class="section-heading split-heading"><div><p class="eyebrow">Three jobs, clear boundaries</p><h2>Choose the workflow that matches the work.</h2></div><p>The catalog contains seven documentation areas, 12 security phases, and 14 engineering topics. These are selectable guidance areas, not 33 automatic scans.</p></header>
-      <div class="workflow-tabs" role="tablist" aria-label="Quality workflows">
-        <button id="tab-documentation" role="tab" aria-selected="true" aria-controls="panel-documentation" tabindex="0" data-tab="documentation"><span>01</span> Documentation</button>
-        <button id="tab-security" role="tab" aria-selected="false" aria-controls="panel-security" tabindex="-1" data-tab="security"><span>02</span> Security</button>
-        <button id="tab-engineering" role="tab" aria-selected="false" aria-controls="panel-engineering" tabindex="-1" data-tab="engineering"><span>03</span> Engineering</button>
-      </div>
-      <div class="workflow-panel" id="panel-documentation" role="tabpanel" aria-labelledby="tab-documentation" data-panel="documentation">
-        <div class="workflow-intro"><p class="workflow-number">01 / Documentation</p><h3>Maintain project memory with every material change.</h3><p>Setup supplies an agent policy and manual impact loop; checks cover required files, placeholders, headings, metadata, and local links.</p><a href="docs/PURPOSE.html">Read purpose and boundaries <span aria-hidden="true">&rarr;</span></a></div>
-        <div class="workflow-details"><article><h4>What it does</h4><p>Creates a navigable project record, guides compatible agents to update affected records, and reports structural issues with actionable paths.</p></article><article><h4>What it does not do</h4><p>The instruction file does not run an agent, and a structural pass does not prove statements are true or current.</p></article><article class="result-card"><h4>Example output</h4><code>PASS required-document docs/README.md</code><p>Persist text, Markdown, or JSON reports only when <code>--report</code> is explicit.</p></article></div>
-      </div>
-      <div class="workflow-panel" id="panel-security" role="tabpanel" aria-labelledby="tab-security" data-panel="security">
-        <div class="workflow-intro"><p class="workflow-number">02 / Security</p><h3>After documentation setup, create a scoped worksheet and record evidence.</h3><p>Capture risk, remediation, owner, and verification for each applicable control.</p><a href="docs/REVIEW_GUIDE.html#security-phases">See what each phase checks <span aria-hidden="true">&rarr;</span></a></div>
-        <div class="workflow-details"><article><h4>What it does</h4><p>Supplies stable controls and an evidence-first status model for a bounded review.</p></article><article><h4>What it does not do</h4><p>Worksheet creation is not a vulnerability scan, security certification, or authorization to test a target.</p></article><article class="result-card"><h4>Example output</h4><div class="status-grid security-status"><span>Pass</span><span>Fail</span><span>Unverified</span><span>N/A</span></div><p>A policy can require a blocking decision; enforcement needs an explicit CI or release control.</p></article></div>
-      </div>
-      <div class="workflow-panel" id="panel-engineering" role="tabpanel" aria-labelledby="tab-engineering" data-panel="engineering">
-        <div class="workflow-intro"><p class="workflow-number">03 / Engineering</p><h3>After documentation setup, review design and operations against evidence.</h3><p>Topics cover testing, performance, reliability, APIs, maintenance, deployment, observability, and cost.</p><a href="docs/REVIEW_GUIDE.html#engineering-topics">See what each topic checks <span aria-hidden="true">&rarr;</span></a></div>
-        <div class="workflow-details"><article><h4>What it does</h4><p>Creates guidance and a durable record of observed practices, impact, and recommendations.</p></article><article><h4>What it does not do</h4><p>Recommendations are advisory unless separately enforced or supported by a demonstrated defect.</p></article><article class="result-card"><h4>Example output</h4><div class="status-grid engineering-status"><span>Applied</span><span>Partial</span><span>Recommended</span><span>Unverified</span><span>N/A</span></div><p>Fresh worksheets start Unverified rather than claiming an implementation exists.</p></article></div>
-      </div>
-    </section>
-
-    <section class="section example-section" id="example-output">
-      <div class="shell">
-        <header class="section-heading"><p class="eyebrow">Sanitized, reproducible example</p><h2>See what changes in a disposable fictional repository.</h2><p>The paths and formats below match the current CLI. They are samples, not claims about a real project.</p></header>
+        <header class="section-heading"><p class="eyebrow">Copy a prompt to your agent</p><h2>Choose one job.</h2><p>Open the repository in the agent before sending the prompt.</p></header>
         <div class="example-grid">
-          <article class="example-card"><span>Before</span><h3>No Agent Docs workspace</h3><pre><code>sample-app/
-├─ package.json
-├─ src/
-└─ tests/</code></pre></article>
-          <article class="example-card"><span>After explicit setup --ai</span><h3>Real generated paths</h3><pre><code>AGENTS.md
-CLAUDE.md
-GEMINI.md
-.agent-docs/config.json
-.agents/skills/manage-project-quality/
-.claude/skills/manage-project-quality/
-docs/README.md
-docs/01-system/overview.md
-docs/02-project/README.md
-docs/03-development/engineering-reviews/
-docs/04-testing/security-audits/
-docs/05-operations/README.md</code></pre><p>Plain <code>setup</code> writes the same paths without the agent files or skill. Add them later with <code>setup --agents all</code>.</p></article>
-          <article class="example-card"><span>Documentation audit sample</span><h3>A real structural result shape</h3><pre><code># Documentation audit
-
-- Result: FAIL
-
-| Status | Rule | Path | Detail |
-| FAIL | broken-link | docs/README.md | Missing target: setup.md |</code></pre><p>Fix the link and rerun; a saved failure does not advance <code>next</code>.</p></article>
-          <details class="content-drawer example-drawer">
-            <summary><span>More review examples</span><strong>Security and engineering status records</strong></summary>
-            <div class="example-grid">
-          <article class="example-card"><span>Fresh security worksheet sample</span><h3>No invented pass</h3><pre><code>| Control ID | Priority | Status | Evidence | Remediation | Owner | Verification |
-| Add each applicable control | Medium | Unverified | File/line, command output, or approved observation | Required follow-up | Unassigned | Not verified |</code></pre></article>
-          <article class="example-card"><span>Reviewed engineering sample</span><h3>A recommendation is not an implementation</h3><pre><code>| Practice ID | Status | Evidence | Impact | Recommendation | Owner | Verification |
-| ENG-08-01 | Recommended | API tests only; UI flow untested | Regression risk | Add one browser smoke test | Alex | Run in CI |</code></pre><p>Fictional, manually reviewed evidence sample; the CLI did not automatically apply the recommendation.</p></article>
-            </div>
-            <p class="drawer-link"><a href="docs/REVIEW_GUIDE.html">See every status and what each review checks <span aria-hidden="true">&rarr;</span></a></p>
-          </details>
+          <article class="example-card"><span>Documentation</span><h3>Build or repair the baseline</h3><div class="install-code"><code>Use $manage-project-quality. Inspect this repository and complete the documentation baseline from code, configuration, tests, and existing records. Keep unknowns explicit. Run the strict documentation audit when finished.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
+          <article class="example-card"><span>Security</span><h3>Choose and review one phase</h3><div class="install-code"><code>Use $manage-project-quality. Help me start a passive security review. First show the available security phases with a one-line purpose and ask me to choose one. Then ask for the exact scope, target, and exclusions. Repeat my choices and wait for confirmation before creating or opening the worksheet. After confirmation, inspect repository evidence only. Do not run active tests or use credentials without my explicit authorization for the exact target.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
+          <article class="example-card"><span>Engineering</span><h3>Choose and review one topic</h3><div class="install-code"><code>Use $manage-project-quality. Help me start an engineering review. First show the available engineering topics with a one-line purpose and ask me to choose one. Then ask for the exact system or change, goal, constraints, and exclusions. Repeat my choices and wait for confirmation before creating or opening the worksheet. After confirmation, inspect representative code, tests, configuration, measurements, and authorized operational evidence.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
         </div>
-      </div>
-    </section>
-
-    <section class="section quick-start" id="quick-start">
-      <span id="getting-started" class="anchor-target" aria-hidden="true"></span>
-      <div class="shell">
-        <header class="section-heading"><p class="eyebrow">Safe first run</p><h2>Inspect first. Write only after you choose to.</h2><p>Requires Node.js 22+ and npm. <code>npx</code> avoids a global install, but it may download and cache the package from npm and may prompt before execution.</p></header>
-        <div class="prerequisite-check"><div><span>Step 01</span><h3>Check local prerequisites</h3><p>These commands do not change the target project.</p></div><div class="install-code"><code>node --version
-npm --version</code><button class="copy-button light" data-copy-visible aria-label="Copy the visible prerequisite commands">Copy</button></div></div>
-        <div class="install-paths">
-          <article class="recommended"><header><span>Steps 02&ndash;03 &middot; Project read-only</span><h3>Inspect paths and preview files</h3><p>Running through <code>npx</code> can access the npm registry, but these CLI actions do not write target-project files.</p></header><ol>
-            <li><div><strong>Inspect onboarding paths</strong><small>New, existing, AI-assisted, and manual options.</small></div><div class="install-code"><code data-command="start">npx @ghostbyte/agent-docs-kit@latest start</code><button class="copy-button light" data-copy-visible aria-label="Copy the visible start command">Copy</button></div></li>
-            <li><div><strong>Preview owned setup files</strong><small>Review every planned path before writing.</small></div><div class="install-code"><code data-command="setup --dry-run">npx @ghostbyte/agent-docs-kit@latest setup --dry-run</code><button class="copy-button light" data-copy-visible aria-label="Copy the visible setup preview command">Copy</button></div></li>
-          </ol></article>
-          <article><header><span>Optional &middot; Writes project files</span><h3>Set up only after review</h3><p>Try this in an empty or disposable repository first. Existing files are skipped unless <code>--force</code> is explicit.</p></header><ol>
-            <li><div><strong>Create the reviewed scaffold</strong><small>This is the first command here that writes target-project files.</small></div><div class="install-code"><code data-command="setup">npx @ghostbyte/agent-docs-kit@latest setup</code><button class="copy-button light" data-copy-visible aria-label="Copy the visible setup command">Copy</button></div></li>
-            <li><div><strong>Check the next action</strong><small><code>next</code> is read-only and evaluates project evidence.</small></div><div class="install-code"><code data-command="next">npx @ghostbyte/agent-docs-kit@latest next</code><button class="copy-button light" data-copy-visible aria-label="Copy the visible next command">Copy</button></div></li>
-          </ol></article>
+        <div class="prompt-next">
+          <header><p class="eyebrow">After you paste the guided prompt</p><h3>The agent asks before it reviews.</h3><p>The Security and Engineering prompts above can be pasted as-is. No placeholder editing is required.</p></header>
+          <ol class="prompt-flow">
+            <li><span>01</span><div><strong>Paste</strong><p>Open the project in your agent and paste the prompt.</p></div></li>
+            <li><span>02</span><div><strong>Choose</strong><p>The agent lists security phases or engineering topics. Select one.</p></div></li>
+            <li><span>03</span><div><strong>Define scope</strong><p>Name the system, feature, change, or release, plus exclusions.</p></div></li>
+            <li><span>04</span><div><strong>Confirm</strong><p>The agent repeats the selector and scope, waits for approval, then starts the worksheet and evidence review.</p></div></li>
+          </ol>
+          <p class="prompt-next-note">Already know the selector? Open a prompt type below and replace its bracketed values before pasting.</p>
         </div>
-        <details class="content-drawer install-drawer" id="install-options">
-          <summary><span>Installation choices</span><strong>Compare npx, project-local, and global use</strong></summary>
-          <div class="install-paths install-options">
-          <article>
-            <header><span>Option A &middot; No install</span><h3>npx</h3><p>Nothing is added to your project or your global npm prefix. <code>npx</code> may download and cache the package.</p></header>
-            <ol>
-              <li><div><strong>Run the published package</strong><small>Pin a version for repeatable team use.</small></div><div class="install-code"><code>npx @ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__ --version</code><button class="copy-button light" data-copy-visible aria-label="Copy the npx version command">Copy</button></div></li>
-            </ol>
-          </article>
-          <article class="recommended">
-            <header><span>Option B &middot; Writes package.json</span><h3>Project-local</h3><p>Adds a dev dependency and updates the lockfile. Recommended for teams.</p></header>
-            <ol>
-              <li><div><strong>Install</strong><small>Pinned to a reviewed version.</small></div><div class="install-code"><code>npm install --save-dev @ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__</code><button class="copy-button light" data-copy-visible aria-label="Copy the project-local install command">Copy</button></div></li>
-              <li><div><strong>Check it</strong><small>Run through npx from the project.</small></div><div class="install-code"><code>npx agent-docs --version</code><button class="copy-button light" data-copy-visible aria-label="Copy the version check command">Copy</button></div></li>
-              <li><div><strong>Remove it</strong><small>Reverses the dependency change.</small></div><div class="install-code"><code>npm uninstall @ghostbyte/agent-docs-kit</code><button class="copy-button light" data-copy-visible aria-label="Copy the uninstall command">Copy</button></div></li>
-            </ol>
-          </article>
-          <article>
-            <header><span>Option C &middot; Global</span><h3>Global</h3><p>Changes your global npm prefix, not the target project. Gives the short <code>agent-docs</code> command.</p></header>
-            <ol>
-              <li><div><strong>Install</strong><small>Check for updates periodically.</small></div><div class="install-code"><code>npm install --global @ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__</code><button class="copy-button light" data-copy-visible aria-label="Copy the global install command">Copy</button></div></li>
-              <li><div><strong>Check it</strong><small>Runs without npx.</small></div><div class="install-code"><code>agent-docs --version</code><button class="copy-button light" data-copy-visible aria-label="Copy the global version command">Copy</button></div></li>
-              <li><div><strong>Remove it</strong><small>Reverses the global install.</small></div><div class="install-code"><code>npm uninstall --global @ghostbyte/agent-docs-kit</code><button class="copy-button light" data-copy-visible aria-label="Copy the global uninstall command">Copy</button></div></li>
-            </ol>
-          </article>
+        <details class="content-drawer prompt-library">
+          <summary><span>Security prompt types</span><strong>Phase audit, change review, or release gate</strong></summary>
+          <div class="prompt-type-grid">
+            <article class="prompt-type"><h3>Audit one phase</h3><p>Use any selector from <code>list security</code>.</p><div class="install-code"><code>Use $manage-project-quality. Perform a passive security audit of [phase] for [scope]. Create or open the matching worksheet, inspect source, configuration, tests, and authorized operational evidence, and complete every applicable control. Keep missing evidence Unverified. Do not run active tests or use credentials without my explicit authorization for the exact target.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
+            <article class="prompt-type"><h3>Review a change</h3><p>Focus the audit on one feature or pull request.</p><div class="install-code"><code>Use $manage-project-quality. Review [change] under security phase [phase] for [scope]. Trace the changed code, trust boundaries, authentication, data exposure, dependencies, and tests. Record only evidence-backed findings in the dated worksheet, keep unknowns Unverified, and do not perform active testing without explicit authorization.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
+            <article class="prompt-type"><h3>Check a release gate</h3><p>Summarize blockers without claiming automatic enforcement.</p><div class="install-code"><code>Use $manage-project-quality. Assess security phase [phase] for release [release] within [scope]. Inspect the recorded evidence, identify Critical or High failures and unresolved items, verify owners and remediation, and recommend a release decision. State clearly that blocking requires the project's release policy. Do not run active tests without explicit authorization.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
           </div>
         </details>
-        <aside class="install-troubleshooting"><div><span>Reproducible team use</span><h3>Pin a reviewed version</h3></div><p>Replace <code>@latest</code> with an approved version such as <code>@ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__</code>. The website examples use <code>@latest</code> for discovery, not reproducible automation.</p></aside>
-      </div>
-    </section>
-
-    <section class="section shell journey-section" id="agentic-coding">
-      <header class="section-heading split-heading"><div><p class="eyebrow">AI-first documentation</p><h2>Repository instructions, not a built-in model.</h2></div><p>The workflow is designed primarily for compatible AI coding agents, while remaining usable manually. Setup creates <code>AGENTS.md</code> only when absent; the package does not bundle an AI model or background process.</p></header>
-      <div class="agent-handoff"><div><span>Agent required for agent-assisted updates</span><h3>Initialize documentation, agent files, and the skill together.</h3></div><div><code data-command="setup --ai">npx @ghostbyte/agent-docs-kit@latest setup --ai</code><p>Creates the documentation scaffold, <code>AGENTS.md</code>, thin <code>CLAUDE.md</code> and <code>GEMINI.md</code> files that import it, and the project skill. Open or restart a compatible agent so it discovers them. Provider support varies; the same impact loop remains available manually.</p></div></div>
-      <details class="content-drawer agent-drawer">
-        <summary><span>Agent integration details</span><strong>Preview, prompts, existing files, and Git reminders</strong></summary>
-        <div class="drawer-body">
-      <p class="agentic-note"><strong>How this helps with AI drift:</strong> Repository instructions, focused references, and dated evidence give each session the same project constraints and history. They reduce avoidable context drift, but they cannot guarantee an agent will follow instructions; review generated work before accepting it.</p>
-      <div class="agentic-prompt"><span>Preview first (writes nothing)</span><code data-command="setup --dry-run --ai">npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai</code></div>
-      <p class="agentic-note"><strong>Existing agent files:</strong> An existing <code>AGENTS.md</code>, <code>CLAUDE.md</code>, or <code>GEMINI.md</code> is never replaced, even with <code>--force</code>. If one lacks the import line, the CLI prints the single <code>@AGENTS.md</code> line to add. The skill is a copy committed to your repository, and <code>next</code> warns when it is older than the installed CLI.</p>
-      <p class="agentic-note"><strong>New versus existing projects:</strong> Choose <code>start new</code> or <code>start existing</code>; the CLI does not guess project maturity or whether an agent is running. Setup creates <code>AGENTS.md</code> when absent, preserves an existing one exactly, and leaves unrelated repository skills untouched.</p>
-      <div class="agentic-prompt"><span>Suggested prompt</span><code>Use $manage-project-quality. Inspect this repository, determine the current Agent Docs stage, and guide me through the next safe step. Do not infer facts without evidence.</code></div>
-      <div class="agentic-prompt"><span>Read-only commit or push reminder</span><code>npx @ghostbyte/agent-docs-kit@latest suggest reviews --staged
-npx @ghostbyte/agent-docs-kit@latest suggest reviews --base origin/main</code></div>
-      <p class="agentic-note"><strong>Git integration:</strong> The suggestion command prints documentation confirmation and path-based review candidates but creates no worksheet. Teams may call it from an explicitly managed hook or CI job. The package never silently installs hooks, changes Git configuration, or blocks a commit or push.</p>
-      <p class="agentic-note"><strong>Private repositories:</strong> Sending code to an AI provider can transfer it under that provider's terms and organization settings. Installing this package is not approval to share private code, credentials, personal data, or vulnerability evidence.</p>
-        </div>
-      </details>
-    </section>
-
-    <section class="section shell trust-section" id="trust">
-      <header class="section-heading"><p class="eyebrow">Trust and limitations</p><h2>Useful automation without hidden authority.</h2></header>
-      <div class="trust-grid">
-        <article><span aria-hidden="true">◇</span><h3>Inert installation</h3><p>No install lifecycle hook changes a repository. Setup, reports, templates, and skill installation require explicit commands.</p></article>
-        <article><span aria-hidden="true">◎</span><h3>Local project files</h3><p>The CLI has no project telemetry service. npm/npx and optional AI providers have their own data flows and policies.</p></article>
-        <article><span aria-hidden="true">⌁</span><h3>Bounded security work</h3><p>Worksheet creation runs no active scan. Testing a service or environment requires explicit authorization for the exact target.</p></article>
-        <article><span aria-hidden="true">↺</span><h3>Evidence-first status</h3><p>Fresh findings start Unverified. Pass, Applied, and other conclusions require evidence, ownership, and a verification step.</p></article>
-      </div>
-    </section>
-
-    <section class="section library-section" id="contents">
-      <span id="resources" class="anchor-target" aria-hidden="true"></span>
-      <div class="shell">
-        <header class="section-heading split-heading"><div><p class="eyebrow">Inside the package</p><h2>A versioned library and durable output formats.</h2></div><p>The same canonical catalog drives the CLI and progressive skill: seven documentation areas, 12 security phases, and 14 engineering topics with stable IDs.</p></header>
-        <details class="content-drawer package-drawer">
-          <summary><span>Package contents</span><strong>CLI, focused content, optional skill, and project-owned output</strong></summary>
-          <div class="package-parts"><article><span>CLI</span><h3>Explicit commands</h3><p>Guided paths, setup preview, change suggestions, structural audit, worksheets, templates, validation, and diagnostics.</p></article><article><span>CONTENT</span><h3>Focused references</h3><p>Load the selected area or topic rather than putting all 33 catalog areas into an agent's context.</p></article><article><span>SKILL</span><h3>Optional agent guidance</h3><p>A repository-scoped router, protocols, evidence rules, report assets, and validator.</p></article><article><span>OUTPUT</span><h3>Project-owned records</h3><p>Documentation, dated audits, review worksheets, decisions, runbooks, incidents, changes, and test evidence.</p></article></div>
+        <details class="content-drawer prompt-library">
+          <summary><span>Engineering prompt types</span><strong>Topic review, diagnosis, or design decision</strong></summary>
+          <div class="prompt-type-grid">
+            <article class="prompt-type"><h3>Review one topic</h3><p>Use any selector from <code>list engineering</code>.</p><div class="install-code"><code>Use $manage-project-quality. Review engineering topic [topic] for [system or change]. Create or open the matching worksheet and inspect representative code, tests, configuration, measurements, and authorized operational evidence. Use only Applied, Partial, Recommended, Unverified, or justified N/A, and separate observed facts from recommendations.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
+            <article class="prompt-type"><h3>Diagnose a problem</h3><p>Connect one symptom to a relevant engineering topic.</p><div class="install-code"><code>Use $manage-project-quality. Diagnose [symptom] through engineering topic [topic] for [scope]. Inspect relevant code, configuration, telemetry, tests, and recent changes. Separate confirmed evidence from hypotheses, identify evidence still needed, and record prioritized recommendations, owners, and verification steps in the dated review.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
+            <article class="prompt-type"><h3>Compare a design decision</h3><p>Evaluate alternatives against actual constraints.</p><div class="install-code"><code>Use $manage-project-quality. Evaluate [option A] versus [option B] using engineering topic [topic] for [system]. Record the constraints, evidence, tradeoffs, failure modes, and operational impact. Recommend an option only when evidence supports it; otherwise keep the decision Unverified and list the measurements or tests required.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div></article>
+          </div>
         </details>
+        <p class="drawer-link"><a href="docs/REVIEW_GUIDE.html">Choose a security phase or engineering topic <span aria-hidden="true">&rarr;</span></a></p>
       </div>
     </section>
 
-    <section class="section command-section" id="commands">
-      <div class="shell command-layout">
-        <div><p class="eyebrow">Command presentation</p><h2>Use npx for discovery or a reviewed installation for repeated use.</h2><p>Selecting a mode updates every marked command and its copy button. For automated team use, pin a package version.</p>
-          <div class="command-mode-card"><strong id="command-mode-title">How are you running it?</strong><div class="command-mode-switch" role="group" aria-labelledby="command-mode-title"><button type="button" data-command-mode="npx" aria-pressed="true"><span>npx</span><small>No global install</small></button><button type="button" data-command-mode="global" aria-pressed="false"><span>Global</span><small>Short command</small></button></div><p class="command-mode-help" data-command-mode-help aria-live="polite"></p></div>
-        </div>
-        <div class="code-window"><div class="code-tabs" role="tablist" aria-label="Command examples"><button id="code-tab-setup" class="is-active" role="tab" aria-selected="true" aria-controls="code-panel-setup" tabindex="0" data-code-tab="setup">Documentation</button><button id="code-tab-security" role="tab" aria-selected="false" aria-controls="code-panel-security" tabindex="-1" data-code-tab="security">Security</button><button id="code-tab-engineering" role="tab" aria-selected="false" aria-controls="code-panel-engineering" tabindex="-1" data-code-tab="engineering">Engineering</button><button id="code-tab-skill" role="tab" aria-selected="false" aria-controls="code-panel-skill" tabindex="-1" data-code-tab="skill">Skill</button></div>
-          <div id="code-panel-setup" class="code-panel" role="tabpanel" aria-labelledby="code-tab-setup" data-code-panel="setup"><pre><code data-command-example="setup">npx @ghostbyte/agent-docs-kit@latest start existing
+    <section class="section shell tutorial-section" id="tutorials">
+      <header class="section-heading"><p class="eyebrow">Step-by-step tutorials</p><h2>Expand only the workflow you need.</h2><p>A worksheet is a review record, not a completed audit. Your agent must inspect evidence and fill it in.</p></header>
 
-npx @ghostbyte/agent-docs-kit@latest setup --dry-run
-npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai
-npx @ghostbyte/agent-docs-kit@latest audit documentation --strict</code></pre><button class="copy-button" data-copy-visible aria-label="Copy all visible documentation commands">Copy visible commands</button></div>
-          <div id="code-panel-security" class="code-panel" role="tabpanel" aria-labelledby="code-tab-security" data-code-panel="security"><pre><code data-command-example="security">npx @ghostbyte/agent-docs-kit@latest list security
-npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer --style learning</code></pre><button class="copy-button" data-copy-visible aria-label="Copy all visible security commands">Copy visible commands</button></div>
-          <div id="code-panel-engineering" class="code-panel" role="tabpanel" aria-labelledby="code-tab-engineering" data-code-panel="engineering"><pre><code data-command-example="engineering">npx @ghostbyte/agent-docs-kit@latest list engineering
-npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types</code></pre><button class="copy-button" data-copy-visible aria-label="Copy all visible engineering commands">Copy visible commands</button></div>
-          <div id="code-panel-skill" class="code-panel" role="tabpanel" aria-labelledby="code-tab-skill" data-code-panel="skill"><pre><code data-command-example="skill">npx @ghostbyte/agent-docs-kit@latest skill install --target project
-
-# Creates:
-# .agents/skills/manage-project-quality
-
-# Per-agent project target, where the tool documents one:
-npx @ghostbyte/agent-docs-kit@latest skill install --target claude
-
-# Creates:
-# .claude/skills/manage-project-quality</code></pre><button class="copy-button" data-copy-visible aria-label="Copy all visible skill commands">Copy visible commands</button></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section shell reference-section" id="command-reference">
-      <header class="section-heading split-heading"><div><p class="eyebrow">CLI reference</p><h2>Know what writes before you run it.</h2></div><p><code>--dry-run</code> previews supported writes. <code>--force</code> can replace only files owned by the selected command; it does not make every repository file writable.</p></header>
-      <details class="content-drawer reference-drawer">
-        <summary><span>Complete command reference</span><strong>Open all commands and their write boundaries</strong></summary>
-        <div class="command-reference" role="list">
-        <article role="listitem"><div class="command-meta"><span class="read-label">Interactive</span><code data-command>npx @ghostbyte/agent-docs-kit@latest</code></div><div><h3>Open the guided menu</h3><p>In a non-interactive shell, prints help instead of waiting for input.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="start [new|existing|agent|manual]">npx @ghostbyte/agent-docs-kit@latest start [new|existing|agent|manual]</code></div><div><h3>Choose an onboarding path</h3><p>Explains ordered steps and safety boundaries without changing project files.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="next">npx @ghostbyte/agent-docs-kit@latest next</code></div><div><h3>Continue from project evidence</h3><p>Evaluates configuration, required documents, prompts, the latest applicable audit result, and worksheets. It never writes files.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code data-command="setup">npx @ghostbyte/agent-docs-kit@latest setup</code></div><div><h3>Create the documentation scaffold and agent policy</h3><p>Use <code>setup --dry-run</code> first. Existing files are skipped unless <code>--force</code> is explicit; an existing root <code>AGENTS.md</code> is always preserved.</p></div></article>
-      <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code data-command="setup --ai">npx @ghostbyte/agent-docs-kit@latest setup --ai</code></div><div><h3>Set up documentation, agent files, and the project skill together</h3><p>Preview with <code>setup --dry-run --ai</code>. Writes only inside the project. Use <code>--agents claude,gemini</code> to create only some pointer files, or <code>--agents auto</code> for the tools this repository already shows signs of using.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="suggest reviews --staged">npx @ghostbyte/agent-docs-kit@latest suggest reviews --staged</code><code data-command="suggest reviews --base origin/main">npx @ghostbyte/agent-docs-kit@latest suggest reviews --base origin/main</code></div><div><h3>Suggest focused reviews from Git changes</h3><p>Prints matched paths, reasons, and optional worksheet commands. It does not create a report, perform an audit, or prove that unmatched changes are safe.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only*</span><code data-command="audit documentation">npx @ghostbyte/agent-docs-kit@latest audit documentation</code></div><div><h3>Run documentation structure checks</h3><p>Checks configured files, placeholders, headings, metadata, and local links. It writes only when <code>--report</code> is supplied.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="list documentation">npx @ghostbyte/agent-docs-kit@latest list documentation</code><code data-command="documentation guide &lt;area&gt;">npx @ghostbyte/agent-docs-kit@latest documentation guide &lt;area&gt;</code></div><div><h3>Browse documentation guidance</h3><p>Lists all seven areas or prints one focused reference.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="review guide">npx @ghostbyte/agent-docs-kit@latest review guide</code><code data-command="review guide --open">npx @ghostbyte/agent-docs-kit@latest review guide --open</code></div><div><h3>Read the security and engineering review guide</h3><p>Prints the packaged guide or opens its canonical web page. Neither form creates a worksheet or performs a review.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code data-command="security worksheet &lt;phase&gt;">npx @ghostbyte/agent-docs-kit@latest security worksheet &lt;phase&gt;</code></div><div><h3>Create a security worksheet</h3><p>Requires initialized documentation, then creates an Unverified scoped record. The v4 <code>audit security</code> form remains an alias.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code data-command="engineering worksheet &lt;topic&gt;">npx @ghostbyte/agent-docs-kit@latest engineering worksheet &lt;topic&gt;</code></div><div><h3>Create an engineering worksheet</h3><p>Requires initialized documentation, then creates an Unverified review record. The v4 <code>review engineering</code> form remains an alias.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read/write</span><code data-command="template list">npx @ghostbyte/agent-docs-kit@latest template list</code><code data-command="template create &lt;type&gt; --name &lt;slug&gt;">npx @ghostbyte/agent-docs-kit@latest template create &lt;type&gt; --name &lt;slug&gt;</code></div><div><h3>List or create durable records</h3><p>Available templates cover ADRs, runbooks, changes, incidents, and test evidence. Creation is collision-safe.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="write-label">Writes</span><code data-command="skill install --target project">npx @ghostbyte/agent-docs-kit@latest skill install --target project</code></div><div><h3>Install the optional repository skill</h3><p>Copies the owned skill into <code>.agents/skills/</code>. Preview with <code>--dry-run</code>.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="validate">npx @ghostbyte/agent-docs-kit@latest validate</code><code data-command="doctor">npx @ghostbyte/agent-docs-kit@latest doctor</code></div><div><h3>Validate content or prerequisites</h3><p>Checks the distributed catalog or reports local Node.js and Git availability.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Opens browser</span><code data-command="website">npx @ghostbyte/agent-docs-kit@latest website</code></div><div><h3>Open the canonical website</h3><p>Opens <code>https://agent-docs-kit.ghostbyte1014.workers.dev/</code> and prints it as a fallback.</p></div></article>
-        <article role="listitem"><div class="command-meta"><span class="read-label">Read-only</span><code data-command="--help">npx @ghostbyte/agent-docs-kit@latest --help</code><code data-command="--version">npx @ghostbyte/agent-docs-kit@latest --version</code></div><div><h3>Inspect commands and version</h3><p>Use these before following guidance written for a different release.</p></div></article>
+      <details class="content-drawer">
+        <summary><span>Documentation</span><strong>Set up the project record</strong></summary>
+        <div class="drawer-body tutorial-body">
+          <ol>
+            <li><strong>Preview.</strong> Run <code>npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai</code> from the project root.</li>
+            <li><strong>Create.</strong> Run the same command without <code>--dry-run</code>. It creates the documentation scaffold, <code>AGENTS.md</code>, agent pointers, and the project skill without replacing existing instruction files.</li>
+            <li><strong>Ask the agent.</strong> Copy the documentation prompt above. The agent should inspect code, configuration, tests, and existing records before replacing starter text.</li>
+            <li><strong>Check.</strong> Run <code>npx @ghostbyte/agent-docs-kit@latest audit documentation --strict</code>. Fix reported missing, stale, or placeholder content.</li>
+            <li><strong>Continue.</strong> Run <code>npx @ghostbyte/agent-docs-kit@latest next</code> after each meaningful update.</li>
+          </ol>
+          <div class="install-code"><code>Use $manage-project-quality. Inspect this repository and complete the documentation baseline from code, configuration, tests, and existing records. Keep unknowns explicit. Run the strict documentation audit when finished.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div>
         </div>
       </details>
-      <div class="reference-links"><a href="docs/REVIEW_GUIDE.html">Review guide</a><a href="docs/TESTING_GUIDE.html">Testing guide</a><a href="docs/PURPOSE.html">Purpose and boundaries</a><a href="docs/ARCHITECTURE.html">Architecture</a><a href="docs/CONTENT_MAINTENANCE.html">Content maintenance</a><a href="docs/SECURITY_POLICY.html">Security policy</a><a href="docs/SECURITY_MODEL.html">Security model</a><a href="docs/RELEASE_HISTORY.html">Release history</a><a href="docs/RELEASE_PROCESS.html">Release process</a><a href="https://www.npmjs.com/package/@ghostbyte/agent-docs-kit" target="_blank" rel="noopener noreferrer">npm package</a></div>
+
+      <details class="content-drawer">
+        <summary><span>Security</span><strong>Audit one bounded phase</strong></summary>
+        <div class="drawer-body tutorial-body">
+          <ol>
+            <li><strong>Initialize first.</strong> Complete documentation setup once. A security worksheet cannot be created before it.</li>
+            <li><strong>Choose a phase.</strong> Run <code>npx @ghostbyte/agent-docs-kit@latest list security</code>, then select the narrowest phase matching the risk.</li>
+            <li><strong>Create the record.</strong> For example, run <code>npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer</code>. Every control starts <code>Unverified</code>.</li>
+            <li><strong>Define boundaries.</strong> In the dated worksheet, record the system, target, exclusions, environment, authorization, safety limits, and stop conditions. Do not run active tests without explicit authorization for that exact target.</li>
+            <li><strong>Collect evidence.</strong> Ask the agent to inspect relevant source, configuration, tests, and authorized operational evidence. Complete each control with <code>Pass</code>, <code>Fail</code>, <code>Unverified</code>, or justified <code>N/A</code>.</li>
+            <li><strong>Validate.</strong> Run <code>npx @ghostbyte/agent-docs-kit@latest report validate &lt;worksheet&gt;</code>. Fix missing findings, evidence fields, or an overall status that conflicts with the rows.</li>
+            <li><strong>Close or hand off.</strong> Run <code>next</code>; preserve the dated worksheet as history.</li>
+          </ol>
+          <div class="install-code"><code>Use $manage-project-quality. Perform a passive security review of [phase] for [scope]. Read the generated worksheet and inspect repository evidence for every applicable control. Keep missing evidence Unverified. Do not run active tests or use credentials without my explicit authorization. Record evidence, findings, remediation, owner, and verification in the dated worksheet.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div>
+        </div>
+      </details>
+
+      <details class="content-drawer">
+        <summary><span>Engineering</span><strong>Review one engineering question</strong></summary>
+        <div class="drawer-body tutorial-body">
+          <ol>
+            <li><strong>Initialize first.</strong> Complete documentation setup once so the review has project context and a durable location.</li>
+            <li><strong>Choose a topic.</strong> Run <code>npx @ghostbyte/agent-docs-kit@latest list engineering</code>, then select the topic matching the decision or problem.</li>
+            <li><strong>Create the record.</strong> For example, run <code>npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types</code>. Every practice starts <code>Unverified</code>.</li>
+            <li><strong>Set the question.</strong> Record the system or change, goal, constraints, exclusions, and evidence available in the dated worksheet.</li>
+            <li><strong>Review evidence.</strong> Ask the agent to inspect representative code, tests, configuration, measurements, and authorized operational records. Use <code>Applied</code>, <code>Partial</code>, <code>Recommended</code>, <code>Unverified</code>, or justified <code>N/A</code>.</li>
+            <li><strong>Validate.</strong> Separate observed facts from recommendations, record impact, owner, and verification, then run <code>npx @ghostbyte/agent-docs-kit@latest report validate &lt;worksheet&gt;</code>.</li>
+            <li><strong>Continue.</strong> Run <code>next</code> and preserve the dated review.</li>
+          </ol>
+          <div class="install-code"><code>Use $manage-project-quality. Review [topic] for [system or change] using the generated worksheet. Inspect representative code, tests, configuration, measurements, and authorized operational evidence. Separate observations from recommendations, keep missing evidence Unverified, and record impact, owner, and verification in the dated review.</code><button class="copy-button light" data-copy-visible>Copy prompt</button></div>
+        </div>
+      </details>
+
+      <p class="drawer-link"><a href="docs/REVIEW_GUIDE.html">See every phase, topic, status, and completed example <span aria-hidden="true">&rarr;</span></a></p>
+    </section>
+
+    <section class="section shell journey-section" id="agents">
+      <header class="section-heading"><p class="eyebrow">Agent files</p><h2>One policy, short pointers.</h2><p><code>AGENTS.md</code> is authoritative. <code>setup --ai</code> can also create <code>CODEX.md</code>, <code>CLAUDE.md</code>, <code>GEMINI.md</code>, <code>CURSOR.md</code>, and <code>COPILOT.md</code> pointers containing <code>@AGENTS.md</code>.</p></header>
+      <div class="agent-handoff"><div><span>Preview all generated files</span><h3>Existing instruction files are preserved.</h3></div><div><code data-command="setup --dry-run --ai">npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai</code><p>Automatic discovery varies by tool and surface. Codex, Cursor, and supported Copilot surfaces can read <code>AGENTS.md</code> directly; named files remain lightweight compatibility pointers, not copied policies.</p></div></div>
+    </section>
+
+    <section class="section shell" id="resources">
+      <header class="section-heading"><p class="eyebrow">Reference</p><h2>Use details only when needed.</h2></header>
+      <div class="reference-links"><a href="docs/REVIEW_GUIDE.html">Review guide</a><a href="docs/TESTING_GUIDE.html">Testing guide</a><a href="docs/PURPOSE.html">Purpose</a><a href="docs/ARCHITECTURE.html">Architecture</a><a href="docs/SECURITY_MODEL.html">Security model</a><a href="https://www.npmjs.com/package/@ghostbyte/agent-docs-kit" target="_blank" rel="noopener noreferrer">npm package</a></div>
     </section>
   </main>
 
-  <footer><div class="shell footer-layout"><div><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">AQ</span><span>Agent Docs &amp; Quality</span></a><p>A lightweight, evidence-first project documentation and quality-review CLI.</p></div><div><p>Explore</p><a href="#quick-start">Get started</a><a href="#example-output">Example output</a><a href="#command-reference">CLI reference</a><a href="docs/REVIEW_GUIDE.html">Review guide</a><a href="docs/TESTING_GUIDE.html">Testing guide</a></div><div><p>Trust</p><a href="privacy.html">Privacy</a><a href="terms.html">Terms of use</a><a href="docs/SECURITY_POLICY.html">Security policy</a><a href="docs/SECURITY_MODEL.html">Security model</a></div></div><div class="shell footer-bottom"><span>Canonical site: Cloudflare Workers</span><span>MIT License</span></div></footer>
+  <footer><div class="shell footer-layout"><div><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">AQ</span><span>Agent Docs &amp; Quality</span></a><p>Project documentation and evidence-based review guidance.</p></div><div><p>Use</p><a href="#workflow">Workflow</a><a href="#prompts">Agent prompts</a><a href="#tutorials">Tutorials</a><a href="#agents">Agent files</a></div><div><p>Trust</p><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="docs/SECURITY_POLICY.html">Security policy</a></div></div><div class="shell footer-bottom"><span>@ghostbyte/agent-docs-kit@__AGENT_DOCS_KIT_VERSION__</span><span>MIT License</span></div></footer>
 </body>
 </html>

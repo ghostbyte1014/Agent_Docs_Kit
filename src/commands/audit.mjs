@@ -16,6 +16,27 @@ export function localDate(value = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
+function splitReferenceRow(line) {
+  return line.trim().replace(/^\||\|$/g, "").split(/(?<!\\)\|/).map((cell) => cell.trim());
+}
+
+function findingRows(source, kind) {
+  const prefix = kind === "security" ? "SEC" : "ENG";
+  const rows = source.split(/\r?\n/)
+    .filter((line) => new RegExp(`^\\|\\s*${prefix}-\\d{2}-\\d{2}\\s*\\|`).test(line))
+    .map(splitReferenceRow);
+  if (!rows.length) throw new Error(`The ${kind} reference contains no stable findings.`);
+  if (kind === "security") return rows.map((cells) => `| ${cells[0]} | ${cells[3]} | Passive first | Unverified | | | | |`).join("\n");
+  return rows.map((cells) => `| ${cells[0]} | Unverified | | | | | |`).join("\n");
+}
+
+function findingIds(source, kind) {
+  const prefix = kind === "security" ? "SEC" : "ENG";
+  return source.split(/\r?\n/)
+    .map((line) => line.match(new RegExp(`^\\|\\s*(${prefix}-\\d{2}-\\d{2})\\s*\\|`))?.[1])
+    .filter(Boolean);
+}
+
 async function reportFor(kind, selector, options = {}) {
   const initialization = await documentationInitializationState(options.cwd);
   if (!initialization.initialized) {
@@ -31,18 +52,20 @@ async function reportFor(kind, selector, options = {}) {
   if (!entry) throw new Error(`Unknown ${kind} selection '${selector ?? ""}'. Run 'agent-docs list ${kind}'.`);
   const { root, config } = initialization;
   const source = await readFile(resolveFromPackage(entry.source), "utf8");
+  const expectedIds = findingIds(source, kind);
+  if (!expectedIds.length) throw new Error(`The ${kind} reference contains no stable findings.`);
   const reference = source.replace(/^#\s+(.+)$/m, "### $1");
   const isSecurity = kind === "security";
   const heading = isSecurity ? "Security worksheet" : "Engineering worksheet";
   const destinationRoot = isSecurity ? config.securityReports : config.engineeringReports;
   const output = resolve(root, destinationRoot, `${localDate()}-${entry.slug}.md`);
   const context = isSecurity
-    ? `## Scope and authorization\n\n- Target: _Describe the code, configuration, or authorized test environment_\n- Authorization: _Required before active testing_\n- Exclusions: _List exclusions_\n- Test safety: _Record rate limits, test data, and stop conditions_`
+    ? `## Scope and authorization\n\n- Target: _Describe the code, configuration, or authorized test environment_\n- Review mode: Passive repository review by default\n- Authorization: _Required before active testing_\n- Exclusions: _List exclusions_\n- Test safety: _Record rate limits, test data, and stop conditions_\n\nKeep **Passive first** when source, configuration, or existing tests are being inspected. Change a row to **Authorized active**, **External**, or **Mixed** only when that evidence mode is explicitly in scope. Missing active or external evidence remains Unverified.`
     : `## Review context\n\n- System or change: _Describe the reviewed scope_\n- Goal: _State the desired engineering outcome_\n- Constraints: _List material technical or delivery constraints_`;
   const columns = isSecurity
-    ? "| Control ID | Priority | Status | Evidence | Remediation | Owner | Verification |\n|---|---|---|---|---|---|---|\n| Add each applicable control | Medium | Unverified | File/line, command output, or approved observation | Required follow-up | Unassigned | Not verified |"
-    : "| Practice ID | Status | Evidence | Impact | Recommendation | Owner | Verification |\n|---|---|---|---|---|---|---|\n| Add each applicable practice | Unverified | File/line, metric, trace, or test output | State the measurable impact | Recommended follow-up | Unassigned | Not verified |";
-  const body = `# ${heading}: ${entry.title}\n\n- Date: ${localDate()}\n- Style: ${options.style ?? config.interactionStyle}\n- Overall status: Unverified\n- Reviewer: _Unassigned_\n\n${context}\n\n## Findings\n\n${columns}\n\n## Reference checklist\n\n${reference.trim()}\n`;
+    ? `| Control ID | Priority | Evidence mode | Status | Evidence | Remediation | Owner | Verification |\n|---|---|---|---|---|---|---|---|\n${findingRows(source, kind)}`
+    : `| Practice ID | Status | Evidence | Impact | Recommendation | Owner | Verification |\n|---|---|---|---|---|---|---|\n${findingRows(source, kind)}`;
+  const body = `# ${heading}: ${entry.title}\n\n- Date: ${localDate()}\n- Style: ${options.style ?? config.interactionStyle}\n- Overall status: Unverified\n- Reviewer: _Unassigned_\n- Expected finding IDs: ${expectedIds.join(", ")}\n\n${context}\n\n## Findings\n\n${columns}\n\n## Reference checklist\n\n${reference.trim()}\n`;
   const result = await writeUnique(output, body, options);
   console.log(`${result.status} ${result.path}`);
   if (options.dryRun) {
@@ -50,9 +73,10 @@ async function reportFor(kind, selector, options = {}) {
   } else {
     console.log("\nNext steps:");
     console.log(`1. Open ${relative(root, result.path)}. Every finding starts as Unverified.`);
-    console.log("2. Collect evidence, then record status, remediation, owner, and verification. Do not treat worksheet creation as a completed review.");
+    console.log("2. Review every preloaded finding. Collect evidence, then record status, remediation or recommendation, owner, and verification.");
     console.log("3. For AI assistance, install the project skill and ask $manage-project-quality to review only this scope.");
-    console.log(`4. Continue: npx @ghostbyte/agent-docs-kit@latest next --cwd "${root}"`);
+    console.log(`4. Validate: npx @ghostbyte/agent-docs-kit@latest report validate "${relative(root, result.path)}" --cwd "${root}"`);
+    console.log(`5. Continue: npx @ghostbyte/agent-docs-kit@latest next --cwd "${root}"`);
   }
   return result;
 }

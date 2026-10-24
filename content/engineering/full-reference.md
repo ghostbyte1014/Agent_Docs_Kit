@@ -20,5 +20,9 @@ Use `Applied`, `Partial`, `Recommended`, `Unverified`, or `N/A`. For each recomm
 12. Observability and telemetry
 13. Deployment and change safety
 14. Capacity, concurrency, and resource management
+15. Architecture and maintainability
+16. Developer experience and reproducible builds
+17. Frontend quality and accessibility
+18. Agent workflow quality
 
 Run `agent-docs list engineering`, then create only the needed worksheet with `agent-docs engineering worksheet <topic>`.

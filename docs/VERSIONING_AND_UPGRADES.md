@@ -41,6 +41,8 @@ The supported CLI surface is the set of commands and options printed by `agent-d
 
 The version 4 aliases `audit security <phase>` and `review engineering <topic>` remain supported and documented as aliases of `security worksheet <phase>` and `engineering worksheet <topic>`.
 
+For compatibility with older scripted invocations, `security worksheet --phase <selector>` and `engineering worksheet --topic <selector>` are supported aliases for the positional selector forms. Supplying both a positional selector and its flag is rejected as ambiguous.
+
 ## Exit codes
 
 | Exit | When |
@@ -50,6 +52,7 @@ The version 4 aliases `audit security <phase>` and `review engineering <topic>` 
 | `1` | A worksheet command run before `setup` has initialized documentation. |
 | `1` | A configuration path that escapes the project, an invalid configuration value, or an unreadable configuration file. |
 | `1` | `audit documentation --strict` when any check fails. |
+| `1` | `report validate <worksheet>` when the worksheet is structurally incomplete or inconsistent. |
 | `1` | `doctor` when a prerequisite check fails. |
 | `1` | `setup --ai` when the documentation was written but a later step failed. The message names the failed step, and rerunning the command is safe. |
 
@@ -58,6 +61,10 @@ The version 4 aliases `audit security <phase>` and `review engineering <topic>` 
 ## Report formats
 
 `audit documentation --report` writes text, Markdown, or JSON, selected with `--format`.
+
+`report validate <worksheet>` is read-only. Security worksheets require control ID, priority, evidence mode, status, evidence, remediation, owner, and verification columns. Engineering worksheets require practice ID, status, evidence, impact, recommendation, owner, and verification columns. New worksheets record an `Expected finding IDs` metadata field containing the selected reference's stable IDs. Validation compares that stored set with both the findings table and embedded Reference checklist, which detects accidental or partial removal while the metadata remains unchanged. It does not consult the canonical catalog, so it cannot detect a deliberate edit that changes the metadata, findings table, and Reference checklist consistently.
+
+Worksheets created before this metadata field was introduced remain readable. Validation falls back to IDs in their embedded Reference checklist and emits a warning that completeness cannot be fully verified because the fallback checklist is editable. Recreate the worksheet from the same selector when full canonical completeness verification is required.
 
 The JSON report is the stable machine-readable form:
 
@@ -99,7 +106,7 @@ Separately, `--agents`, `--timezone`, and `--attribution` update their own keys 
 These files are **never** replaced, including with `--force`:
 
 - `AGENTS.md`
-- `CLAUDE.md`, `GEMINI.md`, and any other agent pointer file
+- `CODEX.md`, `CLAUDE.md`, `GEMINI.md`, `CURSOR.md`, `COPILOT.md`, and any later agent pointer file
 - every file the commands did not generate, including unrelated skills under `.agents/skills/`
 
 `setup`, `setup --ai`, and every project-level `skill install` target write only inside the target project. `skill install --target codex` is the one command that writes to the user's home directory, and it must be requested explicitly.
@@ -127,6 +134,8 @@ Deleting the marker from an owned starter document without replacing its text do
 The supported API is the `exports` entry, `src/api/index.mjs`. Anything not re-exported from that module is internal, including every path under `src/core/` and `src/commands/` imported directly.
 
 `setupProject()` returns an array of write results. Named properties are attached to that array (`pointers`, `skillInstalls`, `failures`, `profile`); the array form is preserved for existing callers.
+
+`validateWorksheetFile(path, options)` returns the resolved worksheet path, detected kind, overall status, finding statuses, validation errors, and a `pass` boolean. It does not modify the worksheet.
 
 ## Installed skill version
 

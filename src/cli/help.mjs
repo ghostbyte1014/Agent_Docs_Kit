@@ -22,7 +22,7 @@ Commands:
   start [new|existing|agent|manual]  Show a complete onboarding path
   next                               Detect project state and show the next step
   setup [--dry-run] [--ai]           Create the workspace and protected agent policy
-  setup --agents <list>              Add CLAUDE.md / GEMINI.md pointers to AGENTS.md
+  setup --agents <list>              Add coding-agent pointers to AGENTS.md
   suggest reviews [--staged|--base <ref>]
                                      Suggest focused reviews from changed Git paths
   audit documentation [--strict]     Check documentation health
@@ -30,9 +30,10 @@ Commands:
   review guide [--open]              Print or open the security/engineering guide
   security worksheet <phase>         Create a scoped security worksheet
   engineering worksheet <topic>      Create a scoped engineering worksheet
+  report validate <worksheet>         Validate findings and overall status
   audit security <phase>              Legacy alias for security worksheet
   review engineering <topic>          Legacy alias for engineering worksheet
-  list [documentation|security|engineering]
+  list <documentation|security|engineering>
                                      List available areas, phases, or topics
   template list                      List reusable documentation templates
   template create <type> [--name <slug>]
@@ -50,7 +51,7 @@ Examples:
   npx @ghostbyte/agent-docs-kit@latest setup --dry-run
   npx @ghostbyte/agent-docs-kit@latest setup --dry-run --ai
   npx @ghostbyte/agent-docs-kit@latest setup --ai
-  npx @ghostbyte/agent-docs-kit@latest setup --agents claude,gemini
+  npx @ghostbyte/agent-docs-kit@latest setup --agents codex,claude,gemini,cursor,copilot
   ${npxCommand} suggest reviews --staged
   ${npxCommand} suggest reviews --base origin/main
   npx @ghostbyte/agent-docs-kit@latest audit documentation --strict --format text
@@ -59,6 +60,7 @@ Examples:
   npx @ghostbyte/agent-docs-kit@latest review guide --open
   npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer
   npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types
+  npx @ghostbyte/agent-docs-kit@latest report validate docs/04-testing/security-audits/2026-10-22-api-layer.md
   npx @ghostbyte/agent-docs-kit@latest template create adr --name cache-policy
   npx @ghostbyte/agent-docs-kit@latest skill install --target project
   npx @ghostbyte/agent-docs-kit@latest website
@@ -71,10 +73,12 @@ Check or update a global installation:
 Options:
   --cwd <path>                Target project (default: current directory)
   --ai                        Set up docs, agent files, and the project skill together
-  --agents <list>             claude, gemini, all, auto, or none (setup only)
+  --agents <list>             codex, claude, gemini, cursor, copilot, all, auto, or none
   --timezone <zone>           UTC (default), local, or an IANA zone for change records
   --attribution <text>        Opt in to a "Created by" line in the generated AGENTS.md
   --style standard|learning   Select concise or teaching-oriented output
+  --phase <selector>          Compatibility alias for a security phase positional
+  --topic <selector>          Compatibility alias for an engineering topic positional
   --format text|markdown|json Select documentation-audit output
   --name <slug>               Give a template a lowercase hyphenated name
   --dry-run                   Preview writes without changing files
@@ -90,8 +94,8 @@ Recommended first run:
   npx @ghostbyte/agent-docs-kit@latest start
 
 AGENTS.md is the single canonical policy. Pointer files import it with one '@AGENTS.md'
-line, so the policy is never copied between tools. An existing AGENTS.md, CLAUDE.md, or
-GEMINI.md is never overwritten, including with --force.
+  line, so the policy is never copied between tools. Existing instruction and pointer files
+  are never overwritten, including with --force.
 
 Installing the npm package performs no project setup. Run 'start' for a guided path
 or 'next' to continue an initialized project.`;

@@ -1,6 +1,7 @@
 import { parseAgentSelection } from "../core/agents.mjs";
 import { assertTimezone } from "../core/timezone.mjs";
 import { skillTargets } from "../commands/skill.mjs";
+import { assertAttribution } from "../core/config.mjs";
 
 const booleanFlags = new Set(["dry-run", "force", "report", "strict", "staged", "ai", "open", "help", "version"]);
 const valueFlags = new Set(["cwd", "style", "target", "phase", "topic", "format", "type", "name", "base", "agents", "timezone", "attribution"]);
@@ -44,6 +45,7 @@ export function optionsFromFlags(flags) {
   }
   if (flags.agents !== undefined) parseAgentSelection(flags.agents);
   if (flags.timezone !== undefined) assertTimezone(flags.timezone, "--timezone");
+  if (flags.attribution !== undefined) assertAttribution(flags.attribution, "--attribution");
   if (flags.name && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(flags.name)) {
     throw new Error(`Invalid name '${flags.name}'. Use a lowercase hyphenated slug.`);
   }

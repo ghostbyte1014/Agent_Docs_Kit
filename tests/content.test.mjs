@@ -8,8 +8,8 @@ import { reviewGuideErrors } from "../scripts/review-guide-validation.mjs";
 test("catalog exposes all migrated review areas", async () => {
   const catalog = await loadCatalog();
   assert.equal(catalog.documentation.length, 7);
-  assert.equal(catalog.security.length, 12);
-  assert.equal(catalog.engineering.length, 14);
+  assert.equal(catalog.security.length, 13);
+  assert.equal(catalog.engineering.length, 18);
   for (const entry of [...catalog.documentation, ...catalog.security, ...catalog.engineering]) {
     await access(resolveFromPackage(entry.source));
     const value = await readFile(resolveFromPackage(entry.source), "utf8");

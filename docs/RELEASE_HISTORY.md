@@ -2,9 +2,9 @@
 
 This ledger separates npm publication evidence, Git tags, and changelog-only versions. Those records are related, but they are not interchangeable: a Git tag does not prove that npm received a package, and an npm version does not prove that this checkout retains its original tag.
 
-The observations below were verified on 2026-10-19 from the public npm version list, this repository's local Git tags, and `CHANGELOG.md`. Do not manufacture a missing tag merely to make the columns match. A historical tag may be created or repaired only after the exact original release commit is established from trustworthy evidence.
+The observations below were verified on 2026-10-22 from the public npm version list, this repository's local Git tags, and `CHANGELOG.md`. Do not manufacture a missing tag merely to make the columns match. A historical tag may be created or repaired only after the exact original release commit is established from trustworthy evidence.
 
-## Previous versions
+## Recorded versions
 
 | Version | npm registry | Git tag in this repository | Repository record | Status |
 |---|---|---|---|---|
@@ -20,8 +20,9 @@ The observations below were verified on 2026-10-19 from the public npm version l
 | `6.1.0` | Published | `v6.1.0` | Registry and Git tag | Retired |
 | `6.2.0` | Not published | None | Changelog-only version | Retired |
 | `6.2.1` | Published | `v6.2.1` | Registry and Git tag | Retired |
+| `1.3.7` | Published (`latest` verified 2026-10-22) | `v1.3.7` | Registry and Git tag | Current latest |
 
-The maintained reset line begins at `1.3.7`. It is intentionally absent from the previous-version table because this source tree is preparing that release; registry publication remains an external fact that must be verified after an authorized release.
+The maintained reset line begins at `1.3.7`. This source tree prepares `1.3.8`; that candidate is not recorded as published or tagged until the corresponding external evidence exists.
 
 ## Reserved-version policy
 

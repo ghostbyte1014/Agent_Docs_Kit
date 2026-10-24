@@ -11,3 +11,5 @@ Use this area to connect quality claims to reproducible test plans, results, lim
 | DOC-04-05 | Known limitations | Prevents incomplete coverage from appearing complete. | Are unavailable environments, skipped checks, and confidence limits explicit? |
 | DOC-04-06 | Defect traceability | Connects failures to remediation and retesting. | Can every material failure be traced to an owner and verification result? |
 | DOC-04-07 | Retention policy | Preserves useful evidence without retaining sensitive data indefinitely. | Are evidence location, access, redaction, and retention expectations defined? |
+| DOC-04-08 | Agent behavior scenarios | Tests instructions as behavior rather than assuming Markdown is enforced. | Do retained scenarios cover instruction discovery, evidence limits, approvals, and continuation for supported agents? |
+| DOC-04-09 | Public-claim verification | Catches drift between documentation, websites, and implementation. | Do contract tests connect important public claims to the source behavior that makes them true? |

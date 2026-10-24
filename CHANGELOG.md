@@ -2,6 +2,44 @@
 
 Notable user-visible changes are recorded here. Versions follow semantic versioning.
 
+## 1.3.8 - 2026-10-22
+
+### Added
+
+- `setup --agents` and `setup --ai` can create protected `CODEX.md`, `CURSOR.md`, and `COPILOT.md` compatibility pointers alongside `CLAUDE.md` and `GEMINI.md`. Every pointer imports the single canonical `AGENTS.md` policy.
+- Security and engineering worksheets now preload every stable control or practice in the selected scope.
+- A new read-only `report validate <worksheet>` command checks worksheet fields, evidence modes, IDs, statuses, and overall result before `next` treats the review record as complete.
+- The catalog adds security phase 13 for agentic AI and tooling, plus engineering topics 15 through 18 for architecture and maintainability, developer experience and reproducible builds, frontend quality and accessibility, and agent workflow quality. Documentation controls now cover public claims, compatibility, agent policy, AI data boundaries, agent scenarios, hosted-control evidence, and support lifecycle.
+
+### Fixed
+
+- Generated worksheets persist their expected stable IDs in metadata. `report validate` and `next` compare that stored set with both editable worksheet sections to detect accidental or partial removal while the metadata remains unchanged. They do not consult the canonical catalog, so they cannot detect a deliberate edit that changes the metadata, findings table, and Reference checklist consistently. Legacy worksheets retain checklist-based validation with an explicit completeness warning.
+- Documentation review suggestions are labeled `Available now` before project setup; only security and engineering worksheet suggestions retain the setup prerequisite.
+- CLI help now shows the required `list <documentation|security|engineering>` argument instead of implying bare `list` is valid.
+- Removed obsolete landing-page CSS for deleted workflow tabs, panels, command-mode controls, and code-window components while retaining shared copy-button styles.
+
+### Changed
+
+- The website is now a shorter agentic workflow: preview, setup, copy one focused AI prompt, verify, and continue. Long installation comparisons, package internals, and duplicate command explanations were removed from the landing page. Collapsed step-by-step tutorials explain documentation setup and the full evidence-based security and engineering review loops without lengthening the default reading path.
+- Website prompt language now tells users to copy a prompt to their agent. Expandable prompt libraries cover security phase audits, change reviews, release gates, engineering topic reviews, problem diagnosis, and design decisions for any listed selector.
+- The review guide now includes a parallel security and engineering table showing how to list, preview, activate, hand off, and continue any selector.
+- Terminal instructions beneath the selector table show PowerShell, Command Prompt, and macOS/Linux users how to enter the project root, preview a selector, execute it, and recognize the planned and created responses.
+- The primary security and engineering prompts are now guided: after pasting, the agent lists available phases or topics, asks for scope and exclusions, repeats the selection, and waits for confirmation before creating a worksheet or reviewing evidence. A four-step visual explains this handoff on the website.
+- Security reviews now distinguish passive, authorized-active, external, and mixed evidence. Worksheet completion rejects missing evidence fields, duplicate or omitted stable IDs, and an overall status that contradicts its findings.
+- `--attribution` rejects multiline and control-character input so generated `AGENTS.md` content cannot be structurally injected through configuration.
+- Generated agent policies classify tests, type checks, builds, and documentation audits as validation commands rather than inherently read-only operations. Agents must inspect side effects and rely on a repository's local, non-destructive declaration before running them without additional approval.
+- Worksheet validation documentation now states that ownership and verification apply to evidence-supported or actionable outcomes, while `N/A` requires an evidence rationale.
+- `--phase` and `--topic` are documented compatibility aliases for positional security and engineering selectors; supplying both forms remains an error.
+
+### Documentation
+
+- The architecture, security model, review guide, testing guide, upgrade contract, README, and distributed skill document expected-ID metadata and the legacy worksheet fallback.
+
+### Tests
+
+- Added regression coverage for deleting an ID from both worksheet sections, legacy completeness warnings in `report validate` and `next`, generated validation-command policy language, pre-setup documentation suggestions, required list syntax, and positional/flag selector parity.
+- Added dependency-free behavioral tests for successful clipboard copying, rejected-clipboard text selection, accessible feedback, and timed label restoration on the website.
+
 ## 1.3.7 - 2026-10-18
 
 Intentional version-line reset and usability polish, including a read-only review-guide command. No change to generated scaffold content.

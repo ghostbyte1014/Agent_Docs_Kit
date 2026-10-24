@@ -6,7 +6,7 @@ Published npm versions are immutable. A matching version-tag push can publish a 
 
 The maintained line restarts at `1.3.7` after the earlier `4.0.0` through `6.2.1` releases advanced before the public contract stabilized. npm accepts a previously unused lower version, but SemVer clients treat it as older than 6.x. Existing 6.x users must opt into `1.3.7` explicitly; they will not receive it through a normal upgrade range.
 
-The stable publish workflow maps a plain version to `latest`. Therefore, publishing `1.3.7` through the current tag workflow intentionally moves `latest` from the 6.x line to the reset line. Confirm that decision immediately before tagging, and verify the exact registry dist-tags afterward. Do not represent the reset as an automatic upgrade for existing 6.x consumers.
+The stable publish workflow maps a plain version to `latest`. Version `1.3.7` is published under that tag; the `1.3.8` candidate will replace it only after the reviewed release commit is on `main` and the matching tag is pushed. Do not represent the reset as an automatic upgrade for existing 6.x consumers.
 
 1. Update canonical content and run `npm run build` to refresh progressive skill references and the site.
 2. Set the intended release version on the release branch with `npm version <version> --no-git-tag-version`. This updates `package.json` and `package-lock.json` without creating a premature commit or tag.
@@ -19,20 +19,20 @@ The stable publish workflow maps a plain version to `latest`. Therefore, publish
 9. After npm marks the version Published and moves `latest`, verify `npx --yes @ghostbyte/agent-docs-kit@<version> --help` from a clean directory outside this package's source repository.
 
 ```bash
-git switch -c release/v1.3.7
-npm version 1.3.7 --no-git-tag-version
+git switch -c release/v1.3.8
+npm version 1.3.8 --no-git-tag-version
 node scripts/sync-version.mjs          # rewrites every pinned version from package.json
 npm ci
 npm run release:check
 git add -A
-git commit -m "release: prepare v1.3.7"
-git push -u origin release/v1.3.7
+git commit -m "release: prepare v1.3.8"
+git push -u origin release/v1.3.8
 
 # After the pull request is approved, CI passes, and the merge commit is on main:
 git switch main
 git pull --ff-only
-git tag v1.3.7
-git push origin v1.3.7
+git tag v1.3.8
+git push origin v1.3.8
 ```
 
 On Windows PowerShell, call `npm.cmd` and `npx.cmd` if the execution policy blocks `npm.ps1`.
@@ -86,7 +86,7 @@ npm install --save-dev @ghostbyte/agent-docs-kit@beta
 3. Promote after the agent-behavior checks and the post-publish smoke test pass:
 
 ```bash
-npm dist-tag add @ghostbyte/agent-docs-kit@1.3.7 latest
+npm dist-tag add @ghostbyte/agent-docs-kit@1.3.8 latest
 npm dist-tag ls @ghostbyte/agent-docs-kit
 ```
 
@@ -125,7 +125,7 @@ Published versions cannot be overwritten or re-uploaded.
 1. Deprecate the bad version with a reason users will see on install:
 
 ```bash
-npm deprecate @ghostbyte/agent-docs-kit@1.3.7 "Superseded: <reason>. Install @latest."
+npm deprecate @ghostbyte/agent-docs-kit@1.3.8 "Superseded: <reason>. Install @latest."
 ```
 
 2. If the bad version holds `latest`, move the tag back to the last good version immediately. This is the primary safety net for a release published directly to `latest`:

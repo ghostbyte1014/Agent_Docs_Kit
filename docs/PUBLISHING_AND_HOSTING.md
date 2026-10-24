@@ -133,10 +133,10 @@ Configure the Git host's repository rules so tags matching `v*` cannot be delete
 After that, commit the versioned changes on a release branch and merge them only after CI passes. Push the matching version tag from the verified commit on `main`. The tag workflow verifies that the tag and `package.json` agree, runs the full release gate, publishes through npm trusted publishing, and creates the matching GitHub Release. A normal push to `main` updates source and Pages but does not publish npm. No long-lived `NPM_TOKEN` is required.
 
 ```bash
-npm version 1.3.7 --no-git-tag-version
+npm version 1.3.8 --no-git-tag-version
 git add package.json package-lock.json CHANGELOG.md
-git commit -m "release: prepare v1.3.7"
-git push -u origin release/v1.3.7
+git commit -m "release: prepare v1.3.8"
+git push -u origin release/v1.3.8
 ```
 
 Use `npm version minor` for a backward-compatible feature and `npm version major` for a breaking change. Never reuse an existing npm version: registry versions are immutable. [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md) records the dist-tag, provenance, post-publish, and bad-release procedures.
