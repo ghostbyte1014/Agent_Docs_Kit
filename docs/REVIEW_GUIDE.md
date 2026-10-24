@@ -2,7 +2,7 @@
 
 This guide explains what each security phase and engineering topic is intended to check, how to choose a scope, and what a completed finding looks like. The examples are fictional and sanitized. They illustrate the record format; they are not audit results for this repository or any other system.
 
-The CLI creates a worksheet and includes the selected reference checklist. It does not inspect the project, run a scanner, authorize active testing, or assign a passing status. A reviewer must collect evidence and complete the record.
+The CLI creates a worksheet with every control or practice preloaded as `Unverified` and includes the selected reference checklist. It does not inspect the project, run a scanner, authorize active testing, or assign a passing status. A reviewer must collect evidence and complete the record.
 
 ## Choose one focused review
 
@@ -22,6 +22,44 @@ npx @ghostbyte/agent-docs-kit@latest engineering worksheet testing-types
 
 Security and engineering worksheets require an initialized documentation workspace. Every new finding begins `Unverified`; creating the file is not the review.
 
+If the phase, topic, or scope is not known yet, use the guided prompt on the website without editing it. The agent should list the available phases or topics, ask for the exact scope and exclusions, repeat the selection, and wait for confirmation before creating a worksheet. The bracketed prompt templates are for developers who already know their selector and scope.
+
+## How to activate a selector
+
+Activating a selector means choosing its checklist and creating a dated worksheet. It does not start an agent, inspect the project, or complete the review.
+
+| Step | Security selector | Engineering selector | Result |
+|---|---|---|---|
+| 1. Initialize once | `npx @ghostbyte/agent-docs-kit@latest setup --ai` | Same command | Creates the documentation workspace, agent instructions, and project skill. No review runs. |
+| 2. Find a selector | `npx @ghostbyte/agent-docs-kit@latest list security` | `npx @ghostbyte/agent-docs-kit@latest list engineering` | Prints the accepted selector names. |
+| 3. Preview the worksheet | `npx @ghostbyte/agent-docs-kit@latest security worksheet <selector> --dry-run` | `npx @ghostbyte/agent-docs-kit@latest engineering worksheet <selector> --dry-run` | Shows the planned dated path without writing it. |
+| 4. Activate the selector | `npx @ghostbyte/agent-docs-kit@latest security worksheet <selector>` | `npx @ghostbyte/agent-docs-kit@latest engineering worksheet <selector>` | Creates the selected worksheet with every finding set to `Unverified`. |
+| 5. Ask your agent | `Review security phase <selector> for <scope> using the generated worksheet.` | `Review engineering topic <selector> for <scope> using the generated worksheet.` | The agent inspects available evidence and completes only supported findings. Active security testing still requires explicit authorization. |
+| 6. Validate the record | `npx @ghostbyte/agent-docs-kit@latest report validate <worksheet>` | Same command | Compares stored expected-ID metadata with both worksheet sections to detect accidental or partial removal, then checks evidence fields, statuses, and the overall result. It does not consult the canonical catalog, so a deliberate, consistent edit to the metadata and both sections is not detected. Legacy worksheets use their editable checklist and display a completeness warning. |
+| 7. Continue | `npx @ghostbyte/agent-docs-kit@latest next` | Same command | Reports the next repository-backed action and any open worksheet. |
+
+For example, replace `<selector>` with `api-layer` for security or `testing-types` for engineering. Replace `<scope>` with the exact system, feature, change, or release being reviewed.
+
+### Run the command from a terminal
+
+Open a terminal in the project root—the directory containing the project's source and usually `package.json` or `.git`. Use the command form for your terminal:
+
+| Terminal | Go to the project root | Preview a security selector |
+|---|---|---|
+| Windows PowerShell | `Set-Location "C:\path\to\project"` | `npx.cmd @ghostbyte/agent-docs-kit@latest security worksheet api-layer --dry-run` |
+| Windows Command Prompt | `cd /d "C:\path\to\project"` | `npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer --dry-run` |
+| macOS or Linux | `cd "/path/to/project"` | `npx @ghostbyte/agent-docs-kit@latest security worksheet api-layer --dry-run` |
+
+Then execute the selector in this order:
+
+1. Replace the example path with the real project path. Do not type `C:\path\to\project` literally.
+2. Replace `api-layer` with the selected security phase. For engineering, replace `security worksheet api-layer` with, for example, `engineering worksheet testing-types`.
+3. Paste the preview command into the terminal and press **Enter**. The response should say `planned` and `Preview only`; no worksheet is written.
+4. Check the planned path and selector. If they are correct, remove `--dry-run`, run the command again, and press **Enter**.
+5. The response should say `created` and print the dated worksheet path. Open that file, then give the matching prompt to your agent so it can collect evidence and complete the review.
+
+If PowerShell blocks the `npx` script because of its execution policy, use `npx.cmd` as shown above. The `npx` form runs the published package without requiring a global installation.
+
 ## Security phases
 
 A security phase asks whether defined controls are supported by evidence for a bounded target. Before any active test, record the exact authorized target, exclusions, safety limits, and stop conditions. Source and configuration review inside the provided repository is passive; crafted traffic, credentials, live services, cloud resources, and potentially disruptive tests require explicit authorization.
@@ -40,6 +78,7 @@ A security phase asks whether defined controls are supported by evidence for a b
 | 10 Release & Rollout | `release-rollout` | Staged exposure, approval criteria, rollback readiness, migration safety, and limits on release blast radius. | Rollout plan, feature-flag configuration, health thresholds, rollback rehearsal, and release logs. |
 | 11 Post-release Monitoring & Incident Response | `post-release-monitoring-ir` | Security logging, alert coverage, ownership, escalation, evidence preservation, and incident readiness after release. | Alert rules, dashboards, on-call records, runbooks, exercises, and incident evidence. |
 | 12 Ongoing Operations | `ongoing-operations` | Controls that decay over time, including access reviews, backups, vendor risk, client support, patching, and compliance obligations. | Dated access reviews, restore tests, inventories, vendor records, patch reports, and exception registers. |
+| 13 Agentic AI & Tooling | `agentic-ai-tooling` | Prompt injection, excessive agency, sensitive context, tool and MCP supply chains, output validation, instruction ownership, isolation, and human control. | Agent instructions, permission settings, tool manifests, scenario tests, sanitized activity evidence, and provider policy records. |
 
 Use `Pass`, `Fail`, `Unverified`, or `N/A` for each applicable control. `N/A` needs a specific rationale. A missing observable is `Unverified`, not `Pass` or `N/A`. The phase checklist defines its sign-off criteria; Critical and High items generally must pass or have an approved, time-bounded exception. Actual release blocking still depends on the project's explicit release policy and enforcement.
 
@@ -47,12 +86,12 @@ Use `Pass`, `Fail`, `Unverified`, or `N/A` for each applicable control. `N/A` ne
 
 Scope: the fictional Sample Shop order API in a test repository. No live target or active network testing is implied.
 
-| Control ID | Priority | Status | Evidence | Remediation | Owner | Verification |
-|---|---|---|---|---|---|---|
-| SEC-04-05 | High | Pass | `src/validation/order-schema.ts:42` rejects wrong-type, oversized, and negative values; `tests/api/orders.test.ts:88` covers each boundary. | None for this control. | API team | Re-run the focused order-validation test in CI and retain the passing job link. |
-| SEC-04-01 | High | Fail | The test-environment login route accepted the fictional test plan's full request burst without returning a limiting response. | Add an account- and source-aware limiter, then document safe thresholds. | Identity team | Repeat the authorized test below the recorded safety ceiling and retain the response summary. |
-| SEC-04-07 | Medium | N/A | Not applicable: the reviewed Sample Shop scope has no endpoint designed to use client-certificate authentication. | None while that boundary remains unchanged. | API team | Reassess if an mTLS endpoint is introduced. |
-| SEC-04-10 | Medium | Unverified | Response-header evidence was unavailable in the retained test record. | Collect authorized header output before assigning a result. | Unassigned | Not verified. |
+| Control ID | Priority | Evidence mode | Status | Evidence | Remediation | Owner | Verification |
+|---|---|---|---|---|---|---|---|
+| SEC-04-05 | High | Passive | Pass | `src/validation/order-schema.ts:42` rejects wrong-type, oversized, and negative values; `tests/api/orders.test.ts:88` covers each boundary. | None for this control. | API team | Re-run the focused order-validation test in CI and retain the passing job link. |
+| SEC-04-01 | High | Authorized active | Fail | The test-environment login route accepted the fictional test plan's full request burst without returning a limiting response. | Add an account- and source-aware limiter, then document safe thresholds. | Identity team | Repeat the authorized test below the recorded safety ceiling and retain the response summary. |
+| SEC-04-07 | Medium | Passive | N/A | Not applicable: the reviewed Sample Shop scope has no endpoint designed to use client-certificate authentication. | None while that boundary remains unchanged. | API team | Reassess if an mTLS endpoint is introduced. |
+| SEC-04-10 | Medium | External | Unverified | Response-header evidence was unavailable in the retained test record. | Collect authorized header output before assigning a result. | Unassigned | Not verified. |
 
 Why the rows are reviewable: each identifies the exact control and avoids turning missing evidence into a pass. `Fail` carries remediation, ownership, and a safe verification action; `N/A` records why the control does not apply; and `Unverified` remains open until evidence exists.
 
@@ -76,6 +115,10 @@ An engineering review asks how well a practice fits the system's actual constrai
 | 12 Observability & Telemetry | `observability-telemetry` | Structured logs, useful metrics, traces, label cardinality, sensitive-data controls, actionable alerts, retention, and instrumentation tests. | Telemetry schemas, dashboards, alert rules, sampling and retention settings, and validation tests. |
 | 13 Deployment & Change Safety | `deployment-change-safety` | Reversible changes, progressive delivery, automated verification, compatible migrations, rollback thresholds, artifact promotion, and post-deploy observation. | Pipeline configuration, rollout plan, artifact metadata, migration tests, health gates, and deployment records. |
 | 14 Capacity, Concurrency & Resource Management | `capacity-concurrency` | Capacity assumptions, bounded concurrency, backpressure, timeouts, contention, autoscaling, cleanup, and graceful degradation. | Load and contention tests, limits, pool configuration, scaling metrics, resource profiles, and overload plans. |
+| 15 Architecture & Maintainability | `architecture-maintainability` | Module responsibilities, dependency direction, intentional contracts, change coupling, complexity, failure boundaries, and architecture checks. | Representative source, dependency maps, change history, focused tests, and architecture records. |
+| 16 Developer Experience & Reproducible Builds | `developer-experience-builds` | Prerequisites, clean setup, deterministic installs, local/CI parity, generated files, actionable failures, and supported environments. | Setup guidance, manifests, lockfiles, CI workflows, clean-build results, and support matrices. |
+| 17 Frontend Quality & Accessibility | `frontend-accessibility` | Semantic structure, keyboard use, status announcements, contrast, responsive behavior, reduced motion, and browser testing. | Browser tests, accessibility scans, manual keyboard results, screenshots, and supported-browser evidence. |
+| 18 Agent Workflow Quality | `agent-workflow-quality` | Instruction discovery, one authoritative policy, bounded prompts, evidence limits, approvals, cross-agent consistency, and evaluation records. | Agent scenarios, instruction files, tool configuration, observed results, and retained limitations. |
 
 Use `Applied`, `Partial`, `Recommended`, `Unverified`, or `N/A`. `Applied` means evidence supports the practice in the reviewed scope. `Partial` records a material gap in something already present. `Recommended` proposes a contextual improvement that is not yet implemented. `N/A` requires a rationale, and unavailable evidence remains `Unverified`.
 

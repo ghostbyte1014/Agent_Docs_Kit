@@ -20,6 +20,8 @@ import { nextWorkflow, npxCommand, startWorkflow } from "../src/commands/workflo
 import { renderMarkdown } from "../scripts/markdown.mjs";
 import { suggestReviews, traceChangedFiles } from "../src/commands/suggest.mjs";
 import { versionPlaceholder } from "../src/core/version.mjs";
+import { worksheetReportState } from "../src/core/report-validation.mjs";
+import { validateWorksheetFile } from "../src/commands/report.mjs";
 
 async function completeDocumentationBaseline(root) {
   await setupProject({ cwd: root });
@@ -37,6 +39,18 @@ function documentationAuditChecks(pass = true) {
     { pass: true, rule: "required-document", path: "docs/05-operations/README.md", detail: "Required file exists." },
     ...(pass ? [] : [{ pass: false, rule: "broken-link", path: "docs/01-system/overview.md", detail: "Missing target." }])
   ];
+}
+
+function completeSecurityWorksheet(text, failureId) {
+  const overall = failureId ? "Fail" : "Pass";
+  return text
+    .replace("- Overall status: Unverified", `- Overall status: ${overall}`)
+    .replace(/^\| (SEC-\d{2}-\d{2}) \| ([^|]+) \| Passive first \| Unverified \| \| \| \| \|$/gm, (_row, id, priority) => {
+      if (id === failureId) {
+        return `| ${id} | ${priority.trim()} | Passive | Fail | Focused test failed for ${id} | Fix the failed control | Sam | Rerun the focused test |`;
+      }
+      return `| ${id} | ${priority.trim()} | Passive | Pass | Repository evidence for ${id} | None | Sam | Rerun the focused check |`;
+    });
 }
 
 async function writeDocumentationAudit(root, name, { pass, checkedAt }) {
@@ -63,11 +77,17 @@ test("setup is explicit, non-destructive, and repeatable", async () => {
     assert.ok(preview.every((item) => item.status === "planned"));
     const created = await setupProject({ cwd: root });
     assert.ok(created.every((item) => item.status === "created"));
-    assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /Documentation maintenance is continuous/);
-    assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /CHANGE RECORDS: ON/);
-    assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /FREEZE: OFF/);
-    assert.match(await readFile(join(root, "AGENTS.md"), "utf8"), /every AI coding agent/);
-    assert.match(await readFile(join(root, "docs", "05-operations", "agents", "CHANGE_FREEZE_GUIDE.md"), "utf8"), /Change freeze guide/);
+    const agentPolicy = await readFile(join(root, "AGENTS.md"), "utf8");
+    assert.match(agentPolicy, /Documentation maintenance is continuous/);
+    assert.match(agentPolicy, /CHANGE RECORDS: ON/);
+    assert.match(agentPolicy, /FREEZE: OFF/);
+    assert.match(agentPolicy, /every AI coding agent/);
+    assert.match(agentPolicy, /Validation commands:.*inspect the repository-defined command for side effects/);
+    assert.doesNotMatch(agentPolicy, /Allowed read operations/);
+    const freezeGuide = await readFile(join(root, "docs", "05-operations", "agents", "CHANGE_FREEZE_GUIDE.md"), "utf8");
+    assert.match(freezeGuide, /Change freeze guide/);
+    assert.match(freezeGuide, /Validation commands:.*inspect the repository-defined command for side effects/);
+    assert.doesNotMatch(freezeGuide, /Allowed read operations/);
     assert.match(await readFile(join(root, "docs", "05-operations", "agents", "feature-updates", "README.md"), "utf8"), /Feature updates and change records/);
     const documentationIndex = await readFile(join(root, "docs", "README.md"), "utf8");
     assert.match(documentationIndex, /Maintain documentation with every change/);
@@ -76,6 +96,20 @@ test("setup is explicit, non-destructive, and repeatable", async () => {
     assert.doesNotMatch(documentationIndex, /npx agent-docs suggest reviews/);
     const repeated = await setupProject({ cwd: root });
     assert.ok(repeated.every((item) => item.status === "skipped"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("AI setup creates protected pointers for common coding agents", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    await setupProject({ cwd: root, ai: true });
+    for (const name of ["CODEX.md", "CLAUDE.md", "GEMINI.md", "CURSOR.md", "COPILOT.md"]) {
+      assert.match(await readFile(join(root, name), "utf8"), /^@AGENTS\.md\s*$/m);
+    }
+    const config = JSON.parse(await readFile(join(root, ".agent-docs", "config.json"), "utf8"));
+    assert.deepEqual(config.agents, ["codex", "claude", "gemini", "cursor", "copilot"]);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -102,15 +136,19 @@ test("review suggestions are read-only, evidence-labeled path heuristics", async
     const before = await snapshotFiles(root);
     const result = await suggestReviews({
       cwd: root,
-      changedFiles: ["src/api/users.mjs", "site/index.html", "tests/auth.test.mjs"]
+      changedFiles: ["src/api/users.mjs", "site/index.html", "tests/auth.test.mjs", ".agents/skills/tool/SKILL.md"]
     });
     assert.deepEqual(await snapshotFiles(root), before);
     assert.equal(result.documentationInitialized, false);
     assert.ok(result.security.some((entry) => entry.slug === "api-layer"));
     assert.ok(result.security.some((entry) => entry.slug === "frontend-ui"));
     assert.ok(result.security.some((entry) => entry.slug === "application-security-testing"));
+    assert.ok(result.security.some((entry) => entry.slug === "agentic-ai-tooling"));
     assert.ok(result.engineering.some((entry) => entry.slug === "api-design-compatibility"));
     assert.ok(result.engineering.some((entry) => entry.slug === "testing-types"));
+    assert.ok(result.engineering.some((entry) => entry.slug === "frontend-accessibility"));
+    assert.ok(result.engineering.some((entry) => entry.slug === "agent-workflow-quality"));
+    assert.ok(result.documentation.some((entry) => entry.slug === "development-records"));
     assert.ok(result.security.every((entry) => entry.matchedFiles.length > 0 && entry.reason));
     assert.ok([...result.security, ...result.engineering].every((entry) => entry.command.startsWith(`${npxCommand} `)));
     const documentationOnly = await suggestReviews({ cwd: root, changedFiles: ["references/security-protocol.md"] });
@@ -136,6 +174,23 @@ test("changed-file tracing distinguishes staged, working-tree, and base comparis
 
 test("review suggestion modes are mutually exclusive", async () => {
   await assert.rejects(suggestReviews({ staged: true, base: "origin/main", changedFiles: [] }), /either --staged or --base/);
+});
+
+test("documentation suggestions are available before project setup", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  const output = [];
+  const originalLog = console.log;
+  try {
+    console.log = (...values) => output.push(values.join(" "));
+    await suggestReviews({ cwd: root, changedFiles: ["src/api/users.mjs"] });
+  } finally {
+    console.log = originalLog;
+    await rm(root, { recursive: true, force: true });
+  }
+  const text = output.join("\n");
+  assert.match(text, /Available now: .* documentation guide /);
+  assert.match(text, /After documentation setup, if relevant: .* security worksheet /);
+  assert.doesNotMatch(text, /After documentation setup, if relevant: .* documentation guide /);
 });
 
 test("next derives progress from project state without writing a progress file", async () => {
@@ -182,12 +237,11 @@ test("next covers the complete repository-backed workflow lifecycle", async () =
     await auditDocumentation({ cwd: root, report: true, format: "markdown" });
     stages.push((await nextWorkflow({ cwd: root })).stage);
     const report = await auditSecurity("api-layer", { cwd: root });
+    const worksheet = await readFile(report.path, "utf8");
     stages.push((await nextWorkflow({ cwd: root })).stage);
-    await writeFile(report.path, (await readFile(report.path, "utf8")).replaceAll("Unverified", "Pass"));
+    await writeFile(report.path, worksheet.replaceAll("Unverified", "Pass"));
     stages.push((await nextWorkflow({ cwd: root })).stage);
-    const completed = (await readFile(report.path, "utf8"))
-      .replace("| Add each applicable control | Medium | Pass | File/line, command output, or approved observation | Required follow-up | Unassigned | Not verified |", "| SEC-04-01 | High | Pass | src/api.mjs:10 and authorization test output | None | Sam | Rerun the API authorization test |");
-    await writeFile(report.path, completed);
+    await writeFile(report.path, completeSecurityWorksheet(worksheet));
     stages.push((await nextWorkflow({ cwd: root })).stage);
     assert.deepEqual(stages, [1, 2, 3, 4, 5, 5, 5, 6]);
   } finally { await rm(root, { recursive: true, force: true }); }
@@ -272,9 +326,7 @@ test("next treats an evidence-backed failure as a completed record, not a passin
     await completeDocumentationBaseline(root);
     await auditDocumentation({ cwd: root, report: true, format: "json" });
     const report = await auditSecurity("api-layer", { cwd: root });
-    const completedFailure = (await readFile(report.path, "utf8"))
-      .replace("- Overall status: Unverified", "- Overall status: Fail")
-      .replace("| Add each applicable control | Medium | Unverified | File/line, command output, or approved observation | Required follow-up | Unassigned | Not verified |", "| SEC-04-01 | High | Fail | tests/api-rate-limit.test.mjs:42 failed | Add rate limiting | Sam | Rerun the rate-limit test |");
+    const completedFailure = completeSecurityWorksheet(await readFile(report.path, "utf8"), "SEC-04-01");
     await writeFile(report.path, completedFailure);
     const result = await nextWorkflow({ cwd: root });
     assert.equal(result.stage, 6);
@@ -324,14 +376,32 @@ test("security and engineering reports use distinct semantics", async () => {
     await setupProject({ cwd: root });
     const security = await auditSecurity("04", { cwd: root });
     const engineering = await reviewEngineering("08", { cwd: root });
-    assert.match(await readFile(security.path, "utf8"), /Security worksheet: API Layer/);
-    assert.match(await readFile(security.path, "utf8"), /Scope and authorization/);
-    assert.deepEqual(validateReport(await readFile(security.path, "utf8")), []);
+    const securityText = await readFile(security.path, "utf8");
+    assert.match(securityText, /Security worksheet: API Layer/);
+    assert.match(securityText, /Scope and authorization/);
+    assert.match(securityText, /^- Expected finding IDs: SEC-04-01,/m);
+    assert.deepEqual(validateReport(securityText), []);
     const engineeringText = await readFile(engineering.path, "utf8");
     assert.match(engineeringText, /Engineering worksheet: Testing Types/);
     assert.match(engineeringText, /Review context/);
     assert.doesNotMatch(engineeringText, /Authorization: _Required/);
     assert.deepEqual(validateReport(engineeringText), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("worksheet command validation distinguishes an open template from a completed review", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    await setupProject({ cwd: root });
+    const report = await auditSecurity("api-layer", { cwd: root });
+    const open = await validateWorksheetFile(report.path, { cwd: root });
+    assert.equal(open.pass, false);
+    assert.ok(open.errors.some((error) => /incomplete/.test(error)));
+    await writeFile(report.path, completeSecurityWorksheet(await readFile(report.path, "utf8")));
+    const complete = await validateWorksheetFile(report.path, { cwd: root });
+    assert.equal(complete.pass, true);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -345,6 +415,21 @@ test("CLI reports inherit the configured interaction style when no flag is suppl
     await writeFile(join(root, ".agent-docs", "config.json"), JSON.stringify({ schemaVersion: 2, documentationRoot: "docs", documentationReports: "docs/audits", securityReports: "docs/security", engineeringReports: "docs/engineering", templateOutput: "docs", interactionStyle: "learning", maxAgeDays: 30, requireMetadata: false, requiredDocuments: [] }));
     const result = await main(["security", "worksheet", "04", "--cwd", root]);
     assert.match(await readFile(result.path, "utf8"), /- Style: learning/);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("phase and topic flags behave like positional worksheet selectors", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    await setupProject({ cwd: root });
+    const securityPositional = await main(["security", "worksheet", "04", "--cwd", root]);
+    const securityFlag = await main(["security", "worksheet", "--phase", "04", "--cwd", root]);
+    assert.equal(await readFile(securityFlag.path, "utf8"), await readFile(securityPositional.path, "utf8"));
+    const engineeringPositional = await main(["engineering", "worksheet", "08", "--cwd", root]);
+    const engineeringFlag = await main(["engineering", "worksheet", "--topic", "08", "--cwd", root]);
+    assert.equal(await readFile(engineeringFlag.path, "utf8"), await readFile(engineeringPositional.path, "utf8"));
+    await assert.rejects(main(["security", "worksheet", "04", "--phase", "05", "--cwd", root]), /Choose either '04' or '--phase'/);
+    await assert.rejects(main(["engineering", "worksheet", "08", "--topic", "09", "--cwd", root]), /Choose either '08' or '--topic'/);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
@@ -394,6 +479,16 @@ test("review guide can be printed or opened without creating a worksheet", async
   assert.equal(printed.opened, false);
   assert.equal(printed.url, reviewGuideUrl);
   assert.match(printed.contents, /# Security and engineering review guide/);
+  assert.match(printed.contents, /## How to activate a selector/);
+  assert.match(printed.contents, /security worksheet <selector> --dry-run/);
+  assert.match(printed.contents, /engineering worksheet <selector> --dry-run/);
+  assert.match(printed.contents, /Activating a selector means choosing its checklist/);
+  assert.match(printed.contents, /If the phase, topic, or scope is not known yet/);
+  assert.match(printed.contents, /### Run the command from a terminal/);
+  assert.match(printed.contents, /Windows PowerShell/);
+  assert.match(printed.contents, /npx\.cmd @ghostbyte\/agent-docs-kit@latest security worksheet api-layer --dry-run/);
+  assert.match(printed.contents, /The response should say `planned` and `Preview only`/);
+  assert.match(printed.contents, /remove `--dry-run`/);
   assert.match(printed.contents, /`api-layer`/);
   assert.match(printed.contents, /\| Fail \|/);
   assert.match(printed.contents, /\| Recommended \|/);
@@ -418,12 +513,56 @@ test("report validation rejects unknown statuses and unsupported claims", () => 
   assert.ok(validateReport("| Check | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| A | Pass | | Unassigned | Not verified |").length >= 3);
   assert.deepEqual(validateReport("| Check | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| A | Pass | test output | Sam | rerun test |") , []);
   assert.deepEqual(validateReport("| Check | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| A | Pass | command \\| output | Sam | rerun test |") , []);
-  assert.ok(validateReport("| Control ID | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| SEC-01-01 | Applied | proof | Sam | retest |").some((error) => /invalid status/.test(error)));
-  assert.ok(validateReport("| Practice ID | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| ENG-01-01 | Pass | proof | Sam | retest |").some((error) => /invalid status/.test(error)));
-  assert.ok(validateReport("| Control ID | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| Placeholder | Pass | proof | Sam | retest |").some((error) => /valid SEC-NN-NN control ID/.test(error)));
-  assert.ok(validateReport("| Control ID | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| SEC-01-01 | N/A | | Unassigned | Not verified |").some((error) => /evidence rationale/.test(error)));
-  assert.deepEqual(validateReport("| Control ID | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| SEC-01-01 | N/A | Not applicable: the sample has no public API | Unassigned | Not verified |"), []);
-  assert.deepEqual(validateReport("| Practice ID | Status | Evidence | Owner | Verification |\n|---|---|---|---|---|\n| ENG-01-01 | Recommended | tests\/api.test.mjs covers only success paths | Add failure cases | Sam | Run targeted tests |"), []);
+  const securityHeader = "| Control ID | Priority | Evidence mode | Status | Evidence | Remediation | Owner | Verification |\n|---|---|---|---|---|---|---|---|\n";
+  const engineeringHeader = "| Practice ID | Status | Evidence | Impact | Recommendation | Owner | Verification |\n|---|---|---|---|---|---|---|\n";
+  assert.ok(validateReport(`${securityHeader}| SEC-01-01 | High | Passive | Applied | proof | None | Sam | retest |`).some((error) => /invalid status/.test(error)));
+  assert.ok(validateReport(`${engineeringHeader}| ENG-01-01 | Pass | proof | Slow builds | Cache dependencies | Sam | retest |`).some((error) => /invalid status/.test(error)));
+  assert.ok(validateReport(`${securityHeader}| Placeholder | High | Passive | Pass | proof | None | Sam | retest |`).some((error) => /valid SEC-NN-NN control ID/.test(error)));
+  assert.ok(validateReport(`${securityHeader}| SEC-01-01 | High | Passive | N/A | | None | Unassigned | Not verified |`).some((error) => /evidence rationale/.test(error)));
+  assert.deepEqual(validateReport(`${securityHeader}| SEC-01-01 | High | Passive | N/A | Not applicable: the sample has no public API | None | Unassigned | Not verified |`), []);
+  assert.deepEqual(validateReport(`${engineeringHeader}| ENG-01-01 | Recommended | tests/api.test.mjs covers only success paths | Failures can regress | Add failure cases | Sam | Run targeted tests |`), []);
+});
+
+test("worksheet validation rejects incomplete, duplicate, and contradictory findings", () => {
+  const header = "| Control ID | Priority | Evidence mode | Status | Evidence | Remediation | Owner | Verification |\n|---|---|---|---|---|---|---|---|\n";
+  const duplicateRows = "| SEC-01-01 | High | Passive | Pass | test output | None | Sam | retest |\n| SEC-01-01 | High | Passive | Pass | test output | None | Sam | retest |";
+  const state = worksheetReportState(`# Security worksheet\n\n- Overall status: Fail\n\n## Findings\n\n${header}${duplicateRows}\n\n## Reference checklist\n\n| Control ID |\n|---|\n| SEC-01-01 |\n| SEC-01-02 |\n`);
+  assert.ok(state.errors.some((error) => /duplicate finding ID/.test(error)));
+  assert.ok(state.errors.some((error) => /SEC-01-02.*missing from the findings/.test(error)));
+  assert.ok(state.errors.some((error) => /conflicts with finding statuses/.test(error)));
+  assert.ok(state.warnings.some((warning) => /Legacy worksheet.*cannot fully verify completeness/.test(warning)));
+  assert.ok(validateReport(`${header}| SEC-01-01 | High | Automatic scan | Pass | proof | None | Sam | retest |`).some((error) => /invalid evidence mode/.test(error)));
+});
+
+test("worksheet metadata detects an ID removed from both findings and the reference checklist", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    await setupProject({ cwd: root });
+    const report = await auditSecurity("api-layer", { cwd: root });
+    const completed = completeSecurityWorksheet(await readFile(report.path, "utf8"));
+    const removedFromBothSections = completed.replace(/^\| SEC-04-01 \|.*\r?\n/gm, "");
+    const state = worksheetReportState(removedFromBothSections);
+    assert.ok(state.errors.some((error) => /SEC-04-01.*missing from the findings table/.test(error)));
+    assert.ok(state.errors.some((error) => /SEC-04-01.*missing from the Reference checklist/.test(error)));
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("legacy worksheets retain checklist validation and surface their completeness warning", async () => {
+  const root = await mkdtemp(join(tmpdir(), "agent-docs-kit-"));
+  try {
+    await completeDocumentationBaseline(root);
+    await auditDocumentation({ cwd: root, report: true, format: "markdown" });
+    const report = await auditSecurity("api-layer", { cwd: root });
+    const legacy = completeSecurityWorksheet(await readFile(report.path, "utf8"))
+      .replace(/^- Expected finding IDs:.*\r?\n/m, "");
+    await writeFile(report.path, legacy);
+    const validation = await validateWorksheetFile(report.path, { cwd: root });
+    assert.equal(validation.pass, true);
+    assert.ok(validation.warnings.some((warning) => /Legacy worksheet.*cannot fully verify completeness/.test(warning)));
+    const next = await nextWorkflow({ cwd: root });
+    assert.equal(next.stage, 6);
+    assert.ok(next.notices.some((notice) => /Legacy worksheet.*cannot fully verify completeness/.test(notice)));
+  } finally { await rm(root, { recursive: true, force: true }); }
 });
 
 test("documentation audit enforces metadata, same-document anchors, and exact report formats", async () => {
@@ -576,79 +715,79 @@ test("help distinguishes no-install, local, and global command forms", () => {
   assert.match(helpText, /protected agent policy/);
   assert.match(helpText, /suggest reviews \[--staged\|--base <ref>\]/);
   assert.match(helpText, /review guide \[--open\]/);
+  assert.match(helpText, /list <documentation\|security\|engineering>/);
+  assert.match(helpText, /--phase <selector>/);
+  assert.match(helpText, /--topic <selector>/);
   assert.ok(helpText.includes(`${npxCommand} suggest reviews --staged`));
   assert.doesNotMatch(helpText, /^\s+npx agent-docs suggest reviews/m);
   assert.match(helpText, /Initialize documentation with 'setup'/);
   assert.match(helpText, /does not run vulnerability scans/);
 });
 
-test("website leads with accurate boundaries, safe onboarding, and genuine examples", async () => {
+test("website presents a short copyable agent workflow with accurate boundaries", async () => {
   const site = await readFile(new URL("../site/index.html", import.meta.url), "utf8");
   const terms = await readFile(new URL("../site/terms.html", import.meta.url), "utf8");
   const app = await readFile(new URL("../site/app.js", import.meta.url), "utf8");
   const styles = await readFile(new URL("../site/styles.css", import.meta.url), "utf8");
-  assert.match(site, /Keep project documentation organized/);
-  assert.match(site, /What runs automatically\?/);
-  assert.match(site, /no active network scans run automatically/);
-  assert.match(site, /One project memory\. Three quality lenses\./);
-  assert.match(site, /keep agent context focused, preserve a traceable project record, reduce avoidable AI drift, and run targeted security and engineering reviews/i);
-  assert.match(site, /evidence-based review worksheets/);
-  assert.match(site, /How this helps with AI drift/);
-  assert.match(site, /cannot guarantee an agent will follow instructions/);
+  assert.match(site, /One project policy/);
+  assert.match(site, /Setup, prompt, verify/);
+  assert.match(site, /No vulnerability scan runs automatically/);
   assert.doesNotMatch(site, /github\.com\/ghostbyte1014\/Agent_Docs_Kit/i);
   assert.doesNotMatch(terms, /github\.com\/ghostbyte1014\/Agent_Docs_Kit/i);
-  assert.match(site, /Sanitized, reproducible example/);
-  assert.match(site, /Fresh security worksheet sample/);
-  assert.match(site, /Fictional, manually reviewed evidence sample/);
-  assert.match(site, /Safe first run/);
-  assert.match(site, /node --version/);
-  assert.match(site, /npx.*may download and cache the package/);
-  assert.match(site, /Catalog areas, not scans/);
-  assert.match(site, /documentation guide/);
-  assert.match(site, /href="docs\/REVIEW_GUIDE\.html">Review guide/);
-  assert.match(site, /role="tab" aria-selected="true" aria-controls="code-panel-setup"/);
-  assert.match(site, /start \[new\|existing\|agent\|manual\]/);
-  assert.match(site, /does not bundle an AI model or background process/);
-  assert.match(site, /AI-first, agent-assisted/);
-  assert.match(site, /suggest reviews --staged/);
-  assert.match(site, /npx @ghostbyte\/agent-docs-kit@latest suggest reviews --staged/);
-  assert.doesNotMatch(site, /npx agent-docs suggest reviews/);
-  assert.match(site, /Requires initialized documentation/);
-  assert.match(site, /data-copy-visible/);
-  assert.match(site, /<details class="content-drawer install-drawer"/);
-  assert.match(site, /<details class="content-drawer agent-drawer"/);
-  assert.match(site, /<details class="content-drawer reference-drawer"/);
-  assert.doesNotMatch(site, /data-copy-command/);
-  assert.doesNotMatch(site, /data-panel="[^"]+"[^>]* hidden/);
-  assert.doesNotMatch(site, /data-code-panel="[^"]+"[^>]* hidden/);
+  assert.match(site, /Use \$manage-project-quality/);
+  assert.match(site, /Copy a prompt to your agent/);
+  assert.doesNotMatch(site, /Copy an AI prompt/);
+  assert.match(site, /Security prompt types/);
+  assert.match(site, /Phase audit, change review, or release gate/);
+  assert.match(site, /Engineering prompt types/);
+  assert.match(site, /Topic review, diagnosis, or design decision/);
+  assert.match(site, /Use any selector from <code>list security<\/code>/);
+  assert.match(site, /Use any selector from <code>list engineering<\/code>/);
+  assert.match(site, /After you paste the guided prompt/);
+  assert.match(site, /The Security and Engineering prompts above can be pasted as-is/);
+  assert.match(site, /First show the available security phases with a one-line purpose/);
+  assert.match(site, /First show the available engineering topics with a one-line purpose/);
+  assert.match(site, /Repeat my choices and wait for confirmation/);
+  assert.match(site, /Already know the selector\?/);
+  assert.match(site, /Do not run active tests or use credentials without my explicit authorization/);
+  assert.match(site, /Separate observed facts from recommendations/);
+  assert.match(site, /Step-by-step tutorials/);
+  assert.match(site, /A worksheet is a review record, not a completed audit/);
+  assert.match(site, /list security/);
+  assert.match(site, /security worksheet api-layer/);
+  assert.match(site, /list engineering/);
+  assert.match(site, /engineering worksheet testing-types/);
+  assert.match(site, /Every control starts <code>Unverified<\/code>/);
+  assert.match(site, /Every practice starts <code>Unverified<\/code>/);
+  assert.match(site, /report validate &lt;worksheet&gt;/);
+  assert.match(site, /CODEX\.md/);
+  assert.match(site, /CURSOR\.md/);
+  assert.match(site, /COPILOT\.md/);
+  assert.match(site, /Automatic discovery varies/);
+  assert.ok((site.match(/data-copy-visible/g) ?? []).length >= 4);
   assert.match(app, /visibleCopyText/);
   assert.match(app, /textContent\?\.trim/);
-  assert.match(app, /Home.*End/);
+  assert.match(app, /aria-live/);
+  assert.match(app, /Selected—copy manually/);
   assert.match(styles, /button:focus-visible, a:focus-visible/);
   assert.match(styles, /overflow-x: auto/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
   assert.match(site, /rel="canonical" href="https:\/\/agent-docs-kit\.ghostbyte1014\.workers\.dev\/"/);
   assert.doesNotMatch(site, /git clone https:\/\/github\.com\/ghostbyte1014\/Agent_Docs_Kit\.git/);
   const footer = site.match(/<footer>([\s\S]*?)<\/footer>/)?.[1] ?? "";
-  assert.match(footer, />Explore</);
-  assert.match(footer, /href="#quick-start">Get started/);
-  assert.match(footer, /href="#command-reference">CLI reference/);
+  assert.match(footer, />Use</);
+  assert.match(footer, /href="#workflow">Workflow/);
+  assert.match(footer, /href="#prompts">Agent prompts/);
+  assert.match(footer, /href="#tutorials">Tutorials/);
   assert.match(footer, /href="privacy\.html">Privacy/);
-  assert.match(footer, /href="terms\.html">Terms of use/);
+  assert.match(footer, /href="terms\.html">Terms/);
 
-  const outcome = site.indexOf('id="outcome"');
-  const howItWorks = site.indexOf('id="how-it-works"');
-  const workflows = site.indexOf('id="workflows"');
-  const examples = site.indexOf('id="example-output"');
-  const installationGuide = site.indexOf('id="quick-start"');
-  const agentIntegration = site.indexOf('id="agentic-coding"');
-  const trust = site.indexOf('id="trust"');
-  const packageContents = site.indexOf('id="contents"');
-  const commandOverview = site.indexOf('id="commands"');
-  const cliReference = site.indexOf('id="command-reference"');
-  assert.ok(outcome < howItWorks && howItWorks < workflows && workflows < examples, "outcomes, process, workflows, and examples should be ordered for first-time readers");
-  assert.ok(examples < installationGuide && installationGuide < agentIntegration && agentIntegration < trust, "examples should lead into setup, AI integration, and trust boundaries");
-  assert.ok(trust < packageContents && packageContents < commandOverview && commandOverview < cliReference, "advanced package and command references should come last");
+  const workflow = site.indexOf('id="workflow"');
+  const prompts = site.indexOf('id="prompts"');
+  const tutorials = site.indexOf('id="tutorials"');
+  const agents = site.indexOf('id="agents"');
+  const resources = site.indexOf('id="resources"');
+  assert.ok(workflow < prompts && prompts < tutorials && tutorials < agents && agents < resources, "workflow, prompts, tutorials, agents, and references should appear in task order");
 });
 
 test("site preview builds first and the artifact exposes only public documentation", async () => {
@@ -707,7 +846,8 @@ test("site preview builds first and the artifact exposes only public documentati
   assert.doesNotMatch(testingPage, /[Cc]losed-beta/);
   const privacyPage = await readFile(join(projectRoot, "build", "site", "privacy.html"), "utf8");
   const termsPage = await readFile(join(projectRoot, "build", "site", "terms.html"), "utf8");
-  assert.match(privacyPage, /agent-docs-command-mode/);
+  assert.doesNotMatch(privacyPage, /agent-docs-command-mode|localStorage/i);
+  assert.match(privacyPage, /does not include.*browser storage/);
   assert.match(privacyPage, /canonical website is served as static assets through Cloudflare Workers/);
   assert.match(privacyPage, /GitHub Pages as an optional mirror/);
   assert.match(privacyPage, /does not make promises about.*infrastructure logging/);

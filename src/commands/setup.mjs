@@ -6,6 +6,9 @@ import { starterMarker } from "../core/starter-text.mjs";
 import { defaultTimezone, describeTimezone, timezoneClockCommand } from "../core/timezone.mjs";
 import { npxCommand } from "./workflow.mjs";
 import { installSkill, projectSkillTargets } from "./skill.mjs";
+import { assertAttribution } from "../core/config.mjs";
+
+const pointerFileList = agentIds.map((id) => agentDefinition(id).instructionFile).join(", ");
 
 function agentInstructions({ timezone = defaultTimezone, attribution = "" } = {}) {
   const zone = describeTimezone(timezone);
@@ -49,7 +52,7 @@ When FREEZE is ON, the project is in its polishing stage: the code must not drif
    - An implementation plan, task list, TODO, or an earlier approval is **not** approval. Even when a plan lists the work, confirm each file before editing it.
    - Silence or auto mode is not approval.
 3. **An approval covers only what was described.** Anything extra you notice gets reported and needs its own approval.
-4. **Allowed without asking:** reading and searching files, explaining code, and repository-defined read-only checks. Discover commands from the repository before running them; do not assume a language, package manager, or framework. Documentation audit: \`npx @ghostbyte/agent-docs-kit@latest audit documentation --strict\`.
+4. **Validation commands:** Before running tests, type checks, builds, or documentation audits, inspect the repository-defined command for side effects. Run it without additional approval only when the repository documents it as local and non-destructive; otherwise ask first. Do not assume a language, package manager, or framework. Documentation audit: \`npx @ghostbyte/agent-docs-kit@latest audit documentation --strict\`.
 
 ## Always (whatever the switches say)
 
@@ -72,7 +75,7 @@ When FREEZE is ON, the project is in its polishing stage: the code must not drif
   | Setup, database, deployment, agent process                          | \`docs/05-operations/<topic>/\`                 |
   | Planned improvements, documented but not built                      | \`docs/06-future-proposals/\`                   |
   | Superseded, completed, or rejected material                         | \`docs/archive/<era-or-kind>/\`                 |
-- Name dated docs \`TOPIC_YYYY-MM-DD.md\`; living docs \`TOPIC.md\`. Keep generated project records under \`docs/\`; preserve existing root documentation and repository conventions. \`${canonicalInstructions}\` and optional \`CLAUDE.md\`/\`GEMINI.md\` pointers remain at the root because agents discover them there.
+- Name dated docs \`TOPIC_YYYY-MM-DD.md\`; living docs \`TOPIC.md\`. Keep generated project records under \`docs/\`; preserve existing root documentation and repository conventions. \`${canonicalInstructions}\` and optional coding-agent pointers remain at the root.
 - Every time you add, move, archive, or retire a doc, update \`docs/README.md\` in the same change.
 - **\`docs/archive/\` is historical, not authoritative.** Do not use it as a source of truth or audit against it.
 - Move files with \`git mv\` so history is kept, then fix relative links.
@@ -156,7 +159,7 @@ Every repository change receives a documentation-impact check before it is compl
 5. Run \`npx @ghostbyte/agent-docs-kit@latest audit documentation --strict\` after the update. Add \`--report --format markdown\` when a durable point-in-time audit is needed.
 6. In the change or review summary, list the documentation updated or explain why no documentation change was necessary.
 
-For AI-assisted work, the protected root \`${canonicalInstructions}\` created when absent carries the same maintenance contract. Existing \`${canonicalInstructions}\` files are never overwritten; merge this policy into existing instructions deliberately. Tool-specific pointer files (\`CLAUDE.md\`, \`GEMINI.md\`) import \`${canonicalInstructions}\` instead of copying it, so the policy keeps one source. Manual users follow this section directly.
+For AI-assisted work, the protected root \`${canonicalInstructions}\` created when absent carries the same maintenance contract. Existing \`${canonicalInstructions}\` files are never overwritten; merge this policy into existing instructions deliberately. Optional coding-agent pointer files import \`${canonicalInstructions}\` instead of copying it, so the policy keeps one source. Manual users follow this section directly.
 
 The workflow is AI-first and agent-assisted, not an unattended background service. \`${canonicalInstructions}\` does not execute by itself: a compatible coding agent must be active, must load the repository instructions, and must be allowed to edit these records. Run \`${npxCommand} suggest reviews --staged\` before a commit, or compare a pushed branch with \`${npxCommand} suggest reviews --base <git-ref>\`, to receive advisory review candidates. These commands do not edit files or perform an audit.
 
@@ -220,7 +223,7 @@ AI coding agents read repository instructions at the start of a session.
 3. Change the value to \`ON\` or \`OFF\` (e.g. \`FREEZE: ON\`).
 4. Start a fresh AI session so the agent loads the updated rules.
 
-Tool-specific pointer files such as \`CLAUDE.md\` and \`GEMINI.md\` import \`${canonicalInstructions}\` with a \`${importLine}\` line, so the switches above apply to every tool without being copied.
+Coding-agent pointer files import \`${canonicalInstructions}\` with a \`${importLine}\` line, so the switches above are not copied between files.
 
 ## AI agent configuration locks
 
@@ -235,7 +238,7 @@ When \`FREEZE: ON\` is active:
 
 1. **Scope verification:** All edits must align with \`docs/01-system/overview.md\`. Any out-of-scope addition must be explicitly flagged to the developer before implementation.
 2. **Per-file confirmation:** The agent must state the filename and intended changes, then pause and wait for explicit developer approval before creating, editing, or deleting files.
-3. **Allowed read operations:** Reading files, running test suites, executing type checks, and running documentation audits are always permitted without prior approval.
+3. **Validation commands:** Before running tests, type checks, builds, or documentation audits, inspect the repository-defined command for side effects. Run it without additional approval only when the repository documents it as local and non-destructive; otherwise ask first.
 `,
     "docs/05-operations/agents/feature-updates/README.md": `# Feature updates and change records
 
@@ -327,6 +330,7 @@ export async function setupProject(options = {}) {
     attribution: options.attribution ?? inherited.attribution ?? "",
     agents: agents.ids
   };
+  assertAttribution(profile.attribution);
 
   const agentResult = await writeSafe(resolve(root, canonicalInstructions), agentInstructions(profile), { ...options, force: false });
   const results = [{ ...agentResult, protected: true }];
@@ -441,6 +445,7 @@ function reportSetup({ root, options, agents, pointers, profile, skillInstalls, 
   }
   if (agents.mode === "unset" && !options.ai) {
     console.log(`\nNo agent pointer files were requested. Add them with: npx @ghostbyte/agent-docs-kit@latest setup --agents all --cwd "${root}"`);
+    console.log(`Supported pointers: ${pointerFileList}.`);
     console.log("Use --agents auto to create them only for tools this repository already shows signs of using.");
   }
   if (skillInstalls.length) {

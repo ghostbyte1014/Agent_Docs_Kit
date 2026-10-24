@@ -12,11 +12,12 @@ export const historicalVersions = Object.freeze([
   { version: "6.0.0", npm: "Published", gitTag: "`v6.0.0`", record: "Registry and Git tag" },
   { version: "6.1.0", npm: "Published", gitTag: "`v6.1.0`", record: "Registry and Git tag" },
   { version: "6.2.0", npm: "Not published", gitTag: "None", record: "Changelog-only version" },
-  { version: "6.2.1", npm: "Published", gitTag: "`v6.2.1`", record: "Registry and Git tag" }
+  { version: "6.2.1", npm: "Published", gitTag: "`v6.2.1`", record: "Registry and Git tag" },
+  { version: "1.3.7", npm: "Published (`latest` verified 2026-10-22)", gitTag: "`v1.3.7`", record: "Registry and Git tag", status: "Current latest" }
 ]);
 
 export function historyRow(entry) {
-  return `| \`${entry.version}\` | ${entry.npm} | ${entry.gitTag} | ${entry.record} | Retired |`;
+  return `| \`${entry.version}\` | ${entry.npm} | ${entry.gitTag} | ${entry.record} | ${entry.status ?? "Retired"} |`;
 }
 
 export function versionPolicyErrors(version) {

@@ -22,8 +22,8 @@ Agent_Docs_Kit/
 ├─ content/
 │  ├─ catalog.json                 # versioned selectors and review dates
 │  ├─ documentation/               # 7 focused areas plus an index
-│  ├─ security/                    # 12 focused phases plus an index
-│  └─ engineering/                 # 14 focused topics plus an index
+│  ├─ security/                    # 13 focused phases plus an index
+│  └─ engineering/                 # 18 focused topics plus an index
 ├─ templates/                      # ADR, runbook, change, incident, and evidence records
 ├─ skills/manage-project-quality/
 │  ├─ SKILL.md                     # progressive workflow router
@@ -50,9 +50,9 @@ The canonical static website is served from Cloudflare Workers using `wrangler.j
 
 `agent-docs suggest reviews` is a read-only Git-path classifier. Its default mode combines staged, unstaged, and untracked non-ignored paths; `--staged` limits the input to the index, and `--base <git-ref>` compares that ref with `HEAD`. It maps high-signal path patterns to catalog entries, prints the matched paths and reason, and creates no worksheet. It does not analyze code semantics, install Git hooks, modify Git configuration, or treat an absent match as evidence that no review is needed.
 
-Security and engineering worksheet creation calls the shared documentation-initialization check first. The check requires `.agent-docs/config.json` and the configured documentation root. It intentionally does not require an audit pass: initialization establishes the project record and destinations, while evidence collection and documentation completion can continue independently.
+Security and engineering worksheet creation calls the shared documentation-initialization check first. The check requires `.agent-docs/config.json` and the configured documentation root. It intentionally does not require an audit pass: initialization establishes the project record and destinations, while evidence collection and documentation completion can continue independently. Each worksheet preloads every stable catalog ID in the selected scope and records that expected set in worksheet metadata. `report validate` and `next` share the same validator for required columns, allowed statuses, evidence fields, duplicate or missing IDs, and overall-status rollups. Legacy worksheets without the metadata retain checklist-based validation but surface a completeness warning.
 
-The AI-first maintenance path has three distinct parts: setup supplies the durable repository policy, optional skill installation supplies focused workflow instructions, and the user's compatible coding agent executes the work with granted repository access. None of those files launches an agent or creates a background process.
+The AI-first maintenance path has three distinct parts: setup supplies the durable `AGENTS.md` policy and optional named compatibility pointers, optional skill installation supplies focused workflow instructions, and the user's compatible coding agent executes the work with granted repository access. None of those files launches an agent or creates a background process. The pointer registry covers Codex, Claude Code, Gemini CLI, Cursor, and GitHub Copilot; product-specific discovery still depends on the selected tool and surface.
 
 New and existing projects share the same non-destructive setup implementation. The explicit `start new` and `start existing` paths change guidance, not write semantics. Setup checks whether root `AGENTS.md` exists; absence permits creation, while presence always produces a skip even under `--force`. The skill installer operates only on its named destination, so sibling skills are not part of its replacement boundary.
 

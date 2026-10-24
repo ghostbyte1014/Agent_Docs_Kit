@@ -5,6 +5,15 @@ import { documentationInitializationState } from "../core/config.mjs";
 import { npxCommand } from "./workflow.mjs";
 
 const reviewRules = {
+  documentation: [
+    { slug: "system-documentation", reason: "system behavior, architecture, public interfaces, or compatibility files changed", match: /(?:^|\/)(?:src|architecture|api|compatibility)(?:\/|\.|-|$)|(?:^|\/)package\.json$/ },
+    { slug: "project-governance", reason: "scope, decisions, release notes, or project governance changed", match: /(?:^|\/)(?:readme|changelog|roadmap|decisions?|governance)(?:\/|\.|-|$)/ },
+    { slug: "development-records", reason: "source, contributor workflow, generated content, or agent instructions changed", match: /(?:^|\/)(?:src|scripts|skills|agents?\.md|claude\.md|gemini\.md|codex\.md|cursor\.md|copilot\.md)(?:\/|$|\.)/ },
+    { slug: "testing-evidence", reason: "tests, fixtures, audits, or retained evidence changed", match: /(?:^|\/)(?:test|tests|fixtures|audits?|evidence)(?:\/|\.|-|$)/ },
+    { slug: "operations-runbooks", reason: "deployment, CI, hosting, monitoring, or operational configuration changed", match: /(?:^|\/)(?:\.github\/workflows|deploy|deployment|operations?|runbooks?|monitoring|wrangler)(?:\/|\.|-|$)/ },
+    { slug: "future-proposals", reason: "future or proposed work changed", match: /(?:^|\/)(?:future|proposals?|roadmap)(?:\/|\.|-|$)/ },
+    { slug: "archive-governance", reason: "archived or superseded records changed", match: /(?:^|\/)archive(?:\/|$)/ }
+  ],
   security: [
     { slug: "design-architecture", reason: "architecture, trust-boundary, or threat-model files changed", match: /(?:^|\/)(?:architecture|design|threat-model|trust-boundar(?:y|ies))(?:\/|\.|-|$)/ },
     { slug: "local-development", reason: "local environment, dependency, or development-container files changed", match: /(?:^|\/)(?:\.env(?:\.|$)|\.devcontainer\/|package(?:-lock)?\.json$|npm-shrinkwrap\.json$|requirements[^/]*\.txt$|pyproject\.toml$|poetry\.lock$|cargo\.(?:toml|lock)$)/ },
@@ -17,7 +26,8 @@ const reviewRules = {
     { slug: "edge-cdn-dns", reason: "edge, CDN, DNS, or Cloudflare configuration changed", match: /(?:^|\/)(?:edge|cdn|dns|cloudflare|wrangler)(?:\/|\.|-|$)|(?:^|\/)wrangler\.jsonc?$/ },
     { slug: "release-rollout", reason: "release, rollout, deployment, or changelog files changed", match: /(?:^|\/)(?:release|rollout|deploy|deployment)(?:\/|\.|-|$)|(?:^|\/)changelog\.md$/ },
     { slug: "post-release-monitoring-ir", reason: "monitoring, alerting, or incident-response files changed", match: /(?:^|\/)(?:monitoring|alerts?|incidents?|incident-response)(?:\/|\.|-|$)/ },
-    { slug: "ongoing-operations", reason: "operations, maintenance, or runbook files changed", match: /(?:^|\/)(?:operations?|maintenance|runbooks?)(?:\/|\.|-|$)/ }
+    { slug: "ongoing-operations", reason: "operations, maintenance, or runbook files changed", match: /(?:^|\/)(?:operations?|maintenance|runbooks?)(?:\/|\.|-|$)/ },
+    { slug: "agentic-ai-tooling", reason: "agent instructions, skills, plugins, MCP configuration, or AI workflow code changed", match: /(?:^|\/)(?:agents?\.md|claude\.md|gemini\.md|codex\.md|cursor\.md|copilot\.md|\.agents|\.claude|\.codex|skills?|plugins?|mcp)(?:\/|\.|-|$)/ }
   ],
   engineering: [
     { slug: "query-performance", reason: "query, database, or SQL files changed", match: /(?:^|\/)(?:queries|query|db|database)(?:\/|\.|-|$)|\.sql$/ },
@@ -32,7 +42,11 @@ const reviewRules = {
     { slug: "reliability-slos", reason: "reliability, retry, health-check, or SLO files changed", match: /(?:^|\/)(?:reliability|slos?|retries|retry|health-checks?|circuit-breakers?)(?:\/|\.|-|$)/ },
     { slug: "observability-telemetry", reason: "logging, metrics, tracing, or telemetry files changed", match: /(?:^|\/)(?:observability|telemetry|metrics|tracing|logging)(?:\/|\.|-|$)/ },
     { slug: "deployment-change-safety", reason: "deployment, release, or CI workflow files changed", match: /(?:^|\/)(?:\.github\/workflows|\.gitlab-ci|deploy|deployment|release|rollout)(?:\/|\.|-|$)/ },
-    { slug: "capacity-concurrency", reason: "worker, pool, concurrency, or capacity files changed", match: /(?:^|\/)(?:workers?|pools?|concurrency|capacity)(?:\/|\.|-|$)/ }
+    { slug: "capacity-concurrency", reason: "worker, pool, concurrency, or capacity files changed", match: /(?:^|\/)(?:workers?|pools?|concurrency|capacity)(?:\/|\.|-|$)/ },
+    { slug: "architecture-maintainability", reason: "architecture, module boundaries, shared core code, or dependency structure changed", match: /(?:^|\/)(?:architecture|src\/core|modules?|components?|packages?)(?:\/|\.|-|$)/ },
+    { slug: "developer-experience-builds", reason: "setup, package, build, generated artifact, or developer tooling changed", match: /(?:^|\/)(?:package(?:-lock)?\.json|scripts|build|setup|developer|devcontainer)(?:\/|\.|-|$)/ },
+    { slug: "frontend-accessibility", reason: "browser UI, styles, or frontend interaction code changed", match: /(?:^|\/)(?:site|frontend|client|public|web)(?:\/|$)|\.(?:html|css|jsx|tsx|vue|svelte)$/ },
+    { slug: "agent-workflow-quality", reason: "agent instructions, skills, discovery, or guided prompt workflow changed", match: /(?:^|\/)(?:agents?\.md|claude\.md|gemini\.md|codex\.md|cursor\.md|copilot\.md|\.agents|skills?|agent-workflow)(?:\/|\.|-|$)/ }
   ]
 };
 
@@ -80,7 +94,7 @@ function candidatesFor(kind, files, catalog) {
     const matchedFiles = files.filter((file) => rule.match.test(file.toLowerCase()));
     if (!matchedFiles.length) return [];
     const entry = catalog[kind].find((candidate) => candidate.slug === rule.slug);
-    const worksheet = kind === "security" ? "security worksheet" : "engineering worksheet";
+    const worksheet = kind === "security" ? "security worksheet" : kind === "engineering" ? "engineering worksheet" : "documentation guide";
     return [{ ...entry, reason: rule.reason, matchedFiles, command: `${npxCommand} ${worksheet} ${entry.slug}` }];
   });
 }
@@ -95,7 +109,10 @@ function printCandidates(kind, candidates, documentationInitialized) {
     console.log(`  ${candidate.id} ${candidate.title}`);
     console.log(`     Why: ${candidate.reason}.`);
     console.log(`     Matched: ${candidate.matchedFiles.join(", ")}`);
-    console.log(`     ${documentationInitialized ? "If relevant" : "After documentation setup, if relevant"}: ${candidate.command}`);
+    const availability = kind === "documentation"
+      ? "Available now"
+      : documentationInitialized ? "If relevant" : "After documentation setup, if relevant";
+    console.log(`     ${availability}: ${candidate.command}`);
   }
 }
 
@@ -109,6 +126,7 @@ export async function suggestReviews(options = {}) {
     root,
     files,
     documentationInitialized: documentation.initialized,
+    documentation: candidatesFor("documentation", files, catalog),
     security: candidatesFor("security", files, catalog),
     engineering: candidatesFor("engineering", files, catalog)
   };
@@ -123,6 +141,7 @@ export async function suggestReviews(options = {}) {
     console.log("  npx @ghostbyte/agent-docs-kit@latest setup --dry-run");
     console.log("  npx @ghostbyte/agent-docs-kit@latest setup");
   }
+  printCandidates("documentation", result.documentation, result.documentationInitialized);
   printCandidates("security", result.security, result.documentationInitialized);
   printCandidates("engineering", result.engineering, result.documentationInitialized);
   console.log("\nNo worksheet was created and no audit was performed. Path matching can miss risks; review the actual change before deciding.");

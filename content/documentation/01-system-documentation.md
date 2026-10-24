@@ -11,3 +11,5 @@ Use this area to explain what the system is, where its boundaries are, and how i
 | DOC-01-05 | Trust boundaries | Connects design documentation to security review. | Are identity, network, tenant, and data trust boundaries explicit? |
 | DOC-01-06 | Constraints | Preserves the reasons behind non-obvious architecture. | Are regulatory, performance, compatibility, and organizational constraints recorded? |
 | DOC-01-07 | Ownership | Gives readers a route to clarification. | Does every major subsystem have an accountable owner or team? |
+| DOC-01-08 | Public behavior contract | Prevents documentation from promising behavior the implementation does not provide. | Are public CLI, API, storage, network, and automation claims supported by code, configuration, or tests? |
+| DOC-01-09 | Compatibility matrix | Makes supported environments and tools explicit. | Are supported runtimes, operating systems, coding agents, and important limitations documented from evidence? |

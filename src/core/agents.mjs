@@ -14,6 +14,14 @@ export const canonicalInstructions = "AGENTS.md";
 export const importLine = "@AGENTS.md";
 
 export const agentRegistry = Object.freeze({
+  codex: Object.freeze({
+    id: "codex",
+    label: "Codex",
+    instructionFile: "CODEX.md",
+    skillDirectory: undefined,
+    signals: Object.freeze([".codex", "CODEX.md"]),
+    note: "Codex reads AGENTS.md directly; CODEX.md is a short compatibility pointer for people and tools that look for a named file."
+  }),
   claude: Object.freeze({
     id: "claude",
     label: "Claude Code",
@@ -29,6 +37,22 @@ export const agentRegistry = Object.freeze({
     skillDirectory: undefined,
     signals: Object.freeze([".gemini", "GEMINI.md"]),
     note: "Gemini CLI reads GEMINI.md by default and supports '@file' imports, so no settings.json change is needed."
+  }),
+  cursor: Object.freeze({
+    id: "cursor",
+    label: "Cursor",
+    instructionFile: "CURSOR.md",
+    skillDirectory: undefined,
+    signals: Object.freeze([".cursor", "CURSOR.md"]),
+    note: "Cursor reads AGENTS.md directly; CURSOR.md is a short compatibility pointer."
+  }),
+  copilot: Object.freeze({
+    id: "copilot",
+    label: "GitHub Copilot",
+    instructionFile: "COPILOT.md",
+    skillDirectory: undefined,
+    signals: Object.freeze([".github/copilot-instructions.md", ".github/instructions", ".github/agents", "COPILOT.md"]),
+    note: "Supported Copilot surfaces read AGENTS.md directly; COPILOT.md is a short compatibility pointer."
   })
 });
 
@@ -76,8 +100,8 @@ export function pointerFileContents(id) {
   const definition = agentDefinition(id);
   return `${importLine}
 
-<!-- ${definition.label} reads this file. The shared policy lives in ${canonicalInstructions};
-     keep it as the single source and add only ${definition.label}-specific notes below. -->
+<!-- ${definition.label} compatibility pointer. The shared policy lives in ${canonicalInstructions};
+     keep it as the single source and add only tool-specific notes below. -->
 
 ## ${definition.label} notes
 `;

@@ -14,6 +14,7 @@ import { createTemplate, listTemplates } from "../commands/template.mjs";
 import { showDocumentationGuide } from "../commands/guide.mjs";
 import { nextWorkflow, startWorkflow } from "../commands/workflow.mjs";
 import { suggestReviews } from "../commands/suggest.mjs";
+import { validateWorksheetFile } from "../commands/report.mjs";
 import { readFile } from "node:fs/promises";
 import { resolveFromPackage } from "../core/paths.mjs";
 
@@ -30,7 +31,7 @@ function assertInvocation(positionals, flags, { counts, allowedFlags = [], usage
 async function menu() {
   const ui = createInterface({ input: stdin, output: stdout });
   try {
-    console.log(`\nAgent Docs & Quality Kit\n\nStart and continue\n1. Choose a starting path\n2. Continue from the current project state\n\nFocused workflows\n3. Set up documentation\n4. Audit documentation\n5. Create security worksheet\n6. Create engineering worksheet\n7. Install project skill\n\nReference and maintenance\n8. Show the security and engineering review guide\n9. List documentation templates\n10. Validate package\n11. Open documentation website\n0. Exit`);
+    console.log(`\nAgent Docs & Quality Kit\n\nStart and continue\n1. Choose a starting path\n2. Continue from the current project state\n\nFocused workflows\n3. Set up documentation\n4. Audit documentation\n5. Create security worksheet\n6. Create engineering worksheet\n7. Validate a completed worksheet\n8. Install project skill\n\nReference and maintenance\n9. Show the security and engineering review guide\n10. List documentation templates\n11. Validate package\n12. Open documentation website\n0. Exit`);
     const choice = await ui.question("\nChoose an action: ");
     if (choice === "1") {
       console.log("\n1. New or empty project\n2. Existing project\n3. AI-assisted workflow\n4. Manual workflow");
@@ -48,11 +49,16 @@ async function menu() {
       await listCatalog("engineering");
       return reviewEngineering(await ui.question("Topic id or slug: "));
     }
-    if (choice === "7") return installSkill("project");
-    if (choice === "8") return showReviewGuide();
-    if (choice === "9") return listTemplates();
-    if (choice === "10") return validatePackage();
-    if (choice === "11") return openWebsite();
+    if (choice === "7") {
+      const result = await validateWorksheetFile(await ui.question("Worksheet path: "));
+      if (!result.pass) process.exitCode = 1;
+      return result;
+    }
+    if (choice === "8") return installSkill("project");
+    if (choice === "9") return showReviewGuide();
+    if (choice === "10") return listTemplates();
+    if (choice === "11") return validatePackage();
+    if (choice === "12") return openWebsite();
     if (choice !== "0") throw new Error("Unknown menu choice.");
   } finally {
     ui.close();
@@ -86,7 +92,7 @@ export async function main(argv) {
     return nextWorkflow(options);
   }
   if (command === "setup") {
-    assertInvocation(positionals, flags, { counts: [1], allowedFlags: ["cwd", "dry-run", "force", "ai", "agents", "timezone", "attribution"], usage: "agent-docs setup [--cwd <path>] [--dry-run] [--force] [--ai] [--agents claude,gemini|all|auto|none] [--timezone <zone>] [--attribution <text>]" });
+    assertInvocation(positionals, flags, { counts: [1], allowedFlags: ["cwd", "dry-run", "force", "ai", "agents", "timezone", "attribution"], usage: "agent-docs setup [--cwd <path>] [--dry-run] [--force] [--ai] [--agents <list>|all|auto|none] [--timezone <zone>] [--attribution <text>]" });
     const result = await setupProject(options);
     if (result.failures?.length) process.exitCode = 1;
     return result;
@@ -120,6 +126,12 @@ export async function main(argv) {
   if (command === "review" && subject === "guide") {
     assertInvocation(positionals, flags, { counts: [2], allowedFlags: ["open"], usage: "agent-docs review guide [--open]" });
     return showReviewGuide(options);
+  }
+  if (command === "report" && subject === "validate") {
+    assertInvocation(positionals, flags, { counts: [3], allowedFlags: ["cwd"], usage: "agent-docs report validate <worksheet> [--cwd <path>]" });
+    const result = await validateWorksheetFile(selector, options);
+    if (!result.pass) process.exitCode = 1;
+    return result;
   }
   if (command === "skill" && subject === "install") {
     assertInvocation(positionals, flags, { counts: [2], allowedFlags: ["cwd", "dry-run", "force", "target"], usage: `agent-docs skill install --target ${skillTargets.join("|")}` });

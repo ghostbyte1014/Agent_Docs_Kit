@@ -19,6 +19,7 @@ Reviewed 2026-10-14; review due 2027-01-14.
 - [OWASP ASVS 5.0.0](https://github.com/OWASP/ASVS/releases/tag/v5.0.0)
 - [NIST Secure Software Development Framework 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)
 - [NIST Incident Response Recommendations, SP 800-61 Rev. 3](https://csrc.nist.gov/pubs/sp/800/61/r3/final)
+- [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-the-agentic-ai-future/)
 
 Draft standards may inform future work, but must not be represented as finalized requirements.
 
@@ -36,5 +37,6 @@ Draft standards may inform future work, but must not be represented as finalized
 10. Release and rollout
 11. Post-release monitoring and incident response
 12. Ongoing operations
+13. Agentic AI and tooling
 
 Run `agent-docs list security`, then create only the needed worksheet with `agent-docs security worksheet <phase>`.

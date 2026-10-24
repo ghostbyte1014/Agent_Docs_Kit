@@ -199,6 +199,19 @@
       "source": "content/security/12-ongoing-operations.md",
       "lastReviewed": "2026-10-14",
       "reviewDue": "2027-01-14"
+    },
+    {
+      "id": "13",
+      "slug": "agentic-ai-tooling",
+      "title": "Agentic AI & Tooling",
+      "aliases": [
+        "13",
+        "agentic-ai",
+        "ai-tooling"
+      ],
+      "source": "content/security/13-agentic-ai-tooling.md",
+      "lastReviewed": "2026-10-22",
+      "reviewDue": "2027-01-22"
     }
   ],
   "engineering": [
@@ -360,6 +373,55 @@
       "source": "content/engineering/14-capacity-concurrency.md",
       "lastReviewed": "2026-10-14",
       "reviewDue": "2027-04-14"
+    },
+    {
+      "id": "15",
+      "slug": "architecture-maintainability",
+      "title": "Architecture & Maintainability",
+      "aliases": [
+        "15",
+        "maintainability"
+      ],
+      "source": "content/engineering/15-architecture-maintainability.md",
+      "lastReviewed": "2026-10-22",
+      "reviewDue": "2027-04-22"
+    },
+    {
+      "id": "16",
+      "slug": "developer-experience-builds",
+      "title": "Developer Experience & Reproducible Builds",
+      "aliases": [
+        "16",
+        "developer-experience",
+        "reproducible-builds"
+      ],
+      "source": "content/engineering/16-developer-experience-builds.md",
+      "lastReviewed": "2026-10-22",
+      "reviewDue": "2027-04-22"
+    },
+    {
+      "id": "17",
+      "slug": "frontend-accessibility",
+      "title": "Frontend Quality & Accessibility",
+      "aliases": [
+        "17",
+        "accessibility"
+      ],
+      "source": "content/engineering/17-frontend-accessibility.md",
+      "lastReviewed": "2026-10-22",
+      "reviewDue": "2027-04-22"
+    },
+    {
+      "id": "18",
+      "slug": "agent-workflow-quality",
+      "title": "Agent Workflow Quality",
+      "aliases": [
+        "18",
+        "agent-workflow"
+      ],
+      "source": "content/engineering/18-agent-workflow-quality.md",
+      "lastReviewed": "2026-10-22",
+      "reviewDue": "2027-04-22"
     }
   ]
 }

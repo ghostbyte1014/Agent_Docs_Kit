@@ -46,7 +46,7 @@ try {
   const cli = resolve(packageRoot, "bin", "agent-docs.mjs");
   const runCli = (...arguments_) => execFileSync(process.execPath, [cli, ...arguments_], { cwd: consumer, encoding: "utf8" });
   const help = execFileSync(process.execPath, [cli, "--help"], { cwd: consumer, encoding: "utf8" });
-  if (!help.includes("start [new|existing|agent|manual]") || !help.includes("Detect project state") || !help.includes("suggest reviews") || !help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("template create") || !help.includes("--ai") || !help.includes("--agents")) throw new Error("Packed CLI help is incomplete.");
+  if (!help.includes("start [new|existing|agent|manual]") || !help.includes("Detect project state") || !help.includes("suggest reviews") || !help.includes("documentation guide") || !help.includes("security worksheet") || !help.includes("report validate") || !help.includes("template create") || !help.includes("--ai") || !help.includes("--agents")) throw new Error("Packed CLI help is incomplete.");
   const agentStart = runCli("start", "agent");
   if (!agentStart.includes("$manage-project-quality") || !agentStart.includes("does not grant authority")) throw new Error("Packed CLI agent onboarding is incomplete.");
   const reviewGuide = runCli("review", "guide");
@@ -75,10 +75,14 @@ try {
   runCli("audit", "documentation", "--strict", "--report", "--format", "json");
   const securityOutput = runCli("security", "worksheet", "api-layer");
   const engineeringOutput = runCli("engineering", "worksheet", "testing-types");
-  for (const output of [securityOutput, engineeringOutput]) {
+  for (const [index, output] of [securityOutput, engineeringOutput].entries()) {
     const report = output.match(/created\s+(.+\.md)\s*$/m)?.[1];
     if (!report) throw new Error(`Unable to locate generated report in output: ${output}`);
     execFileSync(process.execPath, [resolve(packageRoot, "skills/manage-project-quality/scripts/check-report.mjs"), report], { cwd: consumer, stdio: "ignore" });
+    if (index === 0) {
+      const incomplete = spawnSync(process.execPath, [cli, "report", "validate", report], { cwd: consumer, encoding: "utf8" });
+      if (incomplete.status === 0 || !incomplete.stdout.includes("Worksheet is incomplete")) throw new Error("Packed CLI accepted an open worksheet as complete.");
+    }
   }
   for (const type of ["adr", "runbook", "change", "incident", "evidence"]) runCli("template", "create", type, "--name", `smoke-${type}`);
   runCli("documentation", "guide", "system-documentation");
@@ -92,17 +96,19 @@ try {
     encoding: "utf8",
     env: { ...process.env, HOME: isolatedHome, USERPROFILE: isolatedHome }
   });
-  for (const required of ["AGENTS.md", "CLAUDE.md", "GEMINI.md", ".agent-docs/config.json", ".agents/skills/manage-project-quality/SKILL.md", ".claude/skills/manage-project-quality/SKILL.md"]) {
+  for (const required of ["AGENTS.md", "CODEX.md", "CLAUDE.md", "GEMINI.md", "CURSOR.md", "COPILOT.md", ".agent-docs/config.json", ".agents/skills/manage-project-quality/SKILL.md", ".claude/skills/manage-project-quality/SKILL.md"]) {
     await access(resolve(aiProject, required));
   }
-  const pointer = await readFile(resolve(aiProject, "CLAUDE.md"), "utf8");
-  if (!pointer.includes("@AGENTS.md")) throw new Error("setup --ai must create a CLAUDE.md that imports AGENTS.md.");
+  for (const pointerName of ["CODEX.md", "CLAUDE.md", "GEMINI.md", "CURSOR.md", "COPILOT.md"]) {
+    const pointer = await readFile(resolve(aiProject, pointerName), "utf8");
+    if (!pointer.includes("@AGENTS.md")) throw new Error(`setup --ai must create ${pointerName} importing AGENTS.md.`);
+  }
   const generatedPolicy = await readFile(resolve(aiProject, "AGENTS.md"), "utf8");
   if (generatedPolicy.includes("Philippine time") || generatedPolicy.includes("Created by")) throw new Error("Generated AGENTS.md must carry no author-specific defaults.");
   if ((await readdir(isolatedHome)).length) throw new Error("setup --ai wrote outside the project directory.");
   runCli("validate");
   await access(resolve(consumer, ".agents/skills/manage-project-quality/SKILL.md"));
-  execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function' || typeof api.startWorkflow !== 'function' || typeof api.nextWorkflow !== 'function' || typeof api.suggestReviews !== 'function' || typeof api.showReviewGuide !== 'function') process.exit(1); const result = await api.suggestReviews({ cwd: process.cwd(), changedFiles: ['site/index.html'] }); if (!result.security.every((entry) => entry.command.startsWith('npx @ghostbyte/agent-docs-kit@latest '))) process.exit(1);"], { cwd: consumer, stdio: "ignore" });
+  execFileSync(process.execPath, ["--input-type=module", "--eval", "const api = await import('@ghostbyte/agent-docs-kit'); if (typeof api.auditDocumentation !== 'function' || typeof api.createTemplate !== 'function' || typeof api.startWorkflow !== 'function' || typeof api.nextWorkflow !== 'function' || typeof api.suggestReviews !== 'function' || typeof api.showReviewGuide !== 'function' || typeof api.validateWorksheetFile !== 'function') process.exit(1); const result = await api.suggestReviews({ cwd: process.cwd(), changedFiles: ['site/index.html'] }); if (!result.security.every((entry) => entry.command.startsWith('npx @ghostbyte/agent-docs-kit@latest '))) process.exit(1);"], { cwd: consumer, stdio: "ignore" });
   const invalid = spawnSync(process.execPath, [cli, "doctor", "unexpected"], { cwd: consumer, encoding: "utf8" });
   if (invalid.status === 0 || !invalid.stderr.includes("Invalid arguments")) throw new Error("CLI accepted an unexpected positional argument.");
   runNpm(["run", "validate"], { cwd: packageRoot, stdio: "ignore" });

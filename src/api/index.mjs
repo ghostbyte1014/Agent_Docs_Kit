@@ -7,5 +7,6 @@ export { showReviewGuide, reviewGuideUrl } from "../commands/review-guide.mjs";
 export { openWebsite, websiteUrl } from "../commands/website.mjs";
 export { startWorkflow, nextWorkflow, npxCommand } from "../commands/workflow.mjs";
 export { suggestReviews, traceChangedFiles } from "../commands/suggest.mjs";
+export { validateWorksheetFile } from "../commands/report.mjs";
 export { loadCatalog } from "../core/catalog.mjs";
 export { loadProjectConfig, documentationInitializationState, defaultConfig } from "../core/config.mjs";
